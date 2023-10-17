@@ -5,6 +5,13 @@ import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats} from './script_modules/init.js';
 import * as UTILS from "./script_modules/utils.js";
 
+import {Player} from "./class/Player.js";
+import {Game} from "./class/Game.js";
+
+const player = new Player('John');
+const player2 = new Player('Jack');
+const game = new Game([player, player2], 10, 10);
+game.start();
 
 animate();
 
