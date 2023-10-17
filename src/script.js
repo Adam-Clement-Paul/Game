@@ -9,8 +9,7 @@ import {Player} from "./class/Player.js";
 import {Game} from "./class/Game.js";
 
 const player = new Player('John');
-const player2 = new Player('Jack');
-const game = new Game([player, player2], 10, 10, 5);
+const game = new Game([player], 10, 10, 5);
 game.start();
 
 animate();
@@ -18,6 +17,7 @@ animate();
 function animate () {
     requestAnimationFrame(animate);
     controls.update();
+    player.update();
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
     stats.update();
