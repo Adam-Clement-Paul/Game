@@ -17,7 +17,6 @@ animate();
 function animate () {
     requestAnimationFrame(animate);
     controls.update();
-    player.update();
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
     stats.update();
