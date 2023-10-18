@@ -39,7 +39,6 @@ controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
 // LIGHTS
-
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
@@ -47,5 +46,9 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(0, 10, 5);
 directionalLight.target.position.set(0, 0, -20)
 scene.add(directionalLight);
+
+// HELPERS
+const axesHelper = new THREE.AxesHelper(2);
+scene.add(axesHelper);
 
 export {scene, camera, renderer, controls, stats};
