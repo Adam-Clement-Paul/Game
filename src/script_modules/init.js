@@ -19,8 +19,6 @@ let size = {
 
 // CAMERA
 camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 20);
-camera.position.set(0, 5, -5);
-camera.lookAt(0, 0, 0);
 
 const canvas = document.querySelector('#webgl');
 
@@ -34,9 +32,11 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-
+/*
 controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+*/
+
 
 // LIGHTS
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
@@ -46,9 +46,5 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(0, 10, 5);
 directionalLight.target.position.set(0, 0, -20)
 scene.add(directionalLight);
-
-// HELPERS
-const axesHelper = new THREE.AxesHelper(2);
-scene.add(axesHelper);
 
 export {scene, camera, renderer, controls, stats};

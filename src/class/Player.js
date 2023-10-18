@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import {scene} from '../script_modules/init.js';
+import {scene, camera} from '../script_modules/init.js';
 import {Game} from "./Game.js";
+import gsap from "gsap";
 
 export class Player {
     constructor (name, x = 0, y = 0) {
@@ -10,8 +11,8 @@ export class Player {
 
         // These values are constants
         this.speed = 0.04;
-        this.angular_speed = 0.05;
-        this.friction_factor = 0.8;
+        this.angular_speed = 0.06;
+        this.friction_factor = 0.85;
         this.min_velocity = 0.0001;
         this.backward_factor = 0.5;
 
@@ -37,12 +38,12 @@ export class Player {
         scene.add(this.cube);
 
         const cubeOrientation = new THREE.Mesh(
-            new THREE.BoxGeometry(0.1, 0.1, 1),
+            new THREE.BoxGeometry(0.1, 0.1, 0.5),
             new THREE.MeshStandardMaterial({
                     color: 0xff0000
                 }
             ));
-        cubeOrientation.position.set(0, 0, 0.5);
+        cubeOrientation.position.set(0, 0, 0.2);
         this.cube.add(cubeOrientation);
 
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
@@ -96,16 +97,17 @@ export class Player {
         */
 
         const adjacentTiles = [frontTile];
-        // Get the 2 tiles on the sides of the front tile, like a L
+
         if (offsetX !== 0 && offsetY !== 0) {
+            // Get the 2 tiles on the sides of the front tile, like a L
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y));
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x, tile.y + offsetY));
-        // Get the 2 tiles on the Z / -Z sides of the player, like a T
         } else if (offsetX === 0) {
+            // Get the 2 tiles on the Z / -Z sides of the player, like a T
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX - 1, tile.y + offsetY));
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX + 1, tile.y + offsetY));
-        // Get the 2 tiles on the X / -X sides of the player, like a T
         } else if (offsetY === 0) {
+            // Get the 2 tiles on the X / -X sides of the player, like a T
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY - 1));
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY + 1));
         }
@@ -124,6 +126,18 @@ export class Player {
         this.x = x;
         this.y = y;
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+    }
+
+    // Updates the camera position and lookAt
+    cameraMovements (x, y) {
+        let tl = gsap.timeline();
+        tl.to(camera.position, {
+            duration: 0.1,
+            x: x,
+            y: 3,
+            z: y - 2
+        });
+        camera.lookAt(x, 0, y);
     }
 
     update () {
@@ -157,8 +171,9 @@ export class Player {
         if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
         if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
-        // Update the position of the cube in the scene
         this.move(this.x, this.y);
+
+        this.cameraMovements(this.x, this.y);
 
         // Request the next animation frame for continuous update
         requestAnimationFrame(this.update.bind(this));

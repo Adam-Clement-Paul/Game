@@ -16,7 +16,7 @@ animate();
 
 function animate () {
     requestAnimationFrame(animate);
-    controls.update();
+    // controls.update();
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
     stats.update();
