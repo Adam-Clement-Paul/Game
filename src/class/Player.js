@@ -9,10 +9,10 @@ export class Player {
 
         // These values are constants
         this.speed = 0.04;
-        this.angularSpeed = 0.05;
-        this.frictionFactor = 0.8;
-        this.minVelocity = 0.0001;
-        this.backwardFactor = 0.5;
+        this.angular_speed = 0.05;
+        this.friction_factor = 0.8;
+        this.min_velocity = 0.0001;
+        this.backward_factor = 0.5;
 
         // These values change over time
         this.velocity = new THREE.Vector2(0, 0);
@@ -62,13 +62,13 @@ export class Player {
             this.velocity.set(this.speed * Math.sin(this.cube.rotation.y), this.speed * Math.cos(this.cube.rotation.y));
         }
         if (this.keys.s) {
-            this.velocity.set(-this.speed * this.backwardFactor * Math.sin(this.cube.rotation.y), -this.speed * this.backwardFactor * Math.cos(this.cube.rotation.y));
+            this.velocity.set(-this.speed * this.backward_factor * Math.sin(this.cube.rotation.y), -this.speed * this.backward_factor * Math.cos(this.cube.rotation.y));
         }
         if (this.keys.q) {
-            this.angularVelocity = this.angularSpeed;
+            this.angularVelocity = this.angular_speed;
         }
         if (this.keys.d) {
-            this.angularVelocity = -this.angularSpeed;
+            this.angularVelocity = -this.angular_speed;
         }
 
         // Update position based on velocity
@@ -79,13 +79,13 @@ export class Player {
         this.cube.rotation.y += this.angularVelocity;
 
         // Reduce velocity and angular velocity (simulate friction)
-        this.velocity.multiplyScalar(this.frictionFactor);
-        this.angularVelocity *= this.frictionFactor;
+        this.velocity.multiplyScalar(this.friction_factor);
+        this.angularVelocity *= this.friction_factor;
 
         // Minimum velocity threshold to avoid excessive deceleration
-        if (Math.abs(this.velocity.x) < this.minVelocity) this.velocity.x = 0;
-        if (Math.abs(this.velocity.y) < this.minVelocity) this.velocity.y = 0;
-        if (Math.abs(this.angularVelocity) < this.minVelocity) this.angularVelocity = 0;
+        if (Math.abs(this.velocity.x) < this.min_velocity) this.velocity.x = 0;
+        if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
+        if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
         // Update the position of the cube in the scene
         this.move(this.x, this.y);
