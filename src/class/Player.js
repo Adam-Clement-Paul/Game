@@ -22,10 +22,10 @@ export class Player {
 
         // Booleans to track which keys are currently pressed
         this.keys = {
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false,
+            z: false,
+            s: false,
+            q: false,
+            d: false,
         };
 
         this.update();
@@ -51,16 +51,16 @@ export class Player {
 
     update () {
         // Check which keys are currently pressed and adjust velocities accordingly
-        if (this.keys.ArrowUp) {
+        if (this.keys.z) {
             this.velocity.set(this.speed * Math.sin(this.cube.rotation.y), this.speed * Math.cos(this.cube.rotation.y));
         }
-        if (this.keys.ArrowDown) {
+        if (this.keys.s) {
             this.velocity.set(-this.speed / 2 * Math.sin(this.cube.rotation.y), -this.speed / 2 * Math.cos(this.cube.rotation.y));
         }
-        if (this.keys.ArrowLeft) {
+        if (this.keys.q) {
             this.angularVelocity = 0.05;
         }
-        if (this.keys.ArrowRight) {
+        if (this.keys.d) {
             this.angularVelocity = -0.05;
         }
 
