@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {scene} from '../script_modules/init.js';
+import {Game} from "./Game.js";
 
 export class Player {
     constructor (name, x = 0, y = 0) {
@@ -35,10 +36,25 @@ export class Player {
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
         scene.add(this.cube);
 
+        const cubeOrientation = new THREE.Mesh(
+            new THREE.BoxGeometry(0.1, 0.1, 1),
+            new THREE.MeshStandardMaterial({
+                    color: 0xff0000
+                }
+            ));
+        cubeOrientation.position.set(0, 0, 0.5);
+        this.cube.add(cubeOrientation);
+
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
 
+        document.addEventListener('click', this.onDocumentClick.bind(this), false);
+
         this.update();
+    }
+
+    setGame (game) {
+        this.game = game;
     }
 
     onDocumentKeyDown (event) {
@@ -48,6 +64,60 @@ export class Player {
     onDocumentKeyUp (event) {
         this.keys[event.key] = false;
     }
+
+    onDocumentClick () {
+        // Get the direction of the player
+        let playerDirection = this.cube.rotation.y;
+
+        // Get the tile on which the player is standing
+        const tile = this.game.getBoard().getTileAt(Math.round(this.x), Math.round(this.y));
+        if (!tile) {
+            return;
+        }
+
+        // Get the tile in front of the player
+        const offsetX = Math.round(Math.sin(playerDirection));
+        const offsetY = Math.round(Math.cos(playerDirection));
+
+        const frontTile = this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY);
+        if (!frontTile) {
+            return;
+        }
+
+        /*
+        // Get the 4 tiles around the front tile
+        const adjacentTiles = [
+            frontTile,
+            this.game.getBoard().getTileAt(frontTile.x + 1, frontTile.y),
+            this.game.getBoard().getTileAt(frontTile.x - 1, frontTile.y),
+            this.game.getBoard().getTileAt(frontTile.x, frontTile.y + 1),
+            this.game.getBoard().getTileAt(frontTile.x, frontTile.y - 1),
+        ];
+        */
+
+        const adjacentTiles = [frontTile];
+        // Get the 2 tiles on the sides of the front tile, like a L
+        if (offsetX !== 0 && offsetY !== 0) {
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y));
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x, tile.y + offsetY));
+        // Get the 2 tiles on the Z / -Z sides of the player, like a T
+        } else if (offsetX === 0) {
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX - 1, tile.y + offsetY));
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX + 1, tile.y + offsetY));
+        // Get the 2 tiles on the X / -X sides of the player, like a T
+        } else if (offsetY === 0) {
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY - 1));
+            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY + 1));
+        }
+
+        // For each tile, extinguish the fire
+        adjacentTiles.forEach(tile => {
+            if (tile) {
+                tile.extinguishFire();
+            }
+        });
+    }
+
 
     // Updates the position and state of the player
     move (x, y) {

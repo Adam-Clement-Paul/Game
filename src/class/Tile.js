@@ -42,4 +42,9 @@ export class Tile {
         this.fire = true;
         this.updateDisplay();
     }
+
+    extinguishFire () {
+        this.fire = false;
+        this.updateDisplay();
+    }
 }

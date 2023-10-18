@@ -1,5 +1,4 @@
 import {Tile} from "./Tile.js";
-import {float} from "three/nodes";
 
 export class Board {
     constructor (width, length, number_of_fires) {
@@ -11,7 +10,7 @@ export class Board {
         this.chance_to_have_obstacle = 0.1;
         this.chance_to_have_tree = 0.2;
 
-        this.cases = this.initBoard();
+        this.tiles = this.initBoard();
     }
 
     initBoard() {
@@ -67,6 +66,15 @@ export class Board {
     }
 
     display () {
-        console.log(this.cases);
+        console.log(this.tiles);
+    }
+
+    getTileAt (x, y) {
+        // If the tile is outside the board, return null
+        if (x < 0 || x >= this.width || y < 0 || y >= this.length) {
+            return null;
+        }
+        const tileIndex = x * this.length + y;
+        return this.tiles[tileIndex];
     }
 }
