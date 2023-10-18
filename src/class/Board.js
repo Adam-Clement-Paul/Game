@@ -1,54 +1,69 @@
 import {Tile} from "./Tile.js";
+import {float} from "three/nodes";
 
 export class Board {
     constructor (width, length, number_of_fires) {
         this.width = width;
         this.length = length;
         this.number_of_fires = number_of_fires;
+
+        // Constants
+        this.chance_to_have_obstacle = 0.1;
+        this.chance_to_have_tree = 0.2;
+
         this.cases = this.initBoard();
     }
 
-    initBoard () {
-        // Tree / Grass / Obstacle / Border
+    initBoard() {
         const type = ["grass", "tree", "obstacle", "border"];
         const tiles = [];
         let selectedType = 0;
-        let fireCount = 0;
 
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.length; y++) {
                 // All tiles at the border are border tiles
                 if (x === 0 || x === this.width - 1 || y === 0 || y === this.length - 1) {
+                    // Borders
                     selectedType = 3;
                 } else if (x === 1 || x === this.width - 2 || y === 1 || y === this.length - 2) {
+                    // Trees
+                    selectedType = 1;
+                } else if (Math.random() < this.chance_to_have_obstacle) {
+                    // Obstacles
+                    selectedType = 2;
+                } else if (Math.random() < this.chance_to_have_tree) {
+                    // Trees
                     selectedType = 1;
                 } else {
-                    // There is 0.1 chance to have an obstacle, 0.2 to have a tree, 0.6 to have grass
-                    selectedType = Math.random() < 0.1 ? 2 : Math.random() < 0.2 ? 1 : 0;
+                    // Grass
+                    selectedType = 0;
                 }
 
-                if (selectedType === 1 && fireCount < this.number_of_fires && Math.random() < 0.1) {
-                    tiles.push(new Tile(x, y, true, type[1]));
-                    fireCount++;
-                } else {
-                    tiles.push(new Tile(x, y, false, type[selectedType]));
-                }
+                tiles.push(new Tile(x, y, false, type[selectedType]));
             }
         }
 
+        this.generateFires(tiles);
+
+        return tiles;
+    }
+
+    generateFires(tiles) {
+        let fireCount = 0;
         // If the number of generated fires is less than number_of_fires, add additional fires randomly
         while (fireCount < this.number_of_fires) {
-            const x = Math.floor(Math.random() * (this.width - 2)) + 1; // Pour éviter les bords
-            const y = Math.floor(Math.random() * (this.length - 2)) + 1; // Pour éviter les bords
+            const x = Math.floor(Math.random() * (this.width - 2)) + 1; // To avoid edges
+            const y = Math.floor(Math.random() * (this.length - 2)) + 1; // To avoid edges
 
-            // If the tile is not already a fire, set it on fire
-            if (!tiles[x * this.length + y].fire) {
-                tiles[x * this.length + y].setFire();
+            const tileIndex = x * this.length + y;
+            const tile = tiles[tileIndex];
+
+            // If the tile is not already a fire and is a tree, set it on fire
+            if (!tile.fire && tile.type === "tree") {
+                tile.setFire();
                 fireCount++;
             }
         }
-
-        return tiles;
     }
 
     display () {
