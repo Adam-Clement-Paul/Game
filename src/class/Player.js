@@ -72,7 +72,8 @@ export class Player {
         let playerDirection = this.cube.rotation.y;
 
         // Get the tile on which the player is standing
-        const tile = this.game.getBoard().getTileAt(Math.round(this.x), Math.round(this.y));
+        console.log(this.game.getBoard());
+        const tile = this.game.getBoard().getTileAtPosition(Math.round(this.x), Math.round(this.y));
         if (!tile) {
             return;
         }
@@ -81,7 +82,7 @@ export class Player {
         const offsetX = Math.round(Math.sin(playerDirection));
         const offsetY = Math.round(Math.cos(playerDirection));
 
-        const frontTile = this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY);
+        const frontTile = this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY);
         if (!frontTile) {
             return;
         }
@@ -101,16 +102,16 @@ export class Player {
 
         if (offsetX !== 0 && offsetY !== 0) {
             // Get the 2 tiles on the sides of the front tile, like an L
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y));
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x, tile.y + offsetY));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x, tile.y + offsetY));
         } else if (offsetX === 0) {
             // Get the 2 tiles on the Z / -Z sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX - 1, tile.y + offsetY));
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX + 1, tile.y + offsetY));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
         } else if (offsetY === 0) {
             // Get the 2 tiles on the X / -X sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY - 1));
-            adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y + offsetY + 1));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
+            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
         }
 
         // For each tile, extinguish the fire
@@ -153,7 +154,7 @@ export class Player {
         return targetRotation;
     }
 
-    update() {
+    update () {
         let targetRotation = this.cube.rotation.y;
 
         targetRotation = this.changeTargetRotation(targetRotation);

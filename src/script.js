@@ -9,7 +9,7 @@ import {Player} from "./class/Player.js";
 import {Game} from "./class/Game.js";
 
 const player = new Player('John');
-const game = new Game([player], 1, 5);
+const game = new Game([player], 2, 5);
 game.start();
 
 animate();
