@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {scene, camera} from '../script_modules/init.js';
 import {Game} from "./Game.js";
 import gsap from "gsap";
+import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
     constructor (name, x = 0, y = 0) {
@@ -99,7 +100,7 @@ export class Player {
         const adjacentTiles = [frontTile];
 
         if (offsetX !== 0 && offsetY !== 0) {
-            // Get the 2 tiles on the sides of the front tile, like a L
+            // Get the 2 tiles on the sides of the front tile, like an L
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x + offsetX, tile.y));
             adjacentTiles.push(this.game.getBoard().getTileAt(tile.x, tile.y + offsetY));
         } else if (offsetX === 0) {
@@ -120,7 +121,6 @@ export class Player {
         });
     }
 
-
     // Updates the position and state of the player
     move (x, y) {
         this.x = x;
@@ -140,19 +140,37 @@ export class Player {
         camera.lookAt(x, 0, y);
     }
 
-    update () {
-        // Check which keys are currently pressed and adjust velocities accordingly
-        if (this.keys.z) {
+    changeTargetRotation (targetRotation) {
+        if (this.keys.z) targetRotation = 0;
+        if (this.keys.s) targetRotation = Math.PI;
+        if (this.keys.q) targetRotation = Math.PI / 2;
+        if (this.keys.d) targetRotation = -Math.PI / 2;
+
+        if (this.keys.z && this.keys.q) targetRotation = Math.PI / 4;
+        if (this.keys.z && this.keys.d) targetRotation = -Math.PI / 4;
+        if (this.keys.s && this.keys.q) targetRotation = Math.PI * 3 / 4;
+        if (this.keys.s && this.keys.d) targetRotation = -Math.PI * 3 / 4;
+        return targetRotation;
+    }
+
+    update() {
+        let targetRotation = this.cube.rotation.y;
+
+        targetRotation = this.changeTargetRotation(targetRotation);
+
+        // Convert rotation angles to degrees
+        const currentRotationDegrees = UTILS.radiansToDegrees(this.cube.rotation.y);
+        const targetRotationDegrees = UTILS.radiansToDegrees(targetRotation);
+
+        // Calculate the shortest difference in angles
+        let angleDiff = ((targetRotationDegrees - currentRotationDegrees) + 180) % 360 - 180;
+
+        // Interpolate between current rotation and target rotation for smoother movement
+        this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
+
+        // Calculate velocity based on accumulated rotation
+        if (this.keys.z || this.keys.s || this.keys.q || this.keys.d) {
             this.velocity.set(this.speed * Math.sin(this.cube.rotation.y), this.speed * Math.cos(this.cube.rotation.y));
-        }
-        if (this.keys.s) {
-            this.velocity.set(-this.speed * this.backward_factor * Math.sin(this.cube.rotation.y), -this.speed * this.backward_factor * Math.cos(this.cube.rotation.y));
-        }
-        if (this.keys.q) {
-            this.angularVelocity = this.angular_speed;
-        }
-        if (this.keys.d) {
-            this.angularVelocity = -this.angular_speed;
         }
 
         // Update position based on velocity
