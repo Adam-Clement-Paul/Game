@@ -55,17 +55,12 @@ export class Section {
             const y = Math.floor(Math.random() * (this.origin.y + this.lengthY)) + 1; // To avoid edges
             const tileIndex = (x - this.origin.x) * this.widthX + (y - this.origin.y);
 
-            // Add logging to help identify the issue
-            console.log(`x: ${x}, y: ${y}, tileIndex: ${tileIndex}, tiles.length: ${tiles.length}`);
-
             const tile = tiles[tileIndex];
 
             // If the tile is not already a fire and is a tree, set it on fire
             if (tile && !tile.fire && tile.type === "tree") {
                 tile.setFire();
                 fireCount++;
-            } else {
-                console.log("Skipping invalid tile:", tile);
             }
         }
     }

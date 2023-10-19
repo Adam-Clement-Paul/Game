@@ -11,8 +11,8 @@ export class Player {
         this.y = y;
 
         // These values are constants
-        this.speed = 0.04;
-        this.angular_speed = 0.06;
+        this.speed = 0.03;
+        this.angular_speed = 0.02;
         this.friction_factor = 0.85;
         this.min_velocity = 0.0001;
         this.backward_factor = 0.5;
@@ -72,7 +72,6 @@ export class Player {
         let playerDirection = this.cube.rotation.y;
 
         // Get the tile on which the player is standing
-        console.log(this.game.getBoard());
         const tile = this.game.getBoard().getTileAtPosition(Math.round(this.x), Math.round(this.y));
         if (!tile) {
             return;
@@ -165,6 +164,7 @@ export class Player {
 
         // Calculate the shortest difference in angles
         let angleDiff = ((targetRotationDegrees - currentRotationDegrees) + 180) % 360 - 180;
+        if (angleDiff < -180) angleDiff += 360;
 
         // Interpolate between current rotation and target rotation for smoother movement
         this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
