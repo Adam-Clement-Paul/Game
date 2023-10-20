@@ -1,15 +1,20 @@
 import {Tile} from "./Tile.js";
 
 export class Section {
-    constructor (widthX, lengthY, number_of_fires, origin = { x: 0, y: 0 }) {
+    constructor (widthX, lengthY, number_of_fires, origin = { x: 0, y: 0 }, isSpawn = false) {
         this.widthX = widthX;
         this.lengthY = lengthY;
         this.number_of_fires = number_of_fires;
         this.origin = origin;
 
-        // Constants
-        this.chance_to_have_obstacle = 0.1;
-        this.chance_to_have_tree = 0;
+        if (!isSpawn) {
+            // Constants
+            this.chance_to_have_obstacle = 0.1;
+            this.chance_to_have_tree = 0.1;
+        } else {
+            this.chance_to_have_obstacle = 0;
+            this.chance_to_have_tree = 0;
+        }
 
         this.tiles = [];
         this.initSection();

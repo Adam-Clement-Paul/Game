@@ -5,7 +5,7 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 0, y = 0) {
+    constructor (name, x = 4, y = 3) {
         this.name = name;
         this.x = x;
         this.y = y;
@@ -36,6 +36,7 @@ export class Player {
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.cube.rotation.y = Math.PI;
         scene.add(this.cube);
 
         const cubeOrientation = new THREE.Mesh(
