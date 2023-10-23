@@ -67,7 +67,7 @@ export class Board {
                 );
             }
         }
-        console.log(this.sections);
+
         this.setCorridors();
     }
 
@@ -111,10 +111,46 @@ export class Board {
     }
 
     setCorridors () {
-
+        const closestSection = this.getClosestSection({x: 0, y: 0});
+        closestSection.forEach(section => {
+            // Tiles of the closest section are pink
+            section.tiles.forEach(tile => {
+                tile.plane.material.color.setHex(0xff00ff);
+            });
+        });
     }
 
-    getClosestSection(section) {
+    getClosestSection(origin) {
+        // Find the section corresponding to the given origin
+        const sectionOrigin = this.sections.find(section => section.origin.x === origin.x && section.origin.y === origin.y);
 
+        // Find the center tile of the section
+        const centerTile = sectionOrigin.tiles.find(tile => tile.center === true);
+
+        // Filter out the section that is not the sectionOrigin
+        const otherSections = this.sections.filter(section => section !== sectionOrigin);
+
+        if (otherSections.length === 0) {
+            return [];
+        }
+
+        // Calculate the Euclidean distance between center tiles of sections
+        const distances = otherSections.map(section => {
+            const otherCenterTile = section.tiles.find(tile => tile.center === true);
+            const dx = otherCenterTile.x - centerTile.x;
+            const dy = otherCenterTile.y - centerTile.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        });
+
+        // Find the section with the minimum distance
+        const minDistance = Math.min(...distances);
+        const closestSection = otherSections[distances.indexOf(minDistance)];
+
+        // Ensure that the closest section is not the same as the section of origin
+        if (closestSection) {
+            return [closestSection];
+        } else {
+            return [];
+        }
     }
 }
