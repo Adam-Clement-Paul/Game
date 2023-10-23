@@ -13,7 +13,13 @@ export class Corridor {
     initCorridor () {
         for (let x = this.origin.x; x < this.origin.x + this.widthX; x++) {
             for (let y = this.origin.y; y < this.origin.y + this.lengthY; y++) {
-                this.tiles.push(new Tile(x, y, false, "grass"));
+                // If the tile already exists, we don't create it, we just change its type
+                if (this.tiles.find(tile => tile.x === x && tile.y === y)) {
+                    this.tiles.find(tile => tile.x === x && tile.y === y).type = "grass";
+                    this.tiles.find(tile => tile.x === x && tile.y === y).fire = false;
+                } else {
+                    this.tiles.push(new Tile(x, y, false, "grass"));
+                }
             }
         }
     }

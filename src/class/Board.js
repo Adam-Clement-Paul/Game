@@ -76,7 +76,7 @@ export class Board {
         return this.tiles.find(tile => tile.x === x && tile.y === y);
     }
 
-    addSection(section) {
+    addSection (section) {
         this.tiles = this.tiles.concat(section.tiles);
 
         this.sections.push(this.searchCenterOfASection(section));
@@ -97,7 +97,6 @@ export class Board {
         return section
     }
 
-
     isSectionInConflict (x, y, width, length, tiles) {
         for (const tile of tiles) {
             if (
@@ -111,16 +110,23 @@ export class Board {
     }
 
     setCorridors () {
-        const closestSection = this.getClosestSection({x: 0, y: 0});
-        closestSection.forEach(section => {
-            // Tiles of the closest section are pink
-            section.tiles.forEach(tile => {
-                tile.plane.material.color.setHex(0xff00ff);
-            });
-        });
+        // Find the closest section to the spawn
+        const closestSections = this.getClosestSection({ x: 0, y: 0 });
+
+        if (closestSections.length === 0) {
+            console.log("No closest section found.");
+            return;
+        }
+
+        // Create a corridor between the spawn and the closest section
+        const spawnSection = this.sections[0];
+        const closestSection = closestSections[0];
+
+        this.setOneCorridor(spawnSection, closestSection);
     }
 
-    getClosestSection(origin) {
+
+    getClosestSection (origin) {
         // Find the section corresponding to the given origin
         const sectionOrigin = this.sections.find(section => section.origin.x === origin.x && section.origin.y === origin.y);
 
@@ -151,6 +157,52 @@ export class Board {
             return [closestSection];
         } else {
             return [];
+        }
+    }
+
+    setOneCorridor (spawnSection, closestSection) {
+        const spawnCenterTile = spawnSection.tiles.find(tile => tile.center === true);
+        const closestCenterTile = closestSection.tiles.find(tile => tile.center === true);
+
+        // Get the coordinates of the two centers
+        let x0 = spawnCenterTile.x;
+        let y0 = spawnCenterTile.y;
+        let x1 = closestCenterTile.x;
+        let y1 = closestCenterTile.y;
+
+        // Calculate the distance between the two centers
+        const dx = Math.abs(x1 - x0);
+        const dy = -Math.abs(y1 - y0);
+        const sx = x0 < x1 ? 1 : -1;
+        const sy = y0 < y1 ? 1 : -1;
+
+        // Calculate the error
+        let err = dx + dy;
+        let e2;
+
+        let x = x0;
+        let y = y0;
+
+        // Implement the Bresenham algorithm
+        while (true) {
+            // Create a corridor
+            const corridor = new Corridor(2, 2, { x, y });
+
+            if (x === x1 && y === y1) {
+                break;
+            }
+
+            e2 = 2 * err;
+
+            if (e2 >= dy) {
+                err += dy;
+                x += sx;
+            }
+
+            if (e2 <= dx) {
+                err += dx;
+                y += sy;
+            }
         }
     }
 }
