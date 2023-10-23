@@ -22,7 +22,6 @@ export class Board {
             }, true)
         );
 
-
         // Board
         for (let i = 0; i < this.number_of_sections; i++) {
             let isInOtherSection = true;
@@ -123,6 +122,8 @@ export class Board {
         const closestSection = closestSections[0];
 
         this.setOneCorridor(spawnSection, closestSection);
+
+        this.setOneCorridor(this.sections[1], this.sections[2]);
     }
 
 
@@ -160,15 +161,33 @@ export class Board {
         }
     }
 
-    setOneCorridor (spawnSection, closestSection) {
-        const spawnCenterTile = spawnSection.tiles.find(tile => tile.center === true);
-        const closestCenterTile = closestSection.tiles.find(tile => tile.center === true);
+    setOneCorridor (startSection, finishSection) {
+        const startCenterTile = startSection.tiles.find(tile => tile.center === true);
+        const finishCenterTile = finishSection.tiles.find(tile => tile.center === true);
 
         // Get the coordinates of the two centers
-        let x0 = spawnCenterTile.x;
-        let y0 = spawnCenterTile.y;
-        let x1 = closestCenterTile.x;
-        let y1 = closestCenterTile.y;
+        let x0 = startCenterTile.x;
+        let y0 = startCenterTile.y;
+        let x1 = finishCenterTile.x;
+        let y1 = finishCenterTile.y;
+
+        // Define the desired gap
+        const gapStart = 2;
+        const gapEnd = 1;
+
+        // Adjust the coordinates of the starting point
+        if (x0 < x1) x0 += gapStart;
+        else x0 -= gapStart;
+
+        if (y0 < y1) y0 += gapStart;
+        else y0 -= gapStart;
+
+        // Adjust the coordinates of the ending point
+        if (x0 < x1) x1 -= gapEnd;
+        else x1 += gapEnd;
+
+        if (y0 < y1) y1 -= gapEnd;
+        else y1 += gapEnd;
 
         // Calculate the distance between the two centers
         const dx = Math.abs(x1 - x0);
@@ -186,7 +205,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            const corridor = new Corridor(2, 2, { x, y });
+            new Corridor(2, 2, { x, y });
 
             if (x === x1 && y === y1) {
                 break;

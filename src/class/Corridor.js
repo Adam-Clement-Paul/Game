@@ -18,7 +18,7 @@ export class Corridor {
                     this.tiles.find(tile => tile.x === x && tile.y === y).type = "grass";
                     this.tiles.find(tile => tile.x === x && tile.y === y).fire = false;
                 } else {
-                    this.tiles.push(new Tile(x, y, false, "grass"));
+                    this.tiles.push(new Tile(x, y, false, "grass").plane.material.color.setHex(0x0000ff));
                 }
             }
         }

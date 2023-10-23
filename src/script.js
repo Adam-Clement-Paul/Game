@@ -12,6 +12,11 @@ const player = new Player('John');
 const game = new Game([player], 10, 5);
 game.start();
 
+// Forbid right click
+document.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+});
+
 animate();
 
 function animate () {
