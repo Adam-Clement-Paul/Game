@@ -11,7 +11,7 @@ export class Player {
         this.y = y;
 
         // These values are constants
-        this.speed = 0.03;
+        this.speed = 0.07;
         this.angular_speed = 0.02;
         this.friction_factor = 0.85;
         this.min_velocity = 0.0001;

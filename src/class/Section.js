@@ -27,11 +27,25 @@ export class Section {
         for (let x = this.origin.x; x < this.origin.x + this.widthX; x++) {
             for (let y = this.origin.y; y < this.origin.y + this.lengthY; y++) {
                 // All tiles at the border are border tiles
-                if (x === this.origin.x || x === this.origin.x + this.widthX - 1 || y === this.origin.y || y === this.origin.y + this.lengthY - 1) {
+                if (
+                    x === this.origin.x ||
+                    x === this.origin.x + this.widthX - 1 ||
+                    y === this.origin.y ||
+                    y === this.origin.y + this.lengthY - 1
+                ) {
                     // Borders
                     selectedType = 3;
-                } else if (x === this.origin.x + 1 || x === this.origin.x + this.widthX - 2 || y === this.origin.y + 1 || y === this.origin.y + this.lengthY - 2) {
-                    // Trees
+                } else if (
+                    (x === this.origin.x + 1 || x === this.origin.x + this.widthX - 2) &&
+                    (y >= this.origin.y + 1 && y <= this.origin.y + this.lengthY - 2)
+                ) {
+                    // Trees on the sides
+                    selectedType = 1;
+                } else if (
+                    (y === this.origin.y + 1 || y === this.origin.y + this.lengthY - 2) &&
+                    (x >= this.origin.x + 1 && x <= this.origin.x + this.widthX - 2)
+                ) {
+                    // Trees on the top and bottom
                     selectedType = 1;
                 } else if (Math.random() < this.chance_to_have_obstacle) {
                     // Obstacles
@@ -53,23 +67,24 @@ export class Section {
 
     generateFires (tiles) {
         let fireCount = 0;
+        const startX = this.origin.x;
+        const startY = this.origin.y;
+        const endX = this.origin.x + this.widthX;
+        const endY = this.origin.y + this.lengthY;
 
-        // If the number of generated fires is less than number_of_fires, add additional fires randomly
         while (fireCount < this.number_of_fires) {
-            const x = Math.floor(Math.random() * (this.origin.x + this.widthX)) + 1; // To avoid edges
-            const y = Math.floor(Math.random() * (this.origin.y + this.lengthY)) + 1; // To avoid edges
-            const tileIndex = (x - this.origin.x) * this.widthX + (y - this.origin.y);
+            const x = Math.floor(Math.random() * (endX - startX - 2)) + startX + 1;
+            const y = Math.floor(Math.random() * (endY - startY - 2)) + startY + 1;
+            const tileIndex = (x - startX) * this.widthX + (y - startY);
 
             const tile = tiles[tileIndex];
 
-            // If the tile is not already a fire and is a tree, set it on fire
             if (tile && !tile.fire && tile.type === "tree") {
                 tile.setFire();
                 fireCount++;
             }
         }
     }
-
 
     display () {
         console.log(this.tiles);
