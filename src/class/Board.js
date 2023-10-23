@@ -6,6 +6,7 @@ export class Board {
         this.number_of_sections = number_of_sections;
         this.number_of_fires = number_of_fires;
         this.tiles = [];
+        this.sections = [];
 
         this.spawn = { w: 9, l: 7 };
 
@@ -14,9 +15,13 @@ export class Board {
 
     initSections () {
         // Spawn
-        this.tiles = this.tiles.concat(
-            new Section(this.spawn.w, this.spawn.l, 0, { x: 0, y: 0 }, true).tiles
+        this.addSection(
+            new Section(this.spawn.w, this.spawn.l, 0, {
+                x: 0,
+                y: 0,
+            }, true)
         );
+
 
         // Board
         for (let i = 0; i < this.number_of_sections; i++) {
@@ -62,53 +67,8 @@ export class Board {
                 );
             }
         }
-
-
-        // Corridor
-        /*
-        this.tiles = this.tiles.concat(
-            new Corridor(2, 5,{ x: 2, y: 5 }).tiles
-        );
-
-
-        this.tiles = this.tiles.concat(
-            new Corridor(5, 2,{ x: 4, y: 10 }).tiles
-        );
-
-        console.log(this.tiles);
-
-        // Delete tiles at thre same position
-        for (let i = 0; i < this.tiles.length; i++) {
-            const tile = this.tiles[i];
-            const tileAtPosition = this.getTileAtPosition(tile.x, tile.y);
-
-            if (tileAtPosition && tileAtPosition !== tile && tile.type !== "grass") {
-                this.tiles.splice(i, 1);
-                i--;
-                // Retire la tuile de la scène
-                tile.plane.parent.remove(tile.plane);
-            }
-        }
-
-        console.log(this.tiles);
-
-        // Créez un ensemble pour suivre les coordonnées (x, y) des tuiles en double
-        const seenCoordinates = new Set();
-
-        // Itérez sur le tableau des tuiles
-        for (let i = 0; i < this.tiles.length; i++) {
-            const tile = this.tiles[i];
-            const coordinates = `${tile.x}-${tile.y}`;
-
-            // Si les coordonnées (x, y) sont déjà présentes, augmentez la position y de 1
-            if (seenCoordinates.has(coordinates)) {
-                tile.plane.position.y += 0.3;
-            } else {
-                // Sinon, ajoutez les coordonnées au jeu de coordonnées
-                seenCoordinates.add(coordinates);
-            }
-        }
-        */
+        console.log(this.sections);
+        this.setCorridors();
     }
 
     // Return the tile at the given position
@@ -116,9 +76,27 @@ export class Board {
         return this.tiles.find(tile => tile.x === x && tile.y === y);
     }
 
-    addSection (section) {
+    addSection(section) {
         this.tiles = this.tiles.concat(section.tiles);
+
+        this.sections.push(this.searchCenterOfASection(section));
     }
+
+    searchCenterOfASection (section) {
+        // Calculate the coordinates of the center tile
+        const centerX = section.origin.x + Math.floor(section.widthX / 2);
+        const centerY = section.origin.y + Math.floor(section.lengthY / 2);
+
+        // Find the center tile in the tiles array
+        const centerTile = section.tiles.find(tile => tile.x === centerX && tile.y === centerY);
+
+        if (centerTile) {
+            centerTile.center = true;
+            centerTile.plane.material.color.setHex(0x0000ff);
+        }
+        return section
+    }
+
 
     isSectionInConflict (x, y, width, length, tiles) {
         for (const tile of tiles) {
@@ -132,4 +110,11 @@ export class Board {
         return false;
     }
 
+    setCorridors () {
+
+    }
+
+    getClosestSection(section) {
+
+    }
 }
