@@ -7,6 +7,7 @@ export class Board {
         this.number_of_fires = number_of_fires;
         this.tiles = [];
         this.sections = [];
+        this.findedSections = [];
 
         this.spawn = { w: 9, l: 7 };
 
@@ -108,23 +109,28 @@ export class Board {
         return false;
     }
 
-    setCorridors () {
-        // Find the closest section to the spawn
-        const closestSections = this.getClosestSection({ x: 0, y: 0 });
+    setCorridors() {
+        // Initialize with the first section
+        this.findedSections = [];
+        this.findedSections.push(this.sections[0]);
+        const maxSections = this.sections.length;
+        console.log(`Max sections: ${maxSections}`);
 
-        if (closestSections.length === 0) {
-            console.log("No closest section found.");
-            return;
+        // Loop until all sections are connected or no more sections can be found
+        while (this.findedSections.length < 5) {
+            let closestSection = this.getClosestSection(this.findedSections[this.findedSections.length - 1].origin);
+            if (closestSection[0]) {
+                console.log(closestSection[0]);
+                this.findedSections.push(closestSection[0]);
+                console.log(this.findedSections);
+                this.setOneCorridor(this.findedSections[this.findedSections.length - 2], this.findedSections[this.findedSections.length - 1]);
+            } else {
+                console.log("No more closest sections found."); 
+                break;
+            }
         }
-
-        // Create a corridor between the spawn and the closest section
-        const spawnSection = this.sections[0];
-        const closestSection = closestSections[0];
-
-        this.setOneCorridor(spawnSection, closestSection);
-
-        this.setOneCorridor(this.sections[1], this.sections[2]);
     }
+
 
 
     getClosestSection (origin) {
@@ -149,9 +155,11 @@ export class Board {
             return Math.sqrt(dx * dx + dy * dy);
         });
 
-        // Find the section with the minimum distance
+        // Find the section with the minimum distance and check if the section is not in the findedSections array
         const minDistance = Math.min(...distances);
-        const closestSection = otherSections[distances.indexOf(minDistance)];
+        const closestSection = otherSections.find((section, index) => {
+            return distances[index] === minDistance && !this.findedSections.includes(section);
+        });
 
         // Ensure that the closest section is not the same as the section of origin
         if (closestSection) {
@@ -160,6 +168,7 @@ export class Board {
             return [];
         }
     }
+
 
     setOneCorridor (startSection, finishSection) {
         const startCenterTile = startSection.tiles.find(tile => tile.center === true);
@@ -172,7 +181,7 @@ export class Board {
         let y1 = finishCenterTile.y;
 
         // Define the desired gap
-        const gapStart = 2;
+        const gapStart = 1;
         const gapEnd = 1;
 
         // Adjust the coordinates of the starting point
@@ -205,7 +214,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            new Corridor(2, 2, { x, y });
+            let corridor = new Corridor(2, 2, { x, y });
 
             if (x === x1 && y === y1) {
                 break;
