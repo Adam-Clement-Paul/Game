@@ -118,23 +118,33 @@ export class Board {
 
         let closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
 
+        let circleCorridors = true;
+
 
         // Loop until all sections are connected or no more sections can be found
         while (this.findedSections.length < maxSections) {
-            if (closestSection[0] && (Math.random() < 0.5 || this.sections[0] === this.findedSections[this.findedSections.length - 1])) {
+            if (Math.random() < 0.9 || this.sections[0] === this.findedSections[this.findedSections.length - 1]) {
+                console.log("O");
                 this.findedSections.push(closestSection[0]);
                 this.setOneCorridor(this.findedSections[this.findedSections.length - 2], this.findedSections[this.findedSections.length - 1]);
 
                 closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
             } else {
                 closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 2].origin);
+                circleCorridors = false;
             }
+        }
+
+        // Relier la dernière section à la deuxième section la plus proche
+        if (circleCorridors) {
+            closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin, false);
+            this.setOneCorridor(this.findedSections[this.findedSections.length - 1], closestSection[3]);
         }
     }
 
 
     // Find the closest sections to the given origin
-    getClosestSections(origin) {
+    getClosestSections(origin, useFindedSections = true) {
         const closestSections = [];
         const foundSections = new Set();
 
@@ -154,6 +164,9 @@ export class Board {
 
             // Filter out sections that have already been found or have been marked as 'findedSections'
             const otherSections = this.sections.filter(section => {
+                if (!useFindedSections) {
+                    return section !== sectionOrigin && !foundSections.has(section);
+                }
                 return section !== sectionOrigin && !foundSections.has(section) && !this.findedSections.includes(section);
             });
 
