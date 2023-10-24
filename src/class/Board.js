@@ -78,7 +78,7 @@ export class Board {
 
     addSection (section) {
         this.tiles = this.tiles.concat(section.tiles);
-
+        // Find the center tile of the section and mark it
         this.sections.push(this.searchCenterOfASection(section));
     }
 
@@ -98,6 +98,7 @@ export class Board {
     }
 
     isSectionInConflict (x, y, width, length, tiles) {
+        // Check if the section is in conflict with another section
         for (const tile of tiles) {
             if (
                 tile.x >= x && tile.x <= x + width &&
@@ -109,66 +110,83 @@ export class Board {
         return false;
     }
 
-    setCorridors() {
+    setCorridors () {
         // Initialize with the first section
         this.findedSections = [];
         this.findedSections.push(this.sections[0]);
         const maxSections = this.sections.length;
-        console.log(`Max sections: ${maxSections}`);
+
+        let closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
+
 
         // Loop until all sections are connected or no more sections can be found
-        while (this.findedSections.length < 5) {
-            let closestSection = this.getClosestSection(this.findedSections[this.findedSections.length - 1].origin);
-            if (closestSection[0]) {
-                console.log(closestSection[0]);
+        while (this.findedSections.length < maxSections) {
+            if (closestSection[0] && (Math.random() < 0.5 || this.sections[0] === this.findedSections[this.findedSections.length - 1])) {
                 this.findedSections.push(closestSection[0]);
-                console.log(this.findedSections);
                 this.setOneCorridor(this.findedSections[this.findedSections.length - 2], this.findedSections[this.findedSections.length - 1]);
+
+                closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
             } else {
-                console.log("No more closest sections found."); 
-                break;
+                closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 2].origin);
             }
         }
     }
 
 
+    // Find the closest sections to the given origin
+    getClosestSections(origin) {
+        const closestSections = [];
+        const foundSections = new Set();
 
-    getClosestSection (origin) {
-        // Find the section corresponding to the given origin
-        const sectionOrigin = this.sections.find(section => section.origin.x === origin.x && section.origin.y === origin.y);
+        let currentOrigin = origin;
 
-        // Find the center tile of the section
-        const centerTile = sectionOrigin.tiles.find(tile => tile.center === true);
+        while (true) {
+            // Find the section at the current origin
+            const sectionOrigin = this.sections.find(section => section.origin.x === currentOrigin.x && section.origin.y === currentOrigin.y);
 
-        // Filter out the section that is not the sectionOrigin
-        const otherSections = this.sections.filter(section => section !== sectionOrigin);
+            // If no section is found at the current origin, break the loop
+            if (!sectionOrigin) {
+                break;
+            }
 
-        if (otherSections.length === 0) {
-            return [];
+            // Find the center tile of the current section
+            const centerTile = sectionOrigin.tiles.find(tile => tile.center === true);
+
+            // Filter out sections that have already been found or have been marked as 'findedSections'
+            const otherSections = this.sections.filter(section => {
+                return section !== sectionOrigin && !foundSections.has(section) && !this.findedSections.includes(section);
+            });
+
+            // If there are no other unexplored sections, break the loop
+            if (otherSections.length === 0) {
+                break;
+            }
+
+            // Calculate distances from the center tile of the current section to the centers of other sections
+            const distances = otherSections.map(section => {
+                const otherCenterTile = section.tiles.find(tile => tile.center === true);
+                const dx = otherCenterTile.x - centerTile.x;
+                const dy = otherCenterTile.y - centerTile.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            });
+
+            // Find the section with the minimum distance
+            const minDistance = Math.min(...distances);
+            const closestSection = otherSections.find((section, index) => {
+                return distances[index] === minDistance;
+            });
+
+            if (closestSection) {
+                closestSections.push(closestSection); // Add the closest section to the list
+                foundSections.add(closestSection); // Mark the closest section as found
+                currentOrigin = closestSection.origin; // Update the current origin to the closest section's origin
+            } else {
+                break; // If no closest section is found, break the loop
+            }
         }
 
-        // Calculate the Euclidean distance between center tiles of sections
-        const distances = otherSections.map(section => {
-            const otherCenterTile = section.tiles.find(tile => tile.center === true);
-            const dx = otherCenterTile.x - centerTile.x;
-            const dy = otherCenterTile.y - centerTile.y;
-            return Math.sqrt(dx * dx + dy * dy);
-        });
-
-        // Find the section with the minimum distance and check if the section is not in the findedSections array
-        const minDistance = Math.min(...distances);
-        const closestSection = otherSections.find((section, index) => {
-            return distances[index] === minDistance && !this.findedSections.includes(section);
-        });
-
-        // Ensure that the closest section is not the same as the section of origin
-        if (closestSection) {
-            return [closestSection];
-        } else {
-            return [];
-        }
+        return closestSections; // Return the list of closest sections
     }
-
 
     setOneCorridor (startSection, finishSection) {
         const startCenterTile = startSection.tiles.find(tile => tile.center === true);
