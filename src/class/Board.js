@@ -7,8 +7,6 @@ export class Board {
         this.number_of_sections = number_of_sections;
         this.number_of_fires = number_of_fires;
         this.tiles = [];
-        this.sections = [];
-        this.findedSections = [];
 
         this.spawn = { w: 9, l: 7 };
 
@@ -16,12 +14,14 @@ export class Board {
     }
 
     initSections () {
+        let sections = [];
         // Spawn
         this.addSection(
             new Section(this.spawn.w, this.spawn.l, 0, {
                 x: 0,
                 y: 0,
-            }, true)
+            }, true),
+            sections
         );
 
         // Board
@@ -64,12 +64,13 @@ export class Board {
                     new Section(width, length, this.number_of_fires, {
                         x: x,
                         y: y,
-                    })
+                    }),
+                    sections
                 );
             }
         }
 
-        this.setCorridors();
+        this.setCorridors(sections);
 
         this.fillBorders();
     }
@@ -79,10 +80,10 @@ export class Board {
         return this.tiles.find(tile => tile.x === x && tile.y === y);
     }
 
-    addSection (section) {
+    addSection (section, sections) {
         this.tiles = this.tiles.concat(section.tiles);
         // Find the center tile of the section and mark it
-        this.sections.push(this.searchCenterOfASection(section));
+        sections.push(this.searchCenterOfASection(section));
     }
 
     searchCenterOfASection (section) {
@@ -112,41 +113,41 @@ export class Board {
         return false;
     }
 
-    setCorridors () {
+    setCorridors (sections) {
         // Initialize with the first section
-        this.findedSections = [];
-        this.findedSections.push(this.sections[0]);
-        const maxSections = this.sections.length;
+        let findedSections = [];
+        findedSections.push(sections[0]);
+        const maxSections = sections.length;
 
-        let closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
+        let closestSection = this.getClosestSections(findedSections[findedSections.length - 1].origin, sections, findedSections);
 
         let circleCorridors = true;
 
 
         // Loop until all sections are connected or no more sections can be found
-        while (this.findedSections.length < maxSections) {
-            if (Math.random() < 0.9 || this.sections[0] === this.findedSections[this.findedSections.length - 1]) {
+        while (findedSections.length < maxSections) {
+            if (Math.random() < 0.9 || sections[0] === findedSections[findedSections.length - 1]) {
                 console.log("O");
-                this.findedSections.push(closestSection[0]);
-                this.setOneCorridor(this.findedSections[this.findedSections.length - 2], this.findedSections[this.findedSections.length - 1]);
+                findedSections.push(closestSection[0]);
+                this.setOneCorridor(findedSections[findedSections.length - 2], findedSections[findedSections.length - 1]);
 
-                closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin);
+                closestSection = this.getClosestSections(findedSections[findedSections.length - 1].origin, sections, findedSections);
             } else {
-                closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 2].origin);
+                closestSection = this.getClosestSections(findedSections[findedSections.length - 2].origin, sections, findedSections);
                 circleCorridors = false;
             }
         }
 
         // Link the last section to the first one
         if (circleCorridors) {
-            closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin, false);
-            this.setOneCorridor(this.findedSections[this.findedSections.length - 1], closestSection[3]);
+            closestSection = this.getClosestSections(findedSections[findedSections.length - 1].origin, sections, findedSections, false);
+            this.setOneCorridor(findedSections[findedSections.length - 1], closestSection[3]);
         }
     }
 
 
     // Find the closest sections to the given origin
-    getClosestSections(origin, useFindedSections = true) {
+    getClosestSections (origin, sections, findedSections, useFindedSections = true) {
         const closestSections = [];
         const foundSections = new Set();
 
@@ -154,7 +155,7 @@ export class Board {
 
         while (true) {
             // Find the section at the current origin
-            const sectionOrigin = this.sections.find(section => section.origin.x === currentOrigin.x && section.origin.y === currentOrigin.y);
+            const sectionOrigin = sections.find(section => section.origin.x === currentOrigin.x && section.origin.y === currentOrigin.y);
 
             // If no section is found at the current origin, break the loop
             if (!sectionOrigin) {
@@ -165,11 +166,11 @@ export class Board {
             const centerTile = sectionOrigin.tiles.find(tile => tile.center === true);
 
             // Filter out sections that have already been found or have been marked as 'findedSections'
-            const otherSections = this.sections.filter(section => {
+            const otherSections = sections.filter(section => {
                 if (!useFindedSections) {
                     return section !== sectionOrigin && !foundSections.has(section);
                 }
-                return section !== sectionOrigin && !foundSections.has(section) && !this.findedSections.includes(section);
+                return section !== sectionOrigin && !foundSections.has(section) && !findedSections.includes(section);
             });
 
             // If there are no other unexplored sections, break the loop

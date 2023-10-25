@@ -8,8 +8,9 @@ import * as UTILS from "./script_modules/utils.js";
 import {Player} from "./class/Player.js";
 import {Game} from "./class/Game.js";
 
-const player = new Player('John');
-const game = new Game([player], 10, 5);
+const player = new Player('John', 4, 3, true);
+const player2 = new Player('Jane', 4, 4);
+const game = new Game([player, player2], 10, 5);
 game.start();
 
 // Forbid right click

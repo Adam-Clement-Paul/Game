@@ -5,10 +5,13 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3) {
+    constructor (name, x = 4, y = 3, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
+
+        this.previousX = x;
+        this.previousY = y;
 
         // These values are constants
         this.speed = 0.07;
@@ -48,12 +51,14 @@ export class Player {
         cubeOrientation.position.set(0, 0, 0.2);
         this.cube.add(cubeOrientation);
 
-        document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
-        document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+        if (active) {
+            document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+            document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
 
-        document.addEventListener('click', this.onDocumentClick.bind(this), false);
+            document.addEventListener('click', this.onDocumentClick.bind(this), false);
 
-        this.update();
+            this.update();
+        }
     }
 
     setGame (game) {
@@ -155,6 +160,9 @@ export class Player {
     }
 
     update () {
+        this.previousX = this.x;
+        this.previousY = this.y;
+
         let targetRotation = this.cube.rotation.y;
 
         targetRotation = this.changeTargetRotation(targetRotation);
