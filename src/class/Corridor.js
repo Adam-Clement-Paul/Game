@@ -1,12 +1,13 @@
 import {Tile} from "./Tile.js";
 
 export class Corridor {
-    constructor (widthX, lengthY, origin = { x: 0, y: 0 }) {
+    constructor (widthX, lengthY, origin = { x: 0, y: 0 }, tiles) {
         this.widthX = widthX;
         this.lengthY = lengthY;
         this.origin = origin;
 
-        this.tiles = [];
+        this.tiles = tiles;
+
         this.initCorridor();
     }
 
@@ -15,10 +16,12 @@ export class Corridor {
             for (let y = this.origin.y; y < this.origin.y + this.lengthY; y++) {
                 // If the tile already exists, we don't create it, we just change its type
                 if (this.tiles.find(tile => tile.x === x && tile.y === y)) {
-                    this.tiles.find(tile => tile.x === x && tile.y === y).type = "grass";
-                    this.tiles.find(tile => tile.x === x && tile.y === y).fire = false;
+                    let tile = this.tiles.find(tile => tile.x === x && tile.y === y)
+                    tile.type = "grass";
+                    tile.fire = false;
+                    tile.updateDisplay();
                 } else {
-                    this.tiles.push(new Tile(x, y, false, "grass").plane.material.color.setHex(0x0000ff));
+                    this.tiles.push(new Tile(x, y, false, "grass"));
                 }
             }
         }

@@ -1,5 +1,6 @@
 import {Section} from "./Section.js";
 import {Corridor} from "./Corridor.js";
+import {Tile} from "./Tile.js";
 
 export class Board {
     constructor (number_of_sections, number_of_fires) {
@@ -69,6 +70,8 @@ export class Board {
         }
 
         this.setCorridors();
+
+        this.fillBorders();
     }
 
     // Return the tile at the given position
@@ -92,7 +95,6 @@ export class Board {
 
         if (centerTile) {
             centerTile.center = true;
-            centerTile.plane.material.color.setHex(0x0000ff);
         }
         return section
     }
@@ -135,7 +137,7 @@ export class Board {
             }
         }
 
-        // Relier la dernière section à la deuxième section la plus proche
+        // Link the last section to the first one
         if (circleCorridors) {
             closestSection = this.getClosestSections(this.findedSections[this.findedSections.length - 1].origin, false);
             this.setOneCorridor(this.findedSections[this.findedSections.length - 1], closestSection[3]);
@@ -245,7 +247,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            let corridor = new Corridor(2, 2, { x, y });
+            new Corridor(2, 2, { x, y }, this.tiles);
 
             if (x === x1 && y === y1) {
                 break;
@@ -261,6 +263,25 @@ export class Board {
             if (e2 <= dx) {
                 err += dx;
                 y += sy;
+            }
+        }
+    }
+
+    fillBorders () {
+        // Get the tile at the top left
+        const minX = Math.min(...this.tiles.map(tile => tile.x)) - 2;
+        const minY = Math.min(...this.tiles.map(tile => tile.y)) - 2;
+
+        // Get the tile at the bottom right
+        const maxX = Math.max(...this.tiles.map(tile => tile.x)) + 2;
+        const maxY = Math.max(...this.tiles.map(tile => tile.y)) + 2;
+
+        // Create the border tiles where there are no tile
+        for (let x = minX; x <= maxX; x++) {
+            for (let y = minY; y <= maxY; y++) {
+                if (!this.tiles.find(tile => tile.x === x && tile.y === y)) {
+                    this.tiles.push(new Tile(x, y, false, "border"));
+                }
             }
         }
     }
