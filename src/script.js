@@ -5,12 +5,11 @@ import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats} from './script_modules/init.js';
 import * as UTILS from "./script_modules/utils.js";
 
-import {Player} from "./class/Player.js";
 import {Game} from "./class/Game.js";
 
-const player = new Player('John', 4, 3, true);
-const player2 = new Player('Jane', 4, 4);
-const game = new Game([player, player2], 10, 5);
+
+
+const game = new Game();
 game.start();
 
 // Forbid right click

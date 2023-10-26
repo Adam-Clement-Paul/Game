@@ -13,6 +13,7 @@ export class Board {
         this.initSections();
     }
 
+
     initSections () {
         let sections = [];
         // Spawn

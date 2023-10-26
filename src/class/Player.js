@@ -1,20 +1,18 @@
 import * as THREE from "three";
 import {scene, camera} from '../script_modules/init.js';
-import {Game} from "./Game.js";
 import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
+import {Collision} from "./Collision.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, active = false) {
+    constructor (name, x = 4, y = 3, game, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
-
-        this.previousX = x;
-        this.previousY = y;
+        this.game = game;
 
         // These values are constants
-        this.speed = 0.07;
+        this.speed = 0.04;
         this.angular_speed = 0.02;
         this.friction_factor = 0.85;
         this.min_velocity = 0.0001;
@@ -23,6 +21,8 @@ export class Player {
         // These values change over time
         this.velocity = new THREE.Vector2(0, 0);
         this.angularVelocity = 0;
+
+        this.collisionWithTiles = false;
 
         // Booleans to track which keys are currently pressed
         this.keys = {
@@ -54,15 +54,10 @@ export class Player {
         if (active) {
             document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
             document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-
             document.addEventListener('click', this.onDocumentClick.bind(this), false);
 
             this.update();
         }
-    }
-
-    setGame (game) {
-        this.game = game;
     }
 
     onDocumentKeyDown (event) {
@@ -127,11 +122,14 @@ export class Player {
         });
     }
 
-    // Updates the position and state of the player
-    move (x, y) {
-        this.x = x;
-        this.y = y;
-        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+    // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
+    checkCollisionWithTiles (x, y) {
+        for (const tile of this.game.board.tiles) {
+            if (tile.type !== "grass" && Math.abs(tile.x - x) < 0.5 && Math.abs(tile.y - y) < 0.5) {
+                return true; // Collision with a tile, movement is forbidden.
+            }
+        }
+        return false; // No collision with a tile, movement is allowed.
     }
 
     // Updates the camera position and lookAt
@@ -159,36 +157,50 @@ export class Player {
         return targetRotation;
     }
 
-    update () {
-        this.previousX = this.x;
-        this.previousY = this.y;
-
+    // Updates the player rotation with inertia
+    rotationWithInertia () {
         let targetRotation = this.cube.rotation.y;
 
         targetRotation = this.changeTargetRotation(targetRotation);
 
-        // Convert rotation angles to degrees
         const currentRotationDegrees = UTILS.radiansToDegrees(this.cube.rotation.y);
         const targetRotationDegrees = UTILS.radiansToDegrees(targetRotation);
 
-        // Calculate the shortest difference in angles
         let angleDiff = ((targetRotationDegrees - currentRotationDegrees) + 180) % 360 - 180;
         if (angleDiff < -180) angleDiff += 360;
 
-        // Interpolate between current rotation and target rotation for smoother movement
         this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
+    }
 
-        // Calculate velocity based on accumulated rotation
+    movementsAndCollisions () {
+        if (this.velocity.x !== 0 || this.velocity.y !== 0) {
+            let desiredX = this.x + this.velocity.x;
+            let desiredY = this.y + this.velocity.y;
+
+            // True: collision detected, False: no collision detected
+            let collisionDetected = this.checkCollisionWithTiles(desiredX, desiredY);
+
+            if (collisionDetected) {
+                // Check if the player can move in the desired direction
+                if (!this.checkCollisionWithTiles(desiredX, this.y)) {
+                    this.x = desiredX;
+                } else if (!this.checkCollisionWithTiles(this.x, desiredY)) {
+                    this.y = desiredY;
+                }
+            } else {
+                // If no collision is detected, move in the desired direction
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+            }
+        }
+    }
+
+    movementsWithInertia () {
         if (this.keys.z || this.keys.s || this.keys.q || this.keys.d) {
             this.velocity.set(this.speed * Math.sin(this.cube.rotation.y), this.speed * Math.cos(this.cube.rotation.y));
         }
 
-        // Update position based on velocity
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
-
-        // Update rotation based on angular velocity
-        this.cube.rotation.y += this.angularVelocity;
+        this.movementsAndCollisions();
 
         // Reduce velocity and angular velocity (simulate friction)
         this.velocity.multiplyScalar(this.friction_factor);
@@ -199,11 +211,16 @@ export class Player {
         if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
         if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
-        this.move(this.x, this.y);
+        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+    }
+
+    update () {
+        this.rotationWithInertia();
+
+        this.movementsWithInertia();
 
         this.cameraMovements(this.x, this.y);
 
-        // Request the next animation frame for continuous update
         requestAnimationFrame(this.update.bind(this));
     }
 }

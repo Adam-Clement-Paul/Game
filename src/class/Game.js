@@ -1,15 +1,13 @@
 import {Board} from "./Board.js";
-import {Collisions} from "./Collisions.js";
+import {Player} from "./Player.js";
 
 export class Game {
-    constructor (players, number_of_sections, number_of_fires) {
-        this.board = new Board(number_of_sections, number_of_fires);
-        this.players = players;
-        this.collisions = new Collisions(this.players, this.board);
-
-        this.players.forEach(player => {
-            player.setGame(this);
-        });
+    constructor () {
+        this.board = new Board(10, 5);
+        this.players = [
+            new Player('John', 4, 3, this, true),
+            new Player('Jane', 4, 4, this)
+        ];
     }
 
     start () {
@@ -20,5 +18,9 @@ export class Game {
 
     getBoard () {
         return this.board;
+    }
+
+    getPlayers () {
+        return this.players;
     }
 }
