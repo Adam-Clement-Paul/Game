@@ -32,6 +32,9 @@ export class Tile {
         if (this.type === "border") {
             this.plane.material.color.setHex(0x000000);
         }
+        if (this.type === "grass") {
+            this.plane.material.color.setHex(0xffffff);
+        }
 
         if (this.fire) {
             this.plane.material.color.setHex(0xff0000);

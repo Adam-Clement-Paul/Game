@@ -1,23 +1,23 @@
 import {Board} from "./Board.js";
+import {Player} from "./Player.js";
 
 export class Game {
-    constructor (players, width, length, number_of_fires) {
-        this.board = new Board(width, length, number_of_fires);
-        this.players = players;
-
-        this.players.forEach(player => {
-            player.setGame(this);
-        });
+    constructor () {
+        this.board = new Board(10, 5);
+        this.players = [];
     }
 
     start () {
         for (let i = 0; i < this.players.length; i++) {
             console.log(`Player ${i + 1} : ${this.players[i].name}`);
         }
-        this.board.display();
     }
 
     getBoard () {
         return this.board;
+    }
+
+    setPlayer(name, x, y, active = false) {
+        this.players.push(new Player(name, x, y, this, active));
     }
 }

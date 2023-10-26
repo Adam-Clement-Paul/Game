@@ -1,5 +1,9 @@
-const degreeToRadians = (degrees) => {
+const degreesToRadians = (degrees) => {
     return degrees * Math.PI / 180;
 }
 
-export {degreeToRadians};
+const radiansToDegrees = (radians) => {
+    return radians * 180 / Math.PI;
+}
+
+export {degreesToRadians, radiansToDegrees};

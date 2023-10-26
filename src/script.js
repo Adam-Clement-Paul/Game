@@ -5,12 +5,19 @@ import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats} from './script_modules/init.js';
 import * as UTILS from "./script_modules/utils.js";
 
-import {Player} from "./class/Player.js";
 import {Game} from "./class/Game.js";
+import {Player} from "./class/Player.js";
 
-const player = new Player('John');
-const game = new Game([player], 10, 10, 5);
+
+const game = new Game();
+game.setPlayer('John', 4, 3, true);
+game.setPlayer('Jane', 4, 4);
 game.start();
+
+// Forbid right click
+document.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+});
 
 animate();
 
