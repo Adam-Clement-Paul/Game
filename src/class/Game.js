@@ -4,10 +4,7 @@ import {Player} from "./Player.js";
 export class Game {
     constructor () {
         this.board = new Board(10, 5);
-        this.players = [
-            new Player('John', 4, 3, this, true),
-            new Player('Jane', 4, 4, this)
-        ];
+        this.players = [];
     }
 
     start () {
@@ -20,7 +17,7 @@ export class Game {
         return this.board;
     }
 
-    getPlayers () {
-        return this.players;
+    setPlayer(name, x, y, active = false) {
+        this.players.push(new Player(name, x, y, this, active));
     }
 }

@@ -6,10 +6,12 @@ import {camera, controls, renderer, scene, stats} from './script_modules/init.js
 import * as UTILS from "./script_modules/utils.js";
 
 import {Game} from "./class/Game.js";
-
+import {Player} from "./class/Player.js";
 
 
 const game = new Game();
+game.setPlayer('John', 4, 3, true);
+game.setPlayer('Jane', 4, 4);
 game.start();
 
 // Forbid right click

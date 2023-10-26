@@ -2,7 +2,6 @@ import * as THREE from "three";
 import {scene, camera} from '../script_modules/init.js';
 import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
-import {Collision} from "./Collision.js";
 
 export class Player {
     constructor (name, x = 4, y = 3, game, active = false) {
@@ -13,10 +12,9 @@ export class Player {
 
         // These values are constants
         this.speed = 0.04;
-        this.angular_speed = 0.02;
         this.friction_factor = 0.85;
         this.min_velocity = 0.0001;
-        this.backward_factor = 0.5;
+        this.distance_to_collision = 0.5;
 
         // These values change over time
         this.velocity = new THREE.Vector2(0, 0);
@@ -54,7 +52,7 @@ export class Player {
         if (active) {
             document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
             document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-            document.addEventListener('click', this.onDocumentClick.bind(this), false);
+            document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
 
             this.update();
         }
@@ -68,7 +66,7 @@ export class Player {
         this.keys[event.key] = false;
     }
 
-    onDocumentClick () {
+    onDocumentClickExtinguishFire () {
         // Get the direction of the player
         let playerDirection = this.cube.rotation.y;
 
@@ -125,7 +123,10 @@ export class Player {
     // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
     checkCollisionWithTiles (x, y) {
         for (const tile of this.game.board.tiles) {
-            if (tile.type !== "grass" && Math.abs(tile.x - x) < 0.5 && Math.abs(tile.y - y) < 0.5) {
+            if (tile.type !== "grass" &&
+                Math.abs(tile.x - x) < this.distance_to_collision &&
+                Math.abs(tile.y - y) < this.distance_to_collision
+            ) {
                 return true; // Collision with a tile, movement is forbidden.
             }
         }

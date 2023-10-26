@@ -128,7 +128,6 @@ export class Board {
         // Loop until all sections are connected or no more sections can be found
         while (findedSections.length < maxSections) {
             if (Math.random() < 0.9 || sections[0] === findedSections[findedSections.length - 1]) {
-                console.log("O");
                 findedSections.push(closestSection[0]);
                 this.setOneCorridor(findedSections[findedSections.length - 2], findedSections[findedSections.length - 1]);
 
