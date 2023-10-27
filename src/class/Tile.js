@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {scene} from '../script_modules/init.js';
 
 export class Tile {
-    constructor (x, y, fire = false, type = "grass") {
+    constructor (x, y, fire = 0, type = "grass") {
         this.x = x;
         this.y = y;
         this.fire = fire;
@@ -40,18 +40,18 @@ export class Tile {
             this.plane.material.color.setHex(0xffffff);
         }
 
-        if (this.fire) {
+        if (this.fire !== 0) {
             this.plane.material.color.setHex(0xff0000);
         }
     }
 
     setFire () {
-        this.fire = true;
+        this.fire = 0.01;
         this.updateDisplay();
     }
 
     extinguishFire () {
-        this.fire = false;
+        this.fire = 0;
         this.updateDisplay();
     }
 

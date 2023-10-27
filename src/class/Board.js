@@ -281,7 +281,7 @@ export class Board {
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
                 if (!this.tiles.find(tile => tile.x === x && tile.y === y)) {
-                    this.tiles.push(new Tile(x, y, false, "border"));
+                    this.tiles.push(new Tile(x, y, 0, "border"));
                 }
             }
         }

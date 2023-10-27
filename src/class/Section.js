@@ -58,7 +58,7 @@ export class Section {
                     selectedType = 0;
                 }
 
-                this.tiles.push(new Tile(x, y, false, type[selectedType]));
+                this.tiles.push(new Tile(x, y, 0, type[selectedType]));
             }
         }
 
@@ -79,7 +79,7 @@ export class Section {
 
             const tile = tiles[tileIndex];
 
-            if (tile && !tile.fire && tile.type === "tree") {
+            if (tile && tile.fire === 0 && tile.type === "tree") {
                 tile.setFire();
                 fireCount++;
             }
