@@ -8,6 +8,10 @@ export class Tile {
         this.fire = fire;
         this.type = type;
 
+        if (this.type === "tree") {
+            this.life = 5;
+        }
+
         this.plane = new THREE.Mesh(
             new THREE.PlaneGeometry(0.9, 0.9),
             new THREE.MeshStandardMaterial({
@@ -49,5 +53,17 @@ export class Tile {
     extinguishFire () {
         this.fire = false;
         this.updateDisplay();
+    }
+
+    destroyThree () {
+        this.life--;
+        // Change the color of the tree and make it lighter
+        this.plane.material.color.setHex(0x00ff00 - (0x00ff00 * (5 - this.life) / 5));
+
+        if (this.life <= 1) {
+            // The color becomes darker and darker
+            this.type = "grass";
+            this.updateDisplay();
+        }
     }
 }

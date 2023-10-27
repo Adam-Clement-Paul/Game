@@ -11,7 +11,6 @@ import {Player} from "./class/Player.js";
 
 const game = new Game();
 game.setPlayer('John', 4, 3, true);
-game.setPlayer('Jane', 4, 4);
 game.start();
 
 // Forbid right click
