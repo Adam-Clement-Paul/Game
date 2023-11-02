@@ -9,7 +9,7 @@ export class Tile {
         this.type = type;
 
         // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 1.5;
+        this.growing_fire_timer = .2;
         this.timer = 0;
         clearTimeout(this.timer);
 
@@ -82,9 +82,11 @@ export class Tile {
     growingFire () {
         if (this.fire > 0 && this.fire < 1) {
             this.timer = setTimeout(() => {
-                this.fire += 0.01;
-                this.updateDisplay();
-                this.growingFire();
+                if (this.fire !== 0) {
+                    this.fire += 0.01;
+                    this.updateDisplay();
+                    this.growingFire();
+                }
             }, this.growing_fire_timer * 1000 * Math.random());
         }
     }

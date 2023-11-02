@@ -292,9 +292,7 @@ export class Board {
         clearTimeout(timer);
         // Each second, if a fire tile have fire to 1, it will contaminate the adjacent tiles
         this.tiles.forEach(tile => {
-            if (tile.fire > 1 && tile.fire !== 2) {
-                // Set fire to 2 to avoid multiple-checking when a tile is on fire
-                tile.fire = 2;
+            if (tile.fire > 1) {
                 const adjacentTiles = [];
 
                 // Get the 4 adjacent tiles
