@@ -10,11 +10,11 @@ export class Board {
 
         this.spawn = { w: 9, l: 7 };
 
-        this.initSections();
+        this.initBoard();
     }
 
 
-    initSections () {
+    initBoard () {
         let sections = [];
         // Spawn
         this.addSection(
@@ -285,5 +285,36 @@ export class Board {
                 }
             }
         }
+    }
+
+    // Recursive function to generate fires
+    fireContamination (timer) {
+        clearTimeout(timer);
+        // Each second, if a fire tile have fire to 1, it will contaminate the adjacent tiles
+        this.tiles.forEach(tile => {
+            if (tile.fire > 1 && tile.fire !== 2) {
+                // Set fire to 2 to avoid multiple-checking when a tile is on fire
+                tile.fire = 2;
+                const adjacentTiles = [];
+
+                // Get the 4 adjacent tiles
+                adjacentTiles.push(this.getTileAtPosition(tile.x - 1, tile.y));
+                adjacentTiles.push(this.getTileAtPosition(tile.x + 1, tile.y));
+                adjacentTiles.push(this.getTileAtPosition(tile.x, tile.y - 1));
+                adjacentTiles.push(this.getTileAtPosition(tile.x, tile.y + 1));
+
+                // For each tile, if it's a tree, set it on fire
+                adjacentTiles.forEach(tile => {
+                    if (tile && tile.type === "tree" && tile.fire === 0) {
+                        tile.setFire();
+                        tile.growingFire();
+                    }
+                });
+            }
+        });
+        // Loop every second with timer
+        timer = setTimeout(() => {
+            this.fireContamination(timer);
+        }, 2000);
     }
 }

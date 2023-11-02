@@ -8,6 +8,11 @@ export class Tile {
         this.fire = fire;
         this.type = type;
 
+        // Value in seconds of the time between each increase of the value of this.fire
+        this.growing_fire_timer = 1.5;
+        this.timer = 0;
+        clearTimeout(this.timer);
+
         if (this.type === "tree") {
             this.life = 5;
         }
@@ -41,12 +46,19 @@ export class Tile {
         }
 
         if (this.fire !== 0) {
-            this.plane.material.color.setHex(0xff0000);
+            let yellow = new THREE.Color(0xffff00);
+            let red = new THREE.Color(0xff0000);
+            // Used to interpolate between yellow and red to show evolution of the fire
+            let interpolatedColor = new THREE.Color();
+            interpolatedColor.lerpColors(yellow, red, this.fire);
+
+            this.plane.material.color.copy(interpolatedColor);
         }
     }
 
     setFire () {
-        this.fire = 0.01;
+        // Fire is initialized between 1% and 60%
+        this.fire = 0.01 + 0.6 * Math.random();
         this.updateDisplay();
     }
 
@@ -64,6 +76,16 @@ export class Tile {
             // The color becomes darker and darker
             this.type = "grass";
             this.updateDisplay();
+        }
+    }
+
+    growingFire () {
+        if (this.fire > 0 && this.fire < 1) {
+            this.timer = setTimeout(() => {
+                this.fire += 0.01;
+                this.updateDisplay();
+                this.growingFire();
+            }, this.growing_fire_timer * 1000 * Math.random());
         }
     }
 }

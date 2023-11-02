@@ -11,6 +11,15 @@ export class Game {
         for (let i = 0; i < this.players.length; i++) {
             console.log(`Player ${i + 1} : ${this.players[i].name}`);
         }
+
+        // Activate the fire growth
+        this.board.tiles.forEach(tile => {
+            if (tile.fire !== 0) {
+                tile.growingFire();
+            }
+        });
+        // Activate the contamination
+        this.board.fireContamination(0);
     }
 
     getBoard () {
