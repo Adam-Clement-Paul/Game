@@ -257,7 +257,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            new Corridor(2, 2, { x, y }, this.tiles, this.chance_to_have_tree_corridor);
+            new Corridor(2, 2, { x, y }, this.tiles, this.chance_to_have_tree_corridor, this.spawn);
 
             if (x === x1 && y === y1) {
                 break;
