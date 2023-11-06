@@ -135,7 +135,7 @@ export class Player {
         let {frontTile} = this.getFrontTile(playerDirection);
 
         if (frontTile.type === "tree" && frontTile.fire === 0) {
-            frontTile.destroyThree();
+            frontTile.destroyTree();
         }
     }
 
