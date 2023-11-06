@@ -4,20 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start-frontend": "vite build"
+    "start": "cd frontend && npm run start-frontend && cd ../backend && npm run start-backend"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "gsap": "^3.12.2",
+    "nodemon": "^3.0.1",
+    "three": "^0.153.0"
   },
   "devDependencies": {
     "vite": "^4.3.9"
-  },
-  "dependencies": {
-    "gsap": "^3.12.2",
-    "three": "^0.153.0"
-  },
-  "importmap": {
-    "imports": {
-      "gsap": "/node_modules/gsap/index.js",
-      "three": "/node_modules/three/build/three.module.js"
-    }
   }
 }

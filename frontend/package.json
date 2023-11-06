@@ -1,0 +1,22 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "start-frontend": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"
+  },
+  "dependencies": {
+    "gsap": "^3.12.2",
+    "three": "^0.153.0"
+  },
+  "importmap": {
+    "imports": {
+      "gsap": "/node_modules/gsap/index.js",
+      "three": "/node_modules/three/build/three.module.js"
+    }
+  }
+}
