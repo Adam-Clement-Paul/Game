@@ -126,6 +126,7 @@ export class Player {
         return {frontTile, tile, offsetX, offsetY};
     }
 
+    // Axe
     onDocumentRightClick (event) {
         event.preventDefault();
 
@@ -133,7 +134,7 @@ export class Player {
         // Get the tile in front of the player
         let {frontTile} = this.getFrontTile(playerDirection);
 
-        if (frontTile.type === "tree") {
+        if (frontTile.type === "tree" && frontTile.fire === 0) {
             frontTile.destroyThree();
         }
     }

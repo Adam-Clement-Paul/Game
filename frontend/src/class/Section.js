@@ -1,7 +1,7 @@
 import {Tile} from "./Tile.js";
 
 export class Section {
-    constructor (widthX, lengthY, number_of_fires, origin = { x: 0, y: 0 }, isSpawn = false) {
+    constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree,  origin = { x: 0, y: 0 }, isSpawn = false) {
         this.widthX = widthX;
         this.lengthY = lengthY;
         this.number_of_fires = number_of_fires;
@@ -9,8 +9,8 @@ export class Section {
 
         if (!isSpawn) {
             // Constants
-            this.chance_to_have_obstacle = 0.1;
-            this.chance_to_have_tree = 0.1;
+            this.chance_to_have_obstacle = chance_to_have_obstacle;
+            this.chance_to_have_tree = chance_to_have_tree;
         } else {
             this.chance_to_have_obstacle = 0;
             this.chance_to_have_tree = 0;

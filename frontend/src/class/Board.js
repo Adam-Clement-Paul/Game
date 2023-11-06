@@ -10,6 +10,11 @@ export class Board {
 
         this.spawn = { w: 9, l: 7 };
 
+        this.chance_to_have_obstacle_section = 0.1;
+        this.chance_to_have_tree_section = 0.4;
+
+        this.chance_to_have_tree_corridor = 0.3;
+
         this.initBoard();
     }
 
@@ -18,7 +23,9 @@ export class Board {
         let sections = [];
         // Spawn
         this.addSection(
-            new Section(this.spawn.w, this.spawn.l, 0, {
+            new Section(this.spawn.w, this.spawn.l, 0,
+                this.chance_to_have_obstacle_section, this.chance_to_have_tree_section,
+                {
                 x: 0,
                 y: 0,
             }, true),
@@ -62,7 +69,9 @@ export class Board {
             if (!isInSpawn && !isInOtherSection) {
                 console.log(`Section ${i + 1} : ${width}x${length} at (${x}, ${y})`);
                 this.addSection(
-                    new Section(width, length, this.number_of_fires, {
+                    new Section(width, length, this.number_of_fires,
+                        this.chance_to_have_obstacle_section, this.chance_to_have_tree_section,
+                        {
                         x: x,
                         y: y,
                     }),
@@ -248,7 +257,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            new Corridor(2, 2, { x, y }, this.tiles);
+            new Corridor(2, 2, { x, y }, this.tiles, this.chance_to_have_tree_corridor);
 
             if (x === x1 && y === y1) {
                 break;
