@@ -4,14 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "start-frontend": "vite build"
-  },
-  "devDependencies": {
-    "vite": "^4.3.9"
-  },
-  "dependencies": {
-    "gsap": "^3.12.2",
-    "three": "^0.153.0"
+    "start-frontend-node": "vite build",
+    "start-frontend": "bunx --bun vite build"
   },
   "importmap": {
     "imports": {

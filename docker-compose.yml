@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  threejs_game:
+    image: threejs_game
+    stdin_open: true
+    tty: true
+    command: sh -c "bun run start && tail -f /dev/null"
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./app/.env
