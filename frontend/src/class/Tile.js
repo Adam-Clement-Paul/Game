@@ -90,18 +90,7 @@ export class Tile {
                     this.updateDisplay();
                     this.growingFire();
                 }
-                if (this.fire >= 1) {
-                    this.burntTree();
-                }
             }, this.growing_fire_timer * 1000 * Math.random());
         }
-    }
-
-    burntTree () {
-        let burntTimer = setTimeout(() => {
-            this.fire = 0;
-            this.type = "grass";
-            this.updateDisplay();
-        }, this.time_before_burnt);
     }
 }
