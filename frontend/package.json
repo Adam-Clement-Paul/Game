@@ -1,0 +1,16 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "start-frontend-node": "vite build",
+    "start-frontend": "bunx --bun vite build"
+  },
+  "importmap": {
+    "imports": {
+      "gsap": "/node_modules/gsap/index.js",
+      "three": "/node_modules/three/build/three.module.js"
+    }
+  }
+}
