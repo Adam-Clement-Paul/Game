@@ -2,6 +2,10 @@ import {Section} from "./Section.js";
 import {Corridor} from "./Corridor.js";
 import {Tile} from "./Tile.js";
 
+/*
+* Board class
+* number_of_sections: number of sections in the board [need to be greater than 2]
+ */
 export class Board {
     constructor (number_of_sections, number_of_fires) {
         this.number_of_sections = number_of_sections;
@@ -44,6 +48,7 @@ export class Board {
 
             let countAgainstInfiniteLoop = 0;
 
+            // If the section cannot be placed, try again until the count reaches 100
             while ((isInSpawn || isInOtherSection) && countAgainstInfiniteLoop < 100) {
                 // Values between 6 and 10 for width and length
                 width = Math.floor(Math.random() * 5) + 6;
