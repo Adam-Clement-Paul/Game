@@ -2,6 +2,7 @@
 import {file, serve, write} from "bun";
 
 // Import users json file
+// @ts-ignore
 import users from "./users.json";
 
 const BASE_PATH = "../frontend/dist";
@@ -13,16 +14,12 @@ const server = Bun.serve({
         const { url, method } = request;
         const { pathname } = new URL(url);
 
-        // Gérer le cas spécial pour l'URL "/"
+        // For static files
         if (pathname === "/") {
             const indexPath = BASE_PATH + "/index.html";
-            try {
-                const response = new Response(file(indexPath));
-                response.headers.set("Cache-Control", "public, max-age=3600");
-                return response;
-            } catch (error) {
-                return new Response(null, { status: 404 });
-            }
+            const response = new Response(file(indexPath));
+            response.headers.set("Cache-Control", "public, max-age=3600");
+            return response;
         }
 
         // Get All Users
@@ -39,6 +36,7 @@ const server = Bun.serve({
         if (pathname === "/api/users" && method === "POST") {
             const body = await request.json();
             const newJson = users.concat(body);
+            // @ts-ignore
             write("./users.json", JSON.stringify(newJson), null, 2);
             return new Response(JSON.stringify(newJson), {
                 status: 200,
@@ -50,9 +48,11 @@ const server = Bun.serve({
         }
         // Delete User
         // method == 0 is a DELETE request
+        // @ts-ignore
         if (pathname === "/api/users" && method == 0) {
             const body = await request.json();
             const newJson = users.filter((user) => user.id !== body.id);
+            // @ts-ignore
             write("./users.json", JSON.stringify(newJson), null, 2);
             return new Response(JSON.stringify(newJson), {
                 status: 200,
@@ -72,6 +72,7 @@ const server = Bun.serve({
                 }
                 return user;
             });
+            // @ts-ignore
             write("./users.json", JSON.stringify(newJson), null, 2);
             return new Response(JSON.stringify(newJson), {
                 status: 200,
@@ -84,14 +85,17 @@ const server = Bun.serve({
 
         const filePath = BASE_PATH + pathname;
 
-        try {
-            const response = new Response(file(filePath));
-            response.headers.set("Cache-Control", "public, max-age=3600");
-            return response;
-        } catch (error) {
-            return new Response(null, { status: 404 });
-        }
+        const response = new Response(file(filePath));
+        response.headers.set("Cache-Control", "public, max-age=3600");
+        return response;
 
+    },
+    error(error) {
+        console.log(error);
+        if (error.errno === -2) {
+            return new Response("Not Found", { status: 404 });
+        }
+        return new Response(null, { status: 500 });
     },
 });
 console.log(`Server running on port ${server.port}`);
