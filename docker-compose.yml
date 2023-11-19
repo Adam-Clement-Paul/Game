@@ -9,3 +9,6 @@ services:
       - "9000:9000"
     env_file:
       - ./app/.env
+    volumes:
+      - ./web/:/web
+      - web_node_modules:/web/node_modules
