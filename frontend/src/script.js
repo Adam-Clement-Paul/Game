@@ -8,10 +8,44 @@ import * as UTILS from "./script_modules/utils.js";
 import {Game} from "./class/Game.js";
 import {Player} from "./class/Player.js";
 
+// Récupération de la partie ici
+const gameId = window.location.pathname.split("/")[1];
 
-const game = new Game();
-game.setPlayer('John', 4, 3, true);
-game.start();
+fetch(`/${gameId}`, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'text/html',
+    }
+})
+    .then(response => {
+        // Utilisez le contenu HTML pour afficher la page
+
+        // Effectuez ensuite une deuxième requête pour obtenir les données du jeu
+        return fetch(`/api/gameData/${gameId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        const game = new Game(data.game.board, data.game.players);
+        console.log(data.game);
+        game.setPlayer('John', 4, 3, true);
+        console.log(game);
+        // Effectuez vos opérations avec les données du jeu
+    })/*
+    .catch(error => {
+        console.error(error);
+    })*/;
+
+
+
+
+
+
+
 
 // Forbid right click
 document.addEventListener('contextmenu', function (event) {

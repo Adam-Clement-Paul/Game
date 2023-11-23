@@ -2,12 +2,9 @@ import {Board} from "./Board.js";
 import {Player} from "./Player.js";
 
 export class Game {
-    constructor (board, players) {
-        this.board = new Board(board);
-        this.players = players;
-
-        console.log(board);
-        this.board.displayTiles();
+    constructor () {
+        this.board = new Board(3, 1);
+        this.players = [];
     }
 
     start () {
