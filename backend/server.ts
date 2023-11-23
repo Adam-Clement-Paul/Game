@@ -1,11 +1,8 @@
 // Dependencies
 import {file, serve, write} from "bun";
 
-// Import users json file
 // @ts-ignore
-import users from "./users.json";
-// @ts-ignore
-import {Game} from "./class/Game.js";
+import {Game} from "./class/BackGame.js";
 
 const BASE_PATH = "../frontend/dist";
 
@@ -13,8 +10,9 @@ const BASE_PATH = "../frontend/dist";
 const games = {};
 
 // Create server
+// @ts-ignore
 const server = Bun.serve({
-    port: 9000,
+    port: 3010,
     async fetch(request) {
         const {url, method} = request;
         const {pathname} = new URL(url);
@@ -57,7 +55,7 @@ const server = Bun.serve({
 
             if (game) {
                 // Retournez à la fois la classe Game et les données du jeu
-                return new Response(JSON.stringify({ game: game }), {
+                return new Response(JSON.stringify({game: game}), {
                     status: 200,
                     headers: {
                         "Content-Type": "application/json",
@@ -76,12 +74,6 @@ const server = Bun.serve({
         }
 
 
-
-
-
-
-
-
         // Create the room
         if (pathname === "/api/game" && method === "GET") {
             // Generate a random game ID
@@ -95,7 +87,8 @@ const server = Bun.serve({
             games[gameId] = newGame;
 
             // Build the redirect URL
-            const redirectUrl = `http://localhost:9000/${gameId}`;
+            // @ts-ignore
+            const redirectUrl = `http://localhost:${server.port}/${gameId}`;
 
             // Stocke le jeu dans le fichier games.json avec son ID gameID
             // @ts-ignore

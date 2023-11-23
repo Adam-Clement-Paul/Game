@@ -1,4 +1,4 @@
-import {Tile} from "./Tile.js";
+import {Tile} from "./BackTile.js";
 
 export class Corridor {
     constructor (widthX, lengthY, origin = { x: 0, y: 0 }, tiles, chance_to_have_tree, spawn) {
