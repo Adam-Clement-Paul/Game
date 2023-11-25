@@ -46,8 +46,8 @@ const server = Bun.serve({
         }
 
         // Separate route to get the game data
-        if (pathname.startsWith("/api/gameData/") && method === "GET") {
-            const gameId = pathname.split("/")[3]; // Extract game ID from the URL
+        if (pathname.startsWith("/api/game/data/") && method === "GET") {
+            const gameId = pathname.split("/")[4]; // Extract game ID from the URL
             // @ts-ignore
             const game = games[gameId];
 

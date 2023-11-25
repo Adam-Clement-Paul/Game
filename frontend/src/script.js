@@ -19,7 +19,7 @@ fetch(`/${gameId}`, {
 })
     .then(response => {
         // Make a second request to get the game data
-        return fetch(`/api/gameData/${gameId}`, {
+        return fetch(`/api/game/data/${gameId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
