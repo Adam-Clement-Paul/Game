@@ -20,6 +20,14 @@ document.getElementById('joinForm').addEventListener('submit', function (event) 
         return;
     }
 
+    // Parse the gameId to remove the / at the beginning
+    // Because it causes Cross-Origin Request error
+    gameId = gameId.replace('/', '');
+
+    // Remove all characters that are not alphanumeric
+    gameId = gameId.replace(/[^a-z0-9]/g, '');
+
+
     fetch(`/${gameId}`, {
         method: 'GET',
         headers: {
