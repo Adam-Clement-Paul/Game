@@ -58,39 +58,4 @@ export class Tile {
             this.plane.material.color.copy(interpolatedColor);
         }
     }
-
-    setFire () {
-        // Fire is initialized between 1% and 60%
-        this.fire = 0.01 + 0.6 * Math.random();
-        this.updateDisplay();
-    }
-
-    extinguishFire () {
-        this.fire = 0;
-        this.updateDisplay();
-    }
-
-    destroyTree () {
-        this.life--;
-        // Change the color of the tree and make it lighter
-        this.plane.material.color.setHex(0x00ff00 - (0x00ff00 * (5 - this.life) / 5));
-
-        if (this.life <= 1) {
-            // The color becomes darker and darker
-            this.type = "grass";
-            this.updateDisplay();
-        }
-    }
-
-    growingFire () {
-        if (this.fire > 0 && this.fire < 1) {
-            this.timer = setTimeout(() => {
-                if (this.fire !== 0) {
-                    this.fire += 0.01;
-                    this.updateDisplay();
-                    this.growingFire();
-                }
-            }, this.growing_fire_timer * 1000 * Math.random());
-        }
-    }
 }

@@ -69,11 +69,13 @@ export class Player {
     }
 
     onDocumentClickExtinguishFire () {
+        // TODO: Extinguish the fire inside the backend to avoid cheating
+        /*
         // Get the direction of the player
         let playerDirection = this.cube.rotation.y;
 
         let {frontTile, tile, offsetX, offsetY} = this.getFrontTile(playerDirection);
-
+         */
         /*
         // Get the 4 tiles around the front tile
         const adjacentTiles = [
@@ -85,6 +87,7 @@ export class Player {
         ];
         */
 
+        /*
         const adjacentTiles = [frontTile];
 
         if (offsetX !== 0 && offsetY !== 0) {
@@ -107,30 +110,15 @@ export class Player {
                 tile.extinguishFire();
             }
         });
-    }
-
-    getFrontTile (playerDirection) {
-        // Get the tile on which the player is standing
-        const tile = this.game.getBoard().getTileAtPosition(Math.round(this.x), Math.round(this.y));
-        if (!tile) {
-            return;
-        }
-
-        // Get the tile in front of the player
-        const offsetX = Math.round(Math.sin(playerDirection));
-        const offsetY = Math.round(Math.cos(playerDirection));
-
-        const frontTile = this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY);
-        if (!frontTile) {
-            return;
-        }
-        return {frontTile, tile, offsetX, offsetY};
+        */
     }
 
     // Axe
     onDocumentRightClick (event) {
         event.preventDefault();
 
+        // TODO: Destroy the tree inside the backend to avoid cheating
+        /*
         let playerDirection = this.cube.rotation.y;
         // Get the tile in front of the player
         let {frontTile} = this.getFrontTile(playerDirection);
@@ -138,6 +126,7 @@ export class Player {
         if (frontTile.type === "tree" && frontTile.fire === 0) {
             frontTile.destroyTree();
         }
+         */
     }
 
     // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
