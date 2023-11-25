@@ -53,7 +53,7 @@ export class Game {
         return true;
     }
 
-    setPlayer(name, x, y, active = false) {
-        this.players.push(new Player(name, x, y, this, active));
+    setPlayer(name, x, y, color, active = false) {
+        this.players.push(new Player(name, x, y, color, this, active));
     }
 }

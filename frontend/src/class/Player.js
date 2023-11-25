@@ -4,10 +4,11 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, game, active = false) {
+    constructor (name, x = 4, y = 3, color, game, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
+        this.color = color;
         this.game = game;
 
         // These values are constants
@@ -33,7 +34,7 @@ export class Player {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
-                color: 0xff00ff
+                color: this.color
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
