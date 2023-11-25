@@ -19,7 +19,7 @@ const server = Bun.serve({
 
         // For static files
         if (pathname === "/") {
-            const indexPath = BASE_PATH + "/createGame.html";
+            const indexPath = BASE_PATH + "/createJoinGame.html";
             const response = new Response(file(indexPath));
             response.headers.set("Cache-Control", "public, max-age=3600");
             return response;
@@ -36,8 +36,7 @@ const server = Bun.serve({
                 const response = new Response(file(filePath));
                 response.headers.set("Cache-Control", "public, max-age=3600");
                 return response;
-            }
-            else {
+            } else {
                 // Allow other files to be served
                 const filePath = BASE_PATH + "/" + pathname.split("/")[1];
                 const response = new Response(file(filePath));

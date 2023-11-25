@@ -11,6 +11,7 @@ button:focus {
     outline: none;
 }
 
+/* Fonts */
 
 /* fira-sans-regular - latin */
 @font-face {
@@ -49,11 +50,16 @@ button:focus {
     src: url('./fonts/carter-one-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+/* Variables */
+
 :root {
     --color-text: #594141;
     --color-btn-background: #FFB563;
     --color-btn-background-hover: #FFC27A;
+    --color-stroke-search-hover: #c9a4a4;
 }
+
+/* General */
 
 main {
     display: flex;
@@ -62,6 +68,12 @@ main {
     justify-content: center;
     gap: 10px;
     height: 100vh;
+}
+
+h1 {
+    font-size: 3rem;
+    font-family: 'Carter One', cursive;
+    color: var(--color-text);
 }
 
 #searchGame {
@@ -83,12 +95,6 @@ main {
     width: 300px;
 }
 
-h1 {
-    font-size: 3rem;
-    font-family: 'Carter One', cursive;
-    color: var(--color-text);
-}
-
 button {
     font-size: 1.3rem;
     font-family: 'Fira Sans', sans-serif;
@@ -106,11 +112,11 @@ button:hover {
     background-color: var(--color-btn-background-hover);
 }
 
-form > div {
+#joinForm > div {
     display: flex;
 }
 
-form {
+#joinForm {
     width: 100%;
     font-size: 1.3rem;
     font-family: 'Fira Sans', sans-serif;
@@ -125,8 +131,7 @@ form {
     z-index: 2;
 }
 
-#game {
-    margin-top: 0px;
+#inputText {
     height: 40px;
     border-radius: 3px;
     border: 2px solid var(--color-text);
@@ -157,11 +162,8 @@ form {
 
 #searchIcon:hover {
     cursor: pointer;
-    > path {
-        stroke: #c9a4a4;
-    }
-}
 
-#searchIcon > path {
-    stroke: var(--color-text);
+    > path {
+        stroke: var(--color-stroke-search-hover);
+    }
 }
