@@ -25,7 +25,7 @@ const server = Bun.serve({
             return response;
         }
 
-        // Ajoute une route pour toutes les parties: en localhost:9000/ID_PARTIE
+        // Add a route for all games: at localhost:9000/GAME_ID
         if (pathname.startsWith("/") && method === "GET" && pathname.split("/").length === 2) {
             const gameId = pathname.split("/")[1]; // Extract game ID from the URL
             // @ts-ignore
@@ -36,14 +36,13 @@ const server = Bun.serve({
                 const response = new Response(file(filePath));
                 response.headers.set("Cache-Control", "public, max-age=3600");
                 return response;
-            } else {
-                return new Response("Game not found", {
-                    status: 404,
-                    headers: {
-                        "Content-Type": "text/plain",
-                        "Access-control-allow-origin": "*",
-                    },
-                });
+            }
+            else {
+                // Allow other files to be served
+                const filePath = BASE_PATH + "/" + pathname.split("/")[1];
+                const response = new Response(file(filePath));
+                response.headers.set("Cache-Control", "public, max-age=3600");
+                return response;
             }
         }
 
