@@ -1,5 +1,5 @@
 // Dependencies
-import {file, serve, write} from "bun";
+import {file} from "bun";
 
 // @ts-ignore
 import {Game} from "./class/BackGame.js";
@@ -45,14 +45,14 @@ const server = Bun.serve({
             }
         }
 
-        // Route séparée pour obtenir les données du jeu
+        // Separate route to get the game data
         if (pathname.startsWith("/api/gameData/") && method === "GET") {
             const gameId = pathname.split("/")[3]; // Extract game ID from the URL
             // @ts-ignore
             const game = games[gameId];
 
             if (game) {
-                // Retournez à la fois la classe Game et les données du jeu
+                // Get the game class and the game data
                 return new Response(JSON.stringify({game: game}), {
                     status: 200,
                     headers: {
@@ -77,20 +77,13 @@ const server = Bun.serve({
             // Generate a random game ID
             const gameId = Math.random().toString(36).substring(7);
 
-            // Create a new game instance
-            const newGame = new Game();
-
-            // Store the game instance with its ID
+            // Store a new game instance with its ID
             // @ts-ignore
-            games[gameId] = newGame;
+            games[gameId] = new Game();
 
             // Build the redirect URL
             // @ts-ignore
             const redirectUrl = `http://localhost:${server.port}/${gameId}`;
-
-            // Stocke le jeu dans le fichier games.json avec son ID gameID
-            // @ts-ignore
-            // write("./games.json", JSON.stringify(games), null, 2);
 
             // Return the redirect URL in the response
             return new Response(JSON.stringify({redirectUrl}), {
