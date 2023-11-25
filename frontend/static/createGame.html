@@ -7,9 +7,60 @@
     <link rel="stylesheet" href="../src/style.css">
 </head>
 <body>
-<button>Nouvelle partie</button>
+<button id="new">New game</button>
+<button id="join">Join game</button>
+<div id="searchGame">
+    <form id="myForm">
+        <label for="game">Game ID</label>
+        <input type="text" name="game" id="game">
+        <input type="submit" value="join">
+        <label id="joinGameError" class="error" style="display: none">Error, game not found</label>
+    </form>
+</div>
+<style>
+    #searchGame {
+        display: none;
+    }
+</style>
+
 <script>
-    document.querySelector('button').addEventListener('click', () => {
+    const joinButton = document.getElementById('join');
+    const joinGameError = document.getElementById('joinGameError');
+    const searchGame = document.getElementById('searchGame');
+
+    joinButton.addEventListener('click', () => {
+        searchGame.style.display = 'block';
+
+        document.addEventListener('click', clickOutsideHandler);
+    });
+
+    document.getElementById('myForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var gameId = document.getElementById('game').value;
+
+        if (gameId === '') {
+            joinGameError.style.display = 'block';
+            return;
+        }
+
+        fetch(`/${gameId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'text/html',
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.href = `/${gameId}`;
+                } else {
+                    joinGameError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+            });
+    });
+
+    document.querySelector('#new').addEventListener('click', () => {
         fetch('/api/game', {
             method: 'GET',
             headers: {
@@ -25,6 +76,17 @@
                 console.error(error);
             });
     });
+
+    // Function to close the search game field when clicking outside
+    function clickOutsideHandler(event) {
+        if (!searchGame.contains(event.target) && event.target !== searchGame && event.target !== joinButton) {
+            searchGame.style.display = 'none';
+            joinGameError.style.display = 'none';
+
+            // Retirer l'écouteur d'événements après avoir fermé le champ de recherche
+            document.removeEventListener('click', clickOutsideHandler);
+        }
+    }
 </script>
 </body>
 </html>
