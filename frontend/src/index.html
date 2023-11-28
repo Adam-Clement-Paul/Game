@@ -7,7 +7,21 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<button>Nouvelle partie</button>
+<script>
+    const gameId = window.location.pathname.split("/")[1];
+
+    const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+    console.log(socket);
+    socket.addEventListener("message", event => {
+        console.log(event.data);
+    });
+
+    function sendMessage() {
+        const message = "Oui";
+        socket.send(message);
+    }
+</script>
+<button onclick="sendMessage()">Nouvelle partie</button>
 <canvas id="webgl"></canvas>
 <script type="module" src="./script.js"></script>
 </body>

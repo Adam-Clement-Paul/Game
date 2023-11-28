@@ -3,20 +3,45 @@ import {file} from "bun";
 
 // @ts-ignore
 import {Game} from "./class/BackGame.js";
+import url from "url";
+import querystring from "querystring";
 
 const BASE_PATH = "../frontend/dist";
 
 // Store created games and their IDs
 const games = {};
 
+type WebSocketData = {
+    createdAt: number;
+    gameId: string;
+    authToken: string;
+};
+
 // Create server
 // @ts-ignore
-const server = Bun.serve({
+const server = Bun.serve<WebSocketData>({
     port: 3010,
-    async fetch(request) {
+    fetch(request, server) {
         const {url, method} = request;
         const {pathname} = new URL(url);
 
+        if (pathname.startsWith("/websocket")) {
+            const gameId = pathname.split("/")[2];
+            const cookie = "Paul";
+            const success = server.upgrade(request, {
+                data: {
+                    createAt: Date.now(),
+                    gameId: gameId,
+                    authToken: cookie,
+                },
+            });
+            if (success) {
+                console.log("server upgraded to websocket");
+
+            }
+            return new Response("WebSocket upgrade error", {status: 400});
+        }
+        
         // For static files
         if (pathname === "/") {
             const indexPath = BASE_PATH + "/createJoinGame.html";
@@ -32,10 +57,10 @@ const server = Bun.serve({
             const game = games[gameId];
 
             if (game) {
-                const filePath = BASE_PATH + "/index.html";
-                const response = new Response(file(filePath));
+                const response = new Response(file(BASE_PATH + "/index.html"));
                 response.headers.set("Cache-Control", "public, max-age=3600");
                 return response;
+
             } else {
                 // Allow other files to be served
                 const filePath = BASE_PATH + "/" + pathname.split("/")[1];
@@ -71,7 +96,6 @@ const server = Bun.serve({
             }
         }
 
-
         // Create the room
         if (pathname === "/api/game" && method === "GET") {
             // Generate a random game ID
@@ -102,6 +126,26 @@ const server = Bun.serve({
         return response;
 
     },
+    websocket: {
+        open(ws) {
+            console.log("openning in game n°" + ws.data.gameId);
+            const msg = `${ws.data.authToken} has joined the chat`;
+            // Join the game
+            ws.subscribe(ws.data.gameId);
+            ws.publish(ws.data.gameId, msg);
+        },
+        message(ws, message) {
+            console.log("messaging");
+            // TODO: Receive the input from the client and update the game state
+            ws.send(`Server received your message: ${message}`);
+        },
+        close(ws) {
+            console.log("closing");
+            const msg = `${ws.data.authToken} has left the game`;
+            ws.unsubscribe(ws.data.gameId);
+            ws.publish(ws.data.gameId, msg);
+        },
+    },
     error(error) {
         console.log(error);
         if (error.errno === -2) {
@@ -110,4 +154,11 @@ const server = Bun.serve({
         return new Response(null, {status: 500});
     },
 });
+
 console.log(`Server running on port ${server.port}`);
+
+const getUsernameFromReq = (req: any) => {
+    const parsedUrl: any = url.parse(req.url);
+    const queryParams = querystring.parse(parsedUrl.query);
+    return queryParams;
+}
