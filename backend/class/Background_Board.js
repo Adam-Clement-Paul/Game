@@ -1,6 +1,6 @@
-import {Section} from "./BackSection.js";
-import {Corridor} from "./BackCorridor.js";
-import {Tile} from "./BackTile.js";
+import {Section} from "./Background_Section.js";
+import {Corridor} from "./Background_Corridor.js";
+import {Tile} from "./Background_Tile.js";
 
 /*
 * Board class

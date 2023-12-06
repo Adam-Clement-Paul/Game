@@ -1,5 +1,5 @@
-import {Board} from "./BackBoard.js";
-import {Player} from "./BackPlayer.js";
+import {Board} from "./Background_Board.js";
+import {Player} from "./Background_Player.js";
 
 export class Game {
     constructor () {
