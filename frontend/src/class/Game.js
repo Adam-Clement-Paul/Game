@@ -6,7 +6,10 @@ export class Game {
         this.board = new Board(board);
         this.players = players;
 
-        console.log(board);
+        players.forEach(player => {
+            this.setPlayer(player.name, player.x, player.y, 0xff00ff, true);
+        });
+
         this.board.displayTiles();
     }
 

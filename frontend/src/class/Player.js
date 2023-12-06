@@ -4,7 +4,7 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, color, game, active = false) {
+    constructor (name, x, y, color, game, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
@@ -58,6 +58,28 @@ export class Player {
 
             this.update();
         }
+
+        /*
+        // Récupère la position et la rotation du joueur dans le message de type "moveClient" et "rotationClient"
+        socket.addEventListener('message', () => {
+            let data;
+            try {
+                data = JSON.parse(event.data);
+            } catch (e) {
+                // console.log("Error parsing JSON data");
+                return;
+            }
+            if (data.type === "moveClient") {
+                this.x = data.position.x;
+                this.y = data.position.y;
+                console.log("Mouvement du joueur");
+            }
+            if (data.type === "rotationClient") {
+                this.cube.rotation.y = data.rotation;
+                console.log("Rotation du joueur");
+            }
+        });
+        */
     }
 
     onDocumentKeyDown (event) {
@@ -90,19 +112,6 @@ export class Player {
         }));
     }
 
-    // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
-    checkCollisionWithTiles (x, y) {
-        for (const tile of this.game.board.tiles) {
-            if (tile.type !== "grass" &&
-                Math.abs(tile.x - x) < this.distance_to_collision &&
-                Math.abs(tile.y - y) < this.distance_to_collision
-            ) {
-                return true; // Collision with a tile, movement is forbidden.
-            }
-        }
-        return false; // No collision with a tile, movement is allowed.
-    }
-
     // Updates the camera position and lookAt
     cameraMovements (x, y) {
         let tl = gsap.timeline();
@@ -130,16 +139,16 @@ export class Player {
         }
 
         // TODO: Use backend token to check if the player is allowed to move
-        if (Object.values(this.keys).some(key => key)) {
-            socket.send(JSON.stringify({
-                type: "move",
-                player: this.name,
-                keys: this.keys,
-            }));
-        }
+        socket.send(JSON.stringify({
+            type: "move",
+            player: this.name,
+            keys: this.keys,
+        }));
+
+
 
         setTimeout(() => {
             this.update();
-        }, 1000 / 30); // 30 FPS
+        }, 1000); // 30 FPS
     }
 }

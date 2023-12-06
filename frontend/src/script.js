@@ -29,7 +29,12 @@ fetch(`/${gameId}`, {
     .then(response => response.json())
     .then(data => {
         const game = new Game(data.game.board, data.game.players);
-        game.setPlayer('John', 4, 3, 0xff00ff, true);
+        console.log(data.game.players);
+        //game.setPlayer('John', 4, 3, 0xff00ff, true);
+
+
+
+
     })/*
     .catch(error => {
         console.error(error);

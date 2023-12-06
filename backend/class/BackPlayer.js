@@ -1,3 +1,5 @@
+import server from "bunrest";
+
 const degreesToRadians = (degrees) => {
     return degrees * Math.PI / 180;
 }
@@ -7,11 +9,12 @@ const radiansToDegrees = (radians) => {
 }
 
 export class Player {
-    constructor (name, game, active = false) {
+    constructor (name, board, ws) {
         this.name = name;
         this.x = 4;
-        this.y = 3;
-        this.game = game;
+        this.y = 0;
+        this.board = board;
+        this.ws = ws;
 
         this.playerDirection = 0;
 
@@ -38,14 +41,11 @@ export class Player {
             d: false,
         };
 
-        if (active) {
-            document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
-            document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-            document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
-            document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
 
             this.update();
-        }
+
+
+
     }
 
     onDocumentClickExtinguishFire () {
@@ -67,16 +67,16 @@ export class Player {
 
         if (offsetX !== 0 && offsetY !== 0) {
             // Get the 2 tiles on the sides of the front tile, like an L
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x, tile.y + offsetY));
         } else if (offsetX === 0) {
             // Get the 2 tiles on the Z / -Z sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
         } else if (offsetY === 0) {
             // Get the 2 tiles on the X / -X sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
         }
 
         // For each tile, extinguish the fire
@@ -88,9 +88,7 @@ export class Player {
     }
 
     // Axe
-    onDocumentRightClick (event) {
-        event.preventDefault();
-
+    onDocumentRightClick () {
         // Get the tile in front of the player
         let {frontTile} = this.getFrontTile(this.playerDirection);
 
@@ -101,7 +99,7 @@ export class Player {
 
     // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
     checkCollisionWithTiles (x, y) {
-        for (const tile of this.game.board.tiles) {
+        for (const tile of this.board.tiles) {
             if (tile.type !== "grass" &&
                 Math.abs(tile.x - x) < this.distance_to_collision &&
                 Math.abs(tile.y - y) < this.distance_to_collision
@@ -137,10 +135,11 @@ export class Player {
         if (angleDiff < -180) angleDiff += 360;
 
         this.playerDirection += degreesToRadians(angleDiff) * 0.1;
+        this.setRotation(this.playerDirection);
     }
 
     movementsAndCollisions () {
-        if (this.velocity.x !== 0 || this.velocity.y !== 0) {
+        /*if (this.velocity.x !== 0 || this.velocity.y !== 0) {
             let desiredX = this.x + this.velocity.x;
             let desiredY = this.y + this.velocity.y;
 
@@ -155,11 +154,12 @@ export class Player {
                     this.y = desiredY;
                 }
             } else {
+                */
                 // If no collision is detected, move in the desired direction
                 this.x += this.velocity.x;
                 this.y += this.velocity.y;
-            }
-        }
+            //}
+       // }
     }
 
     movementsWithInertia () {
@@ -188,7 +188,11 @@ export class Player {
 
         this.movementsWithInertia();
 
-        requestAnimationFrame(this.update.bind(this));
+        console.log(this.x, this.y)
+
+        setTimeout(() => {
+            this.update();
+        }, 1000); // 30 FPS
     }
 
     getPosition () {
@@ -201,6 +205,15 @@ export class Player {
     setPosition (x, y) {
         this.x = x;
         this.y = y;
+
+        // send to the frontend
+        if (this.ws && this.ws.send) {
+            this.ws.send(JSON.stringify({
+                type: "moveClient",
+                player: this.name,
+                position: { x: this.x, y: this.y },
+            }));
+        }
     }
 
     getRotation () {
@@ -209,6 +222,16 @@ export class Player {
 
     setRotation (rotation) {
         this.playerDirection = rotation;
+
+        // send to the frontend
+        if (this.ws && this.ws.send) {
+            // Send rotation to the frontend
+            this.ws.send(JSON.stringify({
+                type: "rotateClient",
+                player: this.name,
+                rotation: this.playerDirection,
+            }));
+        }
     }
 
     setAction (action) {

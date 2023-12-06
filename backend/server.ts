@@ -10,6 +10,8 @@ const BASE_PATH = "../frontend/dist";
 
 // Store created games and their IDs
 const games = {};
+let keys: { [x: string]: any; };
+let keyArray: boolean[];
 
 type WebSocketData = {
     createdAt: number;
@@ -28,6 +30,8 @@ const server = Bun.serve<WebSocketData>({
         if (pathname.startsWith("/websocket")) {
             const gameId = pathname.split("/")[2];
             const cookie = "Paul";
+            // @ts-ignore
+            games[gameId].setPlayer(cookie, server.websocket);
             const success = server.upgrade(request, {
                 data: {
                     createAt: Date.now(),
@@ -37,7 +41,7 @@ const server = Bun.serve<WebSocketData>({
             });
             if (success) {
                 console.log("server upgraded to websocket");
-
+                return;
             }
             return new Response("WebSocket upgrade error", {status: 400});
         }
@@ -76,6 +80,7 @@ const server = Bun.serve<WebSocketData>({
             // @ts-ignore
             const game = games[gameId];
 
+            // If the game exists in the game list
             if (game) {
                 // Get the game class and the game data
                 return new Response(JSON.stringify({game: game}), {
@@ -135,18 +140,31 @@ const server = Bun.serve<WebSocketData>({
             ws.publish(ws.data.gameId, msg);
         },
         message(ws, message) {
-            // Si le message reçu est un json avec un champ "type" et "data"
             let jsonMessage;
             if (typeof message === "string") {
                 jsonMessage = JSON.parse(message);
             }
             if (jsonMessage.type === "move") {
-                // Envoi au BackPlayer les keys pressées
-                console.log(jsonMessage.keys);
+                keys = jsonMessage.keys;
+
+                keyArray = Object.values(keys);
+
+                // z
+                // @ts-ignore
+                games[ws.data.gameId].players[0].keys.z = keyArray[0];
+
+                // q
+                // @ts-ignore
+                games[ws.data.gameId].players[0].keys.q = keyArray[1];
+
+                // s
+                // @ts-ignore
+                games[ws.data.gameId].players[0].keys.s = keyArray[2];
+
+                // d
+                // @ts-ignore
+                games[ws.data.gameId].players[0].keys.d = keyArray[3];
             }
-
-
-
 
             console.log("messaging");
             // TODO: Receive the input from the client and update the game state
