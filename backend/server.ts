@@ -135,22 +135,18 @@ const server = Bun.serve<WebSocketData>({
             ws.publish(ws.data.gameId, msg);
         },
         message(ws, message) {
-            // Si le message reçu est un json avec un champ "type" et "data"
+            console.log("messaging");
+            ws.send(`Server received your message: ${message}`);
+
             let jsonMessage;
             if (typeof message === "string") {
                 jsonMessage = JSON.parse(message);
             }
+
             if (jsonMessage.type === "move") {
                 // Envoi au BackPlayer les keys pressées
                 console.log(jsonMessage.keys);
             }
-
-
-
-
-            console.log("messaging");
-            // TODO: Receive the input from the client and update the game state
-            ws.send(`Server received your message: ${message}`);
         },
         close(ws) {
             console.log("closing");
