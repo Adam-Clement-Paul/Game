@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {scene} from '../script_modules/init.js';
+import {scene} from '../script_modules/init3DScene.js';
 
 export class Tile {
     constructor (x, y, fire = 0, type = "grass") {
@@ -7,14 +7,6 @@ export class Tile {
         this.y = y;
         this.fire = fire;
         this.type = type;
-
-        // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 1;
-        this.timer = 0;
-        clearTimeout(this.timer);
-
-        // Miliseconds before a tree is burnt
-        this.time_before_burnt = 10000 + 20000 * Math.random();
 
         if (this.type === "tree") {
             this.life = 5;

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {scene, camera} from '../script_modules/init.js';
+import {scene, camera} from '../script_modules/init3DScene.js';
 import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 

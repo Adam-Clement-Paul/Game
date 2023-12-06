@@ -7,7 +7,6 @@ export class Game {
         this.players = players;
         this.socket = socket;
 
-        console.log(board);
         this.board.displayTiles();
     }
 
@@ -30,28 +29,8 @@ export class Game {
         this.gameLoop();
     }
 
-    gameLoop() {
-        if (this.endOfTheGame()) {
-            clearTimeout(this.timeGameLoop);
-            console.log("Game over !");
-        }
-        else {
-            // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
-            this.timeGameLoop = setTimeout(() => this.gameLoop(), 1000);
-        }
-    }
-
     getBoard () {
         return this.board;
-    }
-
-    endOfTheGame () {
-        // Check each second if the game is the board still have fire tiles
-        if (this.board.tiles.some(tile => tile.fire > 0)) {
-            return false;
-        }
-        // If not, the game is over
-        return true;
     }
 
     setPlayer(name, x, y, color, active = false) {

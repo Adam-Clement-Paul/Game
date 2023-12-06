@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 
 import {loadModel} from './script_modules/glbImport.js';
-import {camera, controls, renderer, scene, stats} from './script_modules/init.js';
+import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
 import * as UTILS from "./script_modules/utils.js";
 
 import {Game} from "./class/Game.js";
@@ -11,13 +11,7 @@ import {Player} from "./class/Player.js";
 
 // Get the game ID from the URL
 const gameId = window.location.pathname.split("/")[1];
-
-const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
-console.log(socket);
-socket.addEventListener("message", event => {
-    console.log(event.data);
-});
-
+const socket = connectToWebsocket(gameId);
 
 
 fetch(`/${gameId}`, {
@@ -45,11 +39,6 @@ fetch(`/${gameId}`, {
     })*/;
 
 
-// Forbid right click
-document.addEventListener('contextmenu', function (event) {
-    event.preventDefault();
-});
-
 animate();
 
 function animate () {
@@ -71,3 +60,11 @@ function windowResize () {
 }
 
 window.addEventListener('resize', windowResize, false);
+
+function connectToWebsocket (gameId) {
+    const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+    socket.addEventListener("message", event => {
+        console.log(event.data);
+    });
+    return socket;
+}
