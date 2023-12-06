@@ -1,16 +1,12 @@
 export class Player {
-    constructor (name, game, active = false) {
+    constructor (name, color, x, y, board, active = false) {
         this.name = name;
-        this.x = 4;
-        this.y = 3;
-        this.game = game;
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.board = board;
 
         if (active) {
-            document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
-            document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-            document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
-            document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
-
             this.update();
         }
     }
@@ -35,16 +31,16 @@ export class Player {
 
         if (offsetX !== 0 && offsetY !== 0) {
             // Get the 2 tiles on the sides of the front tile, like an L
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x, tile.y + offsetY));
         } else if (offsetX === 0) {
             // Get the 2 tiles on the Z / -Z sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
         } else if (offsetY === 0) {
             // Get the 2 tiles on the X / -X sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
+            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
         }
 
         // For each tile, extinguish the fire
@@ -69,7 +65,7 @@ export class Player {
 
     getFrontTile (playerDirection) {
         // Get the tile on which the player is standing
-        const tile = this.game.getBoard().getTileAtPosition(Math.round(this.x), Math.round(this.y));
+        const tile = this.board.getTileAtPosition(Math.round(this.x), Math.round(this.y));
         if (!tile) {
             return;
         }
@@ -78,7 +74,7 @@ export class Player {
         const offsetX = Math.round(Math.sin(playerDirection));
         const offsetY = Math.round(Math.cos(playerDirection));
 
-        const frontTile = this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY);
+        const frontTile = this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY);
         if (!frontTile) {
             return;
         }

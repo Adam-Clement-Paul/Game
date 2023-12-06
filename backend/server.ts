@@ -97,6 +97,7 @@ const server = Bun.serve<WebSocketData>({
         if (pathname.startsWith("/websocket")) {
             const gameId = pathname.split("/")[2];
             const cookie = "Paul";
+            const color = 0xffff00;
             // Upgrade the request to a websocket
             const success = server.upgrade(request, {
                 data: {
@@ -108,6 +109,7 @@ const server = Bun.serve<WebSocketData>({
 
             if (success) {
                 console.log("Server upgraded to websocket");
+                games[gameId].addPlayer(cookie, color);
                 return;
             }
             return new Response("WebSocket upgrade error", {status: 500});
