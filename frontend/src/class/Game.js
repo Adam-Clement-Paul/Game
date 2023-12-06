@@ -2,9 +2,10 @@ import {Board} from "./Board.js";
 import {Player} from "./Player.js";
 
 export class Game {
-    constructor (board, players) {
+    constructor (board, players, socket) {
         this.board = new Board(board);
         this.players = players;
+        this.socket = socket;
 
         console.log(board);
         this.board.displayTiles();
@@ -54,6 +55,6 @@ export class Game {
     }
 
     setPlayer(name, x, y, color, active = false) {
-        this.players.push(new Player(name, x, y, color, this, active));
+        this.players.push(new Player(name, x, y, color, this, this.socket, active));
     }
 }

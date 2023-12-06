@@ -8,8 +8,17 @@ import * as UTILS from "./script_modules/utils.js";
 import {Game} from "./class/Game.js";
 import {Player} from "./class/Player.js";
 
+
 // Get the game ID from the URL
 const gameId = window.location.pathname.split("/")[1];
+
+const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+console.log(socket);
+socket.addEventListener("message", event => {
+    console.log(event.data);
+});
+
+
 
 fetch(`/${gameId}`, {
     method: 'GET',
@@ -28,7 +37,7 @@ fetch(`/${gameId}`, {
     })
     .then(response => response.json())
     .then(data => {
-        const game = new Game(data.game.board, data.game.players);
+        const game = new Game(data.game.board, data.game.players, socket);
         game.setPlayer('John', 4, 3, 0xff00ff, true);
     })/*
     .catch(error => {

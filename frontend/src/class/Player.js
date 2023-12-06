@@ -4,12 +4,14 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, color, game, active = false) {
+    constructor (name, x = 4, y = 3, color, game, socket, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
         this.color = color;
         this.game = game;
+        // Used to send messages to the server (websocket)
+        this.socket = socket;
 
         // These values are constants
         this.speed = 0.04;
@@ -73,7 +75,7 @@ export class Player {
     // FireHose
     onDocumentClickExtinguishFire () {
         // TODO: Use backend token to check if the player is allowed to extinguish fire
-        socket.send(JSON.stringify({
+        this.socket.send(JSON.stringify({
             type: "extinguish",
             player: this.name,
         }));
@@ -84,7 +86,7 @@ export class Player {
         event.preventDefault();
 
         // TODO: Use backend token to check if the player is allowed to use the axe
-        socket.send(JSON.stringify({
+        this.socket.send(JSON.stringify({
             type: "axe",
             player: this.name,
         }));
