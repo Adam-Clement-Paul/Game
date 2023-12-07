@@ -32,8 +32,7 @@ const server = Bun.serve<WebSocketData>({
             return response;
         }
 
-        // Allow other files to be served (static files) and
-        // check all routes for games: at localhost/GAME_ID
+        // Check all routes for games: at localhost/GAME_ID
         if (pathname.startsWith("/") && method === "GET" && pathname.split("/").length === 2) {
             // Extract game ID from the URL
             const gameId = pathname.split("/")[1];
@@ -96,8 +95,13 @@ const server = Bun.serve<WebSocketData>({
         // Route to join the websocket room
         if (pathname.startsWith("/websocket")) {
             const gameId = pathname.split("/")[2];
+
+            // TODO: Get the name of the player from the cookie
             const cookie = "Paul";
-            const color = 0xffff00;
+
+            // TODO: Get the skin of the player with a request to the database
+            const color = 0xff00ff;
+
             // Upgrade the request to a websocket
             const success = server.upgrade(request, {
                 data: {
@@ -146,9 +150,14 @@ const server = Bun.serve<WebSocketData>({
             if (jsonMessage.type === "axe") {
                 // TODO: cut a tree
             }
+
+
         },
         close(ws) {
             console.log("closing");
+
+            games[ws.data.gameId].removePlayer(ws.data.authToken);
+
             const msg = `${ws.data.authToken} has left the game`;
             ws.unsubscribe(ws.data.gameId);
             ws.publish(ws.data.gameId, msg);
