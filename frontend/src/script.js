@@ -66,5 +66,10 @@ function connectToWebsocket (gameId) {
     socket.addEventListener("message", event => {
         console.log(event.data);
     });
+    socket.addEventListener("error", event => {
+        throw new Error("Error: cannot connect to the websocket");
+    });
     return socket;
 }
+
+

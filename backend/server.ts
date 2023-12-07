@@ -102,6 +102,13 @@ const server = Bun.serve<WebSocketData>({
             // TODO: Get the skin of the player with a request to the database
             const color = 0xff00ff;
 
+            // If the player is already in the game, do not upgrade the request
+            for (const player in games[gameId].players) {
+                if (games[gameId].players[player].name === cookie) {
+                    return;
+                }
+            }
+
             // Upgrade the request to a websocket
             const success = server.upgrade(request, {
                 data: {
@@ -129,6 +136,12 @@ const server = Bun.serve<WebSocketData>({
     },
     websocket: {
         open(ws) {
+            for (const player in games[ws.data.gameId].players) {
+                if (games[ws.data.gameId].players[player].name === ws.data.authToken) {
+                    ws.close(403, "Player already in game");
+                    return;
+                }
+            }
             console.log("openning in game n°" + ws.data.gameId);
             const msg = `${ws.data.authToken} has joined the chat`;
             // Join the game
@@ -155,9 +168,7 @@ const server = Bun.serve<WebSocketData>({
         },
         close(ws) {
             console.log("closing");
-
             games[ws.data.gameId].removePlayer(ws.data.authToken);
-
             const msg = `${ws.data.authToken} has left the game`;
             ws.unsubscribe(ws.data.gameId);
             ws.publish(ws.data.gameId, msg);
