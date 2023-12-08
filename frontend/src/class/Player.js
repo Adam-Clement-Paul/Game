@@ -4,7 +4,7 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, color, game, socket) {
+    constructor (name, x, y, color, game, socket) {
         this.name = name;
         this.x = x;
         this.y = y;

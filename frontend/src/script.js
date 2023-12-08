@@ -12,7 +12,7 @@ import {Player} from "./class/Player.js";
 // Get the game ID from the URL
 const gameId = window.location.pathname.split("/")[1];
 const socket = connectToWebsocket(gameId);
-
+let game;
 
 fetch(`/${gameId}`, {
     method: 'GET',
@@ -31,7 +31,7 @@ fetch(`/${gameId}`, {
     })
     .then(response => response.json())
     .then(data => {
-        const game = new Game(data.game.board, data.game.players, socket);
+        game = new Game(data.game.board, data.game.players, socket);
         // game.setPlayer('John', 4, 3, 0xff00ff, true);
     })/*
     .catch(error => {
@@ -63,11 +63,20 @@ window.addEventListener('resize', windowResize, false);
 
 function connectToWebsocket (gameId) {
     const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+
     socket.addEventListener("message", event => {
-        console.log(event.data);
+        console.log("Received message:", event.data);
+
+        const data = JSON.parse(event.data);
+        if (data.type === "join") {
+            game.addPlayer(data.playerId, 4, 3, data.color);
+        }
     });
+
     socket.addEventListener("error", event => {
         throw new Error("Error: cannot connect to the websocket");
     });
+
     return socket;
 }
+

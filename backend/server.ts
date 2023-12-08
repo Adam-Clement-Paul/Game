@@ -15,6 +15,7 @@ type WebSocketData = {
     createdAt: number;
     gameId: string;
     authToken: string;
+    color: number;
 };
 
 
@@ -116,10 +117,12 @@ const server = Bun.serve<WebSocketData>({
                     createAt: Date.now(),
                     gameId: gameId,
                     authToken: cookie,
+                    color: color,
                 },
             });
 
             if (success) {
+                // TODO: Request the Mr Portail API to get
                 console.log("Server upgraded to websocket");
                 games[gameId].addPlayer(cookie, color);
                 return;
@@ -144,10 +147,19 @@ const server = Bun.serve<WebSocketData>({
                 }
             }
             console.log("openning in game n°" + ws.data.gameId);
-            const msg = `${ws.data.authToken} has joined the chat`;
+
+
             // Join the game
             ws.subscribe(ws.data.gameId);
-            ws.publish(ws.data.gameId, msg);
+
+
+            const newPlayerData = JSON.stringify({
+                type: 'join',
+                playerId: ws.data.authToken,
+                color: ws.data.color,
+            });
+
+            ws.publish(ws.data.gameId, newPlayerData);
         },
         message(ws, message) {
             console.log("messaging");
