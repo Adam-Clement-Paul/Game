@@ -4,11 +4,11 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, color, game, socket, active = false) {
+    constructor (name, x = 4, y = 3, color, game, socket) {
         this.name = name;
         this.x = x;
         this.y = y;
-        this.color = color;
+        this.color = new THREE.Color(color);
         this.game = game;
         // Used to send messages to the server (websocket)
         this.socket = socket;
@@ -49,15 +49,15 @@ export class Player {
             ));
         cubeOrientation.position.set(0, 0, 0.2);
         this.cube.add(cubeOrientation);
+    }
 
-        if (active) {
-            document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
-            document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-            document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
-            document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
+    activePlayer () {
+        document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+        document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+        document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
+        document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
 
-            this.update();
-        }
+        this.update();
     }
 
     onDocumentKeyDown (event) {

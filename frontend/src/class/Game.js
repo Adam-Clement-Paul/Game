@@ -8,8 +8,9 @@ export class Game {
         this.socket = socket;
 
         this.players.forEach(player => {
-            this.addPlayer(player.name, player.x, player.y, player.color, true);
+            this.addPlayer(player.name, player.x, player.y, player.color);
         });
+        this.players[this.players.length - 1].activePlayer();
 
         this.board.displayTiles();
     }
@@ -37,7 +38,7 @@ export class Game {
         return this.board;
     }
 
-    addPlayer(name, x, y, color, active = false) {
-        this.players.push(new Player(name, x, y, color, this, this.socket, active));
+    addPlayer(name, x, y, color, active) {
+        this.players.push(new Player(name, x, y, color, this, this.socket));
     }
 }

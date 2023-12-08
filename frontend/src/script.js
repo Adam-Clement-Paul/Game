@@ -71,5 +71,3 @@ function connectToWebsocket (gameId) {
     });
     return socket;
 }
-
-

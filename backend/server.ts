@@ -97,10 +97,11 @@ const server = Bun.serve<WebSocketData>({
             const gameId = pathname.split("/")[2];
 
             // TODO: Get the name of the player from the cookie
-            const cookie = "Paul";
+            const cookie = `Paul${Math.random().toString(36).substring(2)}`;
 
             // TODO: Get the skin of the player with a request to the database
-            const color = 0xff00ff;
+            // Colors begin with 0x
+            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
 
             // If the player is already in the game, do not upgrade the request
             for (const player in games[gameId].players) {
