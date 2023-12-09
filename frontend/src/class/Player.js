@@ -220,8 +220,16 @@ export class Player {
 
     updatePosition (x, y, rotation) {
         this.x = x;
-        this.y = y;
-        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.y = y
+        let tl = gsap.timeline();
+        tl.to(this.cube.position, {
+            duration: 0.1,
+            ease: "none",
+            x: x,
+            y: this.cube.geometry.parameters.height / 2,
+            z: y
+        });
+        // this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
         this.cube.rotation.y = rotation;
     }
 }
