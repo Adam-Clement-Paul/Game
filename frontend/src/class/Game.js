@@ -46,7 +46,17 @@ export class Game {
         this.players.push(new Player(name, x, y, color, this, this.socket));
     }
 
-    updatePlayers(playersData) {
+    removePlayer (name) {
+        const player = this.players.filter(player => player.name === name);
+        if (player.length > 0) {
+            player.forEach(player => {
+                player.remove();
+            });
+        }
+        this.players = this.players.filter(player => player.name !== name);
+    }
+
+    updatePlayers (playersData) {
         const keys = Object.keys(playersData);
 
         for (let i = 0; i < keys.length; i++) {

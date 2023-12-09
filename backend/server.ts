@@ -148,13 +148,11 @@ const server = Bun.serve<WebSocketData>({
             }
             console.log("openning in game n°" + ws.data.gameId);
 
-
             // Join the game
             ws.subscribe(ws.data.gameId);
 
-
             const newPlayerData = JSON.stringify({
-                type: 'join',
+                type: 'addPlayer',
                 playerId: ws.data.authToken,
                 color: ws.data.color,
             });
@@ -181,9 +179,13 @@ const server = Bun.serve<WebSocketData>({
         close(ws) {
             console.log("closing");
             games[ws.data.gameId].removePlayer(ws.data.authToken);
-            const msg = `${ws.data.authToken} has left the game`;
+
+            const msg = JSON.stringify({
+                type: 'removePlayer',
+                playerId: ws.data.authToken,
+            });
             ws.unsubscribe(ws.data.gameId);
-            ws.publish(ws.data.gameId, msg);
+            server.publish(ws.data.gameId, msg);
         },
     },
     error(error) {

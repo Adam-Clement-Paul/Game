@@ -232,4 +232,8 @@ export class Player {
         // this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
         this.cube.rotation.y = rotation;
     }
+
+    remove () {
+        scene.remove(this.cube);
+    }
 }
