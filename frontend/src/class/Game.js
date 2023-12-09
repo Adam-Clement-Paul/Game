@@ -4,10 +4,12 @@ import {Player} from "./Player.js";
 export class Game {
     constructor (board, players, socket) {
         this.board = new Board(board);
-        this.players = players;
+        this.playersBackend = players;
+        this.players = [];
         this.socket = socket;
 
-        this.players.forEach(player => {
+        // Pour tous les joueurs impairs
+        this.playersBackend.forEach(player => {
             this.addPlayer(player.name, player.x, player.y, player.color);
         });
         if (this.players.length > 0) {
@@ -42,5 +44,18 @@ export class Game {
 
     addPlayer (name, x, y, color) {
         this.players.push(new Player(name, x, y, color, this, this.socket));
+    }
+
+    updatePlayers(playersData) {
+        const keys = Object.keys(playersData);
+
+        for (let i = 0; i < keys.length; i++) {
+            let player = playersData[keys[i]];
+            let playerToUpdate = this.players[i];
+
+            if (playerToUpdate && !playerToUpdate.active) {
+                playerToUpdate.updatePosition(player.x, player.y, player.rotation);
+            }
+        }
     }
 }

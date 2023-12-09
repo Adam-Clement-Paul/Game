@@ -51,11 +51,15 @@ export class Game {
     }
 
     addPlayer(name, color) {
-        this.players.push(new Player(name, color, 4, 3, this.board));
+        this.players.push(new Player(name, color, 4, 3, 0, this.board));
     }
 
     removePlayer(name) {
         // TODO: use instead the id of the player
         this.players = this.players.filter(player => player.name !== name);
+    }
+
+    updatePlayer (name, x, y, rotation) {
+        this.players.find(player => player.name === name).updateAll(x, y, rotation);
     }
 }

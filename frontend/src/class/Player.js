@@ -4,7 +4,7 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x, y, color, game, socket) {
+    constructor (name, x, y, color, game, socket, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
@@ -12,6 +12,7 @@ export class Player {
         this.game = game;
         // Used to send messages to the server (websocket)
         this.socket = socket;
+        this.active = active;
 
         // These values are constants
         this.speed = 0.04;
@@ -22,6 +23,9 @@ export class Player {
         // These values change over time
         this.velocity = new THREE.Vector2(0, 0);
         this.angularVelocity = 0;
+
+        this.timer = 0;
+        this.timer2 = 0;
 
         // Booleans to track which keys are currently pressed
         this.keys = {
@@ -52,12 +56,13 @@ export class Player {
     }
 
     activePlayer () {
+        this.active = true;
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
         document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
-
         this.update();
+        this.sendPosition();
     }
 
     onDocumentKeyDown (event) {
@@ -144,6 +149,8 @@ export class Player {
         if (angleDiff < -180) angleDiff += 360;
 
         this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
+        if (this.cube.rotation.y > Math.PI) this.cube.rotation.y -= Math.PI * 2;
+        if (this.cube.rotation.y < -Math.PI) this.cube.rotation.y += Math.PI * 2;
     }
 
     movementsAndCollisions () {
@@ -195,6 +202,26 @@ export class Player {
 
         this.cameraMovements(this.x, this.y);
 
-        requestAnimationFrame(this.update.bind(this));
+        this.timer = setTimeout(this.update.bind(this), 1000 / 80);
+        // clearTimeout(this.timer);
+    }
+
+    sendPosition () {
+        this.socket.send(JSON.stringify({
+            type: "move",
+            player: this.name,
+            x: this.x,
+            y: this.y,
+            rotation: this.cube.rotation.y,
+        }));
+
+        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 10);
+    }
+
+    updatePosition (x, y, rotation) {
+        this.x = x;
+        this.y = y;
+        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.cube.rotation.y = rotation;
     }
 }

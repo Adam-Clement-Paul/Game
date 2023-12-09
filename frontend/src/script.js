@@ -65,11 +65,12 @@ function connectToWebsocket (gameId) {
     const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
 
     socket.addEventListener("message", event => {
-        console.log("Received message:", event.data);
-
         const data = JSON.parse(event.data);
-        if (data.type === "join") {
+        if (data.type === "join" && game) {
             game.addPlayer(data.playerId, 4, 3, data.color);
+        }
+        if (data.type === "updatePlayers" && game) {
+            game.updatePlayers(data.players);
         }
     });
 

@@ -162,9 +162,6 @@ const server = Bun.serve<WebSocketData>({
             ws.publish(ws.data.gameId, newPlayerData);
         },
         message(ws, message) {
-            console.log("messaging");
-            ws.send(`Server received your message: ${message}`);
-
             let jsonMessage;
             if (typeof message === "string") {
                 jsonMessage = JSON.parse(message);
@@ -176,8 +173,10 @@ const server = Bun.serve<WebSocketData>({
             if (jsonMessage.type === "axe") {
                 // TODO: cut a tree
             }
-
-
+            if (jsonMessage.type === "move") {
+                // Update player position and rotation on the server
+                games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
+            }
         },
         close(ws) {
             console.log("closing");
@@ -196,5 +195,34 @@ const server = Bun.serve<WebSocketData>({
         return new Response(null, {status: 500});
     },
 });
+
+function sendPlayerPositionRotation(gameId: string) {
+    const playerData = {};
+
+    // Collect player positions and rotations
+    for (const player in games[gameId].players) {
+        const currentPlayer = games[gameId].players[player];
+        // @ts-ignore
+        playerData[player] = {
+            x: currentPlayer.x,
+            y: currentPlayer.y,
+            rotation: currentPlayer.rotation,
+        };
+    }
+
+    // Send data to all clients
+    const broadcastData = {
+        type: 'updatePlayers',
+        players: playerData,
+    };
+
+    server.publish(gameId, JSON.stringify(broadcastData));
+}
+
+setInterval(() => {
+    for (const gameId in games) {
+        sendPlayerPositionRotation(gameId);
+    }
+}, 1000 / 10); // Adjust the frequency of the updates
 
 console.log(`Server running on port ${server.port}`);

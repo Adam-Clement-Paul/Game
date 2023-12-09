@@ -1,14 +1,11 @@
 export class Player {
-    constructor (name, color, x, y, board, active = false) {
+    constructor (name, color, x, y, rotation, board) {
         this.name = name;
         this.color = color;
         this.x = x;
         this.y = y;
+        this.rotation = rotation;
         this.board = board;
-
-        if (active) {
-            this.update();
-        }
     }
 
     // FireHose
@@ -81,8 +78,9 @@ export class Player {
         return {frontTile, tile, offsetX, offsetY};
     }
 
-    update () {
-        requestAnimationFrame(this.update.bind(this));
+    updateAll (x, y, direction) {
+        this.setPosition(x, y);
+        this.setRotation(direction);
     }
 
     getPosition () {
@@ -98,11 +96,11 @@ export class Player {
     }
 
     getRotation () {
-        return this.playerDirection;
+        return this.rotation;
     }
 
     setRotation (rotation) {
-        this.playerDirection = rotation;
+        this.rotation = rotation;
     }
 
     setAction (action) {
