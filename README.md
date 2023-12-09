@@ -10,24 +10,21 @@ All commands need to be run at the root of the project.
 
 Open Docker
 
-Open the cmd in the project folder
+Open the powershell in the project folder
 
 Run the following commands:
 
 ```dockerfile
 # Run the container in the background
-docker run --rm -d -v "%CD:\=/%:/home/bun/app" -p 3010:3010 oven/bun sleep 36000
+docker run --rm -d -v "${PWD}:/home/bun/app" -p 3010:3010 oven/bun sleep 36000
 
-# Get the container ID
-for /f "tokens=*" %i in ('docker ps -q --filter "ancestor=oven/bun"') do set container_id=%i
-
-# Get the container name using the ID
-for /f "tokens=*" %i in ('docker ps --filter "id=%container_id%" --format "{{.Names}}"') do set container_name=%i
+# Get the container name
+$container_name = docker ps -q --filter "ancestor=oven/bun" | ForEach-Object { (docker ps --filter "id=$_" --format "{{.Names}}") }
 
 # Execute a command in the container without specifying its name
-docker exec -it %container_name% bash
+docker exec -it $container_name bash
 
-# Start the game (inside the container)
+# Start the game (inside the container) after installing the dependencies with "bun i"
 bun start
 ```
 
