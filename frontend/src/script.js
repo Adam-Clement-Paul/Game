@@ -67,7 +67,7 @@ function connectToWebsocket (gameId) {
     socket.addEventListener("message", event => {
         const data = JSON.parse(event.data);
         if (data.type === "addPlayer" && game) {
-            game.addPlayer(data.playerId, 4, 3, data.color);
+            game.addPlayer(data.name, 4, 3, data.color, data.playerId);
         }
         if (data.type === "updatePlayers" && game) {
             game.updatePlayers(data.players);

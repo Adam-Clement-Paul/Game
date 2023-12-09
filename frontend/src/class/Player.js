@@ -4,7 +4,7 @@ import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x, y, color, game, socket, active = false) {
+    constructor (name, x, y, color, game, socket, id, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
@@ -12,6 +12,7 @@ export class Player {
         this.game = game;
         // Used to send messages to the server (websocket)
         this.socket = socket;
+        this.id = id;
         this.active = active;
 
         // These values are constants
@@ -209,7 +210,7 @@ export class Player {
     sendPosition () {
         this.socket.send(JSON.stringify({
             type: "move",
-            player: this.name,
+            player: this.id,
             x: this.x,
             y: this.y,
             rotation: this.cube.rotation.y,

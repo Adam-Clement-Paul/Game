@@ -26,12 +26,11 @@ export class Game {
         this.gameLoop();
     }
 
-    gameLoop() {
+    gameLoop () {
         if (this.endOfTheGame()) {
             clearTimeout(this.timeGameLoop);
             console.log("Game over !");
-        }
-        else {
+        } else {
             // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
             this.timeGameLoop = setTimeout(() => this.gameLoop(), 1000);
         }
@@ -50,16 +49,16 @@ export class Game {
         return true;
     }
 
-    addPlayer(name, color) {
-        this.players.push(new Player(name, color, 4, 3, 0, this.board));
+    addPlayer (id, name, color) {
+        this.players.push(new Player(id, name, color, 4, 3, 0, this.board));
     }
 
-    removePlayer(name) {
+    removePlayer (id) {
         // TODO: use instead the id of the player
-        this.players = this.players.filter(player => player.name !== name);
+        this.players = this.players.filter(player => player.id !== id);
     }
 
-    updatePlayer (name, x, y, rotation) {
-        this.players.find(player => player.name === name).updateAll(x, y, rotation);
+    updatePlayer (id, x, y, rotation) {
+        this.players.find(player => player.id === id).updateAll(x, y, rotation);
     }
 }

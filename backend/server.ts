@@ -15,6 +15,7 @@ type WebSocketData = {
     createdAt: number;
     gameId: string;
     authToken: string;
+    name: string;
     color: number;
 };
 
@@ -99,6 +100,7 @@ const server = Bun.serve<WebSocketData>({
 
             // TODO: Get the name of the player from the cookie
             const cookie = `Paul${Math.random().toString(36).substring(2)}`;
+            const token = Math.random().toString(36).substring(2, 12);
 
             // TODO: Get the skin of the player with a request to the database
             // Colors begin with 0x
@@ -116,7 +118,8 @@ const server = Bun.serve<WebSocketData>({
                 data: {
                     createAt: Date.now(),
                     gameId: gameId,
-                    authToken: cookie,
+                    authToken: token,
+                    name: cookie,
                     color: color,
                 },
             });
@@ -124,7 +127,7 @@ const server = Bun.serve<WebSocketData>({
             if (success) {
                 // TODO: Request the Mr Portail API to get
                 console.log("Server upgraded to websocket");
-                games[gameId].addPlayer(cookie, color);
+                games[gameId].addPlayer(token, cookie, color);
                 return;
             }
             return new Response("WebSocket upgrade error", {status: 500});
@@ -141,7 +144,7 @@ const server = Bun.serve<WebSocketData>({
     websocket: {
         open(ws) {
             for (const player in games[ws.data.gameId].players) {
-                if (games[ws.data.gameId].players[player].name === ws.data.authToken) {
+                if (games[ws.data.gameId].players[player].id === ws.data.authToken) {
                     ws.close(403, "Player already in game");
                     return;
                 }
@@ -153,8 +156,9 @@ const server = Bun.serve<WebSocketData>({
 
             const newPlayerData = JSON.stringify({
                 type: 'addPlayer',
-                playerId: ws.data.authToken,
+                name: ws.data.name,
                 color: ws.data.color,
+                playerId: ws.data.authToken,
             });
 
             ws.publish(ws.data.gameId, newPlayerData);
@@ -169,7 +173,8 @@ const server = Bun.serve<WebSocketData>({
                 // TODO: extinguish the fire
             }
             if (jsonMessage.type === "axe") {
-                // TODO: cut a tree
+                // Récupère le joueur qui a envoyé le message
+                const player = games[ws.data.gameId].players[ws.data.authToken];
             }
             if (jsonMessage.type === "move") {
                 // Update player position and rotation on the server
@@ -182,7 +187,7 @@ const server = Bun.serve<WebSocketData>({
 
             const msg = JSON.stringify({
                 type: 'removePlayer',
-                playerId: ws.data.authToken,
+                playerId: ws.data.name,
             });
             ws.unsubscribe(ws.data.gameId);
             server.publish(ws.data.gameId, msg);

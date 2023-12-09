@@ -10,7 +10,7 @@ export class Game {
 
         // Pour tous les joueurs impairs
         this.playersBackend.forEach(player => {
-            this.addPlayer(player.name, player.x, player.y, player.color);
+            this.addPlayer(player.name, player.x, player.y, player.color, player.id);
         });
         if (this.players.length > 0) {
             this.players[this.players.length - 1].activePlayer();
@@ -42,18 +42,18 @@ export class Game {
         return this.board;
     }
 
-    addPlayer (name, x, y, color) {
-        this.players.push(new Player(name, x, y, color, this, this.socket));
+    addPlayer (name, x, y, color, id) {
+        this.players.push(new Player(name, x, y, color, this, this.socket, id));
     }
 
-    removePlayer (name) {
-        const player = this.players.filter(player => player.name === name);
+    removePlayer (id) {
+        const player = this.players.filter(player => player.id === id);
         if (player.length > 0) {
             player.forEach(player => {
                 player.remove();
             });
         }
-        this.players = this.players.filter(player => player.name !== name);
+        this.players = this.players.filter(player => player.id !== id);
     }
 
     updatePlayers (playersData) {

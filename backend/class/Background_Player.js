@@ -1,5 +1,6 @@
 export class Player {
-    constructor (name, color, x, y, rotation, board) {
+    constructor (id, name, color, x, y, rotation, board) {
+        this.id = id;
         this.name = name;
         this.color = color;
         this.x = x;
@@ -11,7 +12,7 @@ export class Player {
     // FireHose
     onDocumentClickExtinguishFire (playerDirection) {
         // Get the direction of the player
-        let {frontTile, tile, offsetX, offsetY} = this.getFrontTile(playerDirection);
+        let { frontTile, tile, offsetX, offsetY } = this.getFrontTile(playerDirection);
 
         /*
         // Get the 4 tiles around the front tile
@@ -53,7 +54,7 @@ export class Player {
         event.preventDefault();
 
         // Get the tile in front of the player
-        let {frontTile} = this.getFrontTile(this.playerDirection);
+        let { frontTile } = this.getFrontTile(this.playerDirection);
 
         if (frontTile.type === "tree" && frontTile.fire === 0) {
             frontTile.destroyTree();
@@ -75,7 +76,7 @@ export class Player {
         if (!frontTile) {
             return;
         }
-        return {frontTile, tile, offsetX, offsetY};
+        return { frontTile, tile, offsetX, offsetY };
     }
 
     updateAll (x, y, direction) {
