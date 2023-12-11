@@ -83,7 +83,7 @@ export class Player {
         // TODO: Use backend token to check if the player is allowed to extinguish fire
         this.socket.send(JSON.stringify({
             type: "extinguish",
-            player: this.name,
+            id: this.id,
         }));
     }
 
@@ -94,12 +94,13 @@ export class Player {
         // TODO: Use backend token to check if the player is allowed to use the axe
         this.socket.send(JSON.stringify({
             type: "axe",
-            player: this.name,
+            id: this.id,
         }));
     }
 
     // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
     checkCollisionWithTiles (x, y) {
+        return false;
         // Try to edit this code to get a banned
         for (const tile of this.game.board.tiles) {
             if (tile.type !== "grass" &&

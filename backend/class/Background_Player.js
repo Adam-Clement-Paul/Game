@@ -10,11 +10,14 @@ export class Player {
     }
 
     // FireHose
-    onDocumentClickExtinguishFire (playerDirection) {
-        // Get the direction of the player
-        let { frontTile, tile, offsetX, offsetY } = this.getFrontTile(playerDirection);
+    onDocumentClickExtinguishFire () {
+        let tilesToUpdate = [];
 
-        /*
+        // Get the direction of the player
+        let result = this.getFrontTile(this.rotation);
+        if (result) {
+            let { frontTile, tile, offsetX, offsetY } = result;
+            /*
         // Get the 4 tiles around the front tile
         const adjacentTiles = [
             frontTile,
@@ -25,40 +28,51 @@ export class Player {
         ];
         */
 
-        const adjacentTiles = [frontTile];
+            const adjacentTiles = [frontTile];
 
-        if (offsetX !== 0 && offsetY !== 0) {
-            // Get the 2 tiles on the sides of the front tile, like an L
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y));
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x, tile.y + offsetY));
-        } else if (offsetX === 0) {
-            // Get the 2 tiles on the Z / -Z sides of the player, like a T
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
-        } else if (offsetY === 0) {
-            // Get the 2 tiles on the X / -X sides of the player, like a T
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
-            adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
-        }
-
-        // For each tile, extinguish the fire
-        adjacentTiles.forEach(tile => {
-            if (tile) {
-                tile.extinguishFire();
+            if (offsetX !== 0 && offsetY !== 0) {
+                // Get the 2 tiles on the sides of the front tile, like an L
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y));
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x, tile.y + offsetY));
+            } else if (offsetX === 0) {
+                // Get the 2 tiles on the Z / -Z sides of the player, like a T
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
+            } else if (offsetY === 0) {
+                // Get the 2 tiles on the X / -X sides of the player, like a T
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
+                adjacentTiles.push(this.board.getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
             }
-        });
+
+            // For each tile, extinguish the fire
+            adjacentTiles.forEach(tile => {
+                if (tile && tile.fire > 0) {
+                    tile.extinguishFire();
+                    const index = this.board.tiles.indexOf(tile);
+                    tilesToUpdate.push([index, tile]);
+                }
+            });
+
+            return tilesToUpdate;
+        }
     }
 
     // Axe
-    onDocumentRightClick (event) {
-        event.preventDefault();
+    onDocumentRightClick () {
+        let tilesToUpdate = [];
 
         // Get the tile in front of the player
-        let { frontTile } = this.getFrontTile(this.playerDirection);
-
-        if (frontTile.type === "tree" && frontTile.fire === 0) {
-            frontTile.destroyTree();
+        let result = this.getFrontTile(this.rotation);
+        if (result) {
+            let { frontTile } = result;
+            if (frontTile.type === "tree" && frontTile.fire === 0) {
+                frontTile.destroyTree();
+                const index = this.board.tiles.indexOf(frontTile);
+                tilesToUpdate.push([index, frontTile]);
+            }
         }
+
+        return tilesToUpdate;
     }
 
     getFrontTile (playerDirection) {

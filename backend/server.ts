@@ -2,7 +2,6 @@ import {file} from "bun";
 
 import {Game} from "./class/Background_Game.js";
 
-
 const BASE_PATH = "../frontend/dist";
 const domain = "http://localhost";
 
@@ -169,13 +168,32 @@ const server = Bun.serve<WebSocketData>({
                 jsonMessage = JSON.parse(message);
             }
 
-            if (jsonMessage.type === "extinguish") {
-                // TODO: extinguish the fire
+            let tilesToUpdate: any[] = [];
+
+            if (jsonMessage.type === "extinguish" || jsonMessage.type === "axe") {
+                for (const playerKey in games[ws.data.gameId].players) {
+                    const player = games[ws.data.gameId].players[playerKey];
+
+                    if (player.id === jsonMessage.id) {
+                        let updatedTiles = [];
+
+                        if (jsonMessage.type === "extinguish") {
+                            updatedTiles = player.onDocumentClickExtinguishFire();
+                        } else if (jsonMessage.type === "axe") {
+                            updatedTiles = player.onDocumentRightClick();
+                        }
+
+                        updatedTiles.forEach((tile: any) => {
+                            tilesToUpdate.push(tile);
+                        });
+
+                        break; // Only one player can perform an action in one message
+                    }
+                }
+                console.log(tilesToUpdate);
             }
-            if (jsonMessage.type === "axe") {
-                // Récupère le joueur qui a envoyé le message
-                const player = games[ws.data.gameId].players[ws.data.authToken];
-            }
+
+
             if (jsonMessage.type === "move") {
                 // Update player position and rotation on the server
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
