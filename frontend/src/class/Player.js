@@ -217,7 +217,7 @@ export class Player {
             rotation: this.cube.rotation.y,
         }));
 
-        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 10);
+        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
     }
 
     updatePosition (x, y, rotation) {

@@ -95,6 +95,8 @@ const server = Bun.serve<WebSocketData>({
 
         // Route to join the websocket room
         if (pathname.startsWith("/websocket")) {
+            // TODO: Extract the token sended by the client to identify the player
+
             const gameId = pathname.split("/")[2];
 
             // TODO: Get the name of the player from the cookie
@@ -248,6 +250,6 @@ setInterval(() => {
     for (const gameId in games) {
         sendPlayerPositionRotation(gameId);
     }
-}, 1000 / 10); // Adjust the frequency of the updates
+}, 1000 / 60); // Adjust the frequency of the updates
 
 console.log(`Server running on port ${server.port}`);
