@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {scene} from '../script_modules/init.js';
+import {scene} from '../script_modules/init3DScene.js';
 
 export class Tile {
     constructor (x, y, fire = 0, type = "grass") {
@@ -7,14 +7,6 @@ export class Tile {
         this.y = y;
         this.fire = fire;
         this.type = type;
-
-        // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 1;
-        this.timer = 0;
-        clearTimeout(this.timer);
-
-        // Miliseconds before a tree is burnt
-        this.time_before_burnt = 10000 + 20000 * Math.random();
 
         if (this.type === "tree") {
             this.life = 5;
@@ -56,41 +48,6 @@ export class Tile {
             interpolatedColor.lerpColors(yellow, red, this.fire);
 
             this.plane.material.color.copy(interpolatedColor);
-        }
-    }
-
-    setFire () {
-        // Fire is initialized between 1% and 60%
-        this.fire = 0.01 + 0.6 * Math.random();
-        this.updateDisplay();
-    }
-
-    extinguishFire () {
-        this.fire = 0;
-        this.updateDisplay();
-    }
-
-    destroyTree () {
-        this.life--;
-        // Change the color of the tree and make it lighter
-        this.plane.material.color.setHex(0x00ff00 - (0x00ff00 * (5 - this.life) / 5));
-
-        if (this.life <= 1) {
-            // The color becomes darker and darker
-            this.type = "grass";
-            this.updateDisplay();
-        }
-    }
-
-    growingFire () {
-        if (this.fire > 0 && this.fire < 1) {
-            this.timer = setTimeout(() => {
-                if (this.fire !== 0) {
-                    this.fire += 0.01;
-                    this.updateDisplay();
-                    this.growingFire();
-                }
-            }, this.growing_fire_timer * 1000 * Math.random());
         }
     }
 }

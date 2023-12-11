@@ -1,14 +1,19 @@
 import * as THREE from "three";
-import {scene, camera} from '../script_modules/init.js';
+import {scene, camera} from '../script_modules/init3DScene.js';
 import gsap from "gsap";
 import * as UTILS from "../script_modules/utils.js";
 
 export class Player {
-    constructor (name, x = 4, y = 3, game, active = false) {
+    constructor (name, x, y, color, game, socket, id, active = false) {
         this.name = name;
         this.x = x;
         this.y = y;
+        this.color = new THREE.Color(color);
         this.game = game;
+        // Used to send messages to the server (websocket)
+        this.socket = socket;
+        this.id = id;
+        this.active = active;
 
         // These values are constants
         this.speed = 0.04;
@@ -20,7 +25,8 @@ export class Player {
         this.velocity = new THREE.Vector2(0, 0);
         this.angularVelocity = 0;
 
-        this.collisionWithTiles = false;
+        this.timer = 0;
+        this.timer2 = 0;
 
         // Booleans to track which keys are currently pressed
         this.keys = {
@@ -33,7 +39,7 @@ export class Player {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
-                color: 0xff00ff
+                color: this.color
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
@@ -48,99 +54,54 @@ export class Player {
             ));
         cubeOrientation.position.set(0, 0, 0.2);
         this.cube.add(cubeOrientation);
+    }
 
-        if (active) {
-            document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
-            document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
-            document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
-            document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
-
-            this.update();
-        }
+    activePlayer () {
+        this.active = true;
+        document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+        document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+        document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
+        document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
+        this.update();
+        this.sendPosition();
     }
 
     onDocumentKeyDown (event) {
-        this.keys[event.key] = true;
+        if (event.key in this.keys) {
+            this.keys[event.key] = true;
+        }
     }
 
     onDocumentKeyUp (event) {
-        this.keys[event.key] = false;
+        if (event.key in this.keys) {
+            this.keys[event.key] = false;
+        }
     }
 
+    // FireHose
     onDocumentClickExtinguishFire () {
-        // Get the direction of the player
-        let playerDirection = this.cube.rotation.y;
-
-        let {frontTile, tile, offsetX, offsetY} = this.getFrontTile(playerDirection);
-
-        /*
-        // Get the 4 tiles around the front tile
-        const adjacentTiles = [
-            frontTile,
-            this.game.getBoard().getTileAt(frontTile.x + 1, frontTile.y),
-            this.game.getBoard().getTileAt(frontTile.x - 1, frontTile.y),
-            this.game.getBoard().getTileAt(frontTile.x, frontTile.y + 1),
-            this.game.getBoard().getTileAt(frontTile.x, frontTile.y - 1),
-        ];
-        */
-
-        const adjacentTiles = [frontTile];
-
-        if (offsetX !== 0 && offsetY !== 0) {
-            // Get the 2 tiles on the sides of the front tile, like an L
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x, tile.y + offsetY));
-        } else if (offsetX === 0) {
-            // Get the 2 tiles on the Z / -Z sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX - 1, tile.y + offsetY));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX + 1, tile.y + offsetY));
-        } else if (offsetY === 0) {
-            // Get the 2 tiles on the X / -X sides of the player, like a T
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY - 1));
-            adjacentTiles.push(this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY + 1));
-        }
-
-        // For each tile, extinguish the fire
-        adjacentTiles.forEach(tile => {
-            if (tile) {
-                tile.extinguishFire();
-            }
-        });
-    }
-
-    getFrontTile (playerDirection) {
-        // Get the tile on which the player is standing
-        const tile = this.game.getBoard().getTileAtPosition(Math.round(this.x), Math.round(this.y));
-        if (!tile) {
-            return;
-        }
-
-        // Get the tile in front of the player
-        const offsetX = Math.round(Math.sin(playerDirection));
-        const offsetY = Math.round(Math.cos(playerDirection));
-
-        const frontTile = this.game.getBoard().getTileAtPosition(tile.x + offsetX, tile.y + offsetY);
-        if (!frontTile) {
-            return;
-        }
-        return {frontTile, tile, offsetX, offsetY};
+        // TODO: Use backend token to check if the player is allowed to extinguish fire
+        this.socket.send(JSON.stringify({
+            type: "extinguish",
+            id: this.id,
+        }));
     }
 
     // Axe
     onDocumentRightClick (event) {
         event.preventDefault();
 
-        let playerDirection = this.cube.rotation.y;
-        // Get the tile in front of the player
-        let {frontTile} = this.getFrontTile(playerDirection);
-
-        if (frontTile.type === "tree" && frontTile.fire === 0) {
-            frontTile.destroyTree();
-        }
+        // TODO: Use backend token to check if the player is allowed to use the axe
+        this.socket.send(JSON.stringify({
+            type: "axe",
+            id: this.id,
+        }));
     }
 
     // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
     checkCollisionWithTiles (x, y) {
+        return false;
+        // Try to edit this code to get a banned
         for (const tile of this.game.board.tiles) {
             if (tile.type !== "grass" &&
                 Math.abs(tile.x - x) < this.distance_to_collision &&
@@ -190,6 +151,8 @@ export class Player {
         if (angleDiff < -180) angleDiff += 360;
 
         this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
+        if (this.cube.rotation.y > Math.PI) this.cube.rotation.y -= Math.PI * 2;
+        if (this.cube.rotation.y < -Math.PI) this.cube.rotation.y += Math.PI * 2;
     }
 
     movementsAndCollisions () {
@@ -241,6 +204,38 @@ export class Player {
 
         this.cameraMovements(this.x, this.y);
 
-        requestAnimationFrame(this.update.bind(this));
+        this.timer = setTimeout(this.update.bind(this), 1000 / 80);
+        // clearTimeout(this.timer);
+    }
+
+    sendPosition () {
+        this.socket.send(JSON.stringify({
+            type: "move",
+            player: this.id,
+            x: this.x,
+            y: this.y,
+            rotation: this.cube.rotation.y,
+        }));
+
+        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
+    }
+
+    updatePosition (x, y, rotation) {
+        this.x = x;
+        this.y = y
+        let tl = gsap.timeline();
+        tl.to(this.cube.position, {
+            duration: 0.1,
+            ease: "none",
+            x: x,
+            y: this.cube.geometry.parameters.height / 2,
+            z: y
+        });
+        // this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.cube.rotation.y = rotation;
+    }
+
+    remove () {
+        scene.remove(this.cube);
     }
 }

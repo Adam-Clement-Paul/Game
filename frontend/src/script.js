@@ -2,21 +2,42 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 
 import {loadModel} from './script_modules/glbImport.js';
-import {camera, controls, renderer, scene, stats} from './script_modules/init.js';
+import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
 import * as UTILS from "./script_modules/utils.js";
 
 import {Game} from "./class/Game.js";
 import {Player} from "./class/Player.js";
 
 
-const game = new Game();
-game.setPlayer('John', 4, 3, true);
-game.start();
+// Get the game ID from the URL
+const gameId = window.location.pathname.split("/")[1];
+const socket = connectToWebsocket(gameId);
+let game;
 
-// Forbid right click
-document.addEventListener('contextmenu', function (event) {
-    event.preventDefault();
-});
+fetch(`/${gameId}`, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'text/html',
+    }
+})
+    .then(response => {
+        // Make a second request to get the game data
+        return fetch(`/api/game/data/${gameId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        game = new Game(data.game.board, data.game.players, socket);
+        // game.setPlayer('John', 4, 3, 0xff00ff, true);
+    })/*
+    .catch(error => {
+        console.error(error);
+    })*/;
+
 
 animate();
 
@@ -39,3 +60,27 @@ function windowResize () {
 }
 
 window.addEventListener('resize', windowResize, false);
+
+function connectToWebsocket (gameId) {
+    const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+    // TODO: Send the token to the backend to check if the player is allowed to connect to the game
+
+    socket.addEventListener("message", event => {
+        const data = JSON.parse(event.data);
+        if (data.type === "addPlayer" && game) {
+            game.addPlayer(data.name, 4, 3, data.color, data.playerId);
+        }
+        if (data.type === "updatePlayers" && game) {
+            game.updatePlayers(data.players);
+        }
+        if (data.type === "removePlayer" && game) {
+            game.removePlayer(data.playerId);
+        }
+    });
+
+    socket.addEventListener("error", event => {
+        throw new Error("Error: cannot connect to the websocket");
+    });
+
+    return socket;
+}
