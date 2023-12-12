@@ -10,7 +10,8 @@
   "importmap": {
     "imports": {
       "gsap": "/node_modules/gsap/index.js",
-      "three": "/node_modules/three/build/three.module.js"
+      "three": "/node_modules/three/build/three.module.js",
+      "cannon-es": "/node_modules/cannon-es/dist/cannon-es.js"
     }
   }
 }
