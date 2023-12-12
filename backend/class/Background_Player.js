@@ -65,7 +65,7 @@ export class Player {
         let result = this.getFrontTile(this.rotation);
         if (result) {
             let { frontTile } = result;
-            if (frontTile.type === "tree" && frontTile.fire === 0) {
+            if (frontTile.type === 'tree' && frontTile.fire === 0) {
                 frontTile.destroyTree();
                 const index = this.board.tiles.indexOf(frontTile);
                 tilesToUpdate.push([index, frontTile]);

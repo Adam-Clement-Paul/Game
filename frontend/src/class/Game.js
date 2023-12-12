@@ -1,5 +1,5 @@
-import {Board} from "./Board.js";
-import {Player} from "./Player.js";
+import {Board} from './Board.js';
+import {Player} from './Player.js';
 
 export class Game {
     constructor (board, players, socket) {

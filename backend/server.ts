@@ -1,6 +1,6 @@
-import {file} from "bun";
+import {file} from 'bun';
 
-import {Game} from "./class/Background_Game.js";
+import {Game} from './class/Background_Game.js';
 
 const BASE_PATH = "../frontend/dist";
 const domain = `http://${process.env.HOST}`;
@@ -25,31 +25,31 @@ const server = Bun.serve<WebSocketData>({
         const {pathname} = new URL(url);
 
         // Landing page
-        if (pathname === "/") {
-            const indexPath = BASE_PATH + "/createJoinGame.html";
+        if (pathname === '/') {
+            const indexPath = BASE_PATH + '/createJoinGame.html';
             const response = new Response(file(indexPath));
-            response.headers.set("Cache-Control", "public, max-age=3600");
+            response.headers.set('Cache-Control', 'public, max-age=3600');
             return response;
         }
 
         // Check all routes for games: at localhost/GAME_ID
-        if (pathname.startsWith("/") && method === "GET" && pathname.split("/").length === 2) {
+        if (pathname.startsWith('/') && method === 'GET' && pathname.split('/').length === 2) {
             // Extract game ID from the URL
-            const gameId = pathname.split("/")[1];
+            const gameId = pathname.split('/')[1];
             const gameFound = games[gameId];
 
             if (gameFound) {
                 // Serve the game page
-                const response = new Response(file(BASE_PATH + "/index.html"));
-                response.headers.set("Cache-Control", "public, max-age=3600");
+                const response = new Response(file(BASE_PATH + '/index.html'));
+                response.headers.set('Cache-Control', 'public, max-age=3600');
                 return response;
             }
         }
 
         // Give the game data to the frontend
-        if (pathname.startsWith("/api/game/data/") && method === "GET") {
+        if (pathname.startsWith('/api/game/data/') && method === 'GET') {
             // Extract game ID from the URL
-            const gameId = pathname.split("/")[4];
+            const gameId = pathname.split('/')[4];
             const gameFound = games[gameId];
 
             if (gameFound) {
@@ -57,24 +57,24 @@ const server = Bun.serve<WebSocketData>({
                 return new Response(JSON.stringify({game: gameFound}), {
                     status: 200,
                     headers: {
-                        "Content-Type": "application/json",
-                        "Access-control-allow-origin": "*",
+                        'Content-Type': 'application/json',
+                        'Access-control-allow-origin': '*',
                     },
                 });
 
             } else {
-                return new Response("Game not found", {
+                return new Response('Game not found', {
                     status: 404,
                     headers: {
-                        "Content-Type": "text/plain",
-                        "Access-control-allow-origin": "*",
+                        'Content-Type': 'text/plain',
+                        'Access-control-allow-origin': '*',
                     },
                 });
             }
         }
 
         // Create the room
-        if (pathname === "/api/game" && method === "GET") {
+        if (pathname === '/api/game' && method === 'GET') {
             // Generate a random game ID
             const gameId = Math.random().toString(36).substring(7);
             // Store a new game instance with its ID
@@ -86,17 +86,17 @@ const server = Bun.serve<WebSocketData>({
             return new Response(JSON.stringify({redirectUrl}), {
                 status: 200,
                 headers: {
-                    "Content-Type": "application/json",
-                    "Access-control-allow-origin": "*",
+                    'Content-Type': 'application/json',
+                    'Access-control-allow-origin': '*',
                 },
             });
         }
 
         // Route to join the websocket room
-        if (pathname.startsWith("/websocket")) {
+        if (pathname.startsWith('/websocket')) {
             // TODO: Extract the token sended by the client to identify the player
 
-            const gameId = pathname.split("/")[2];
+            const gameId = pathname.split('/')[2];
 
             // TODO: Get the name of the player from the cookie
             const cookie = `Paul${Math.random().toString(36).substring(2)}`;
@@ -126,18 +126,18 @@ const server = Bun.serve<WebSocketData>({
 
             if (success) {
                 // TODO: Request the Mr Portail API to get
-                console.log("Server upgraded to websocket");
+                console.log('Server upgraded to websocket');
                 games[gameId].addPlayer(token, cookie, color);
                 return;
             }
-            return new Response("WebSocket upgrade error", {status: 500});
+            return new Response('WebSocket upgrade error', {status: 500});
         }
 
         // Serve static files
         const filePath = BASE_PATH + pathname;
 
         const response = new Response(file(filePath));
-        response.headers.set("Cache-Control", "public, max-age=3600");
+        response.headers.set('Cache-Control', 'public, max-age=3600');
         return response;
 
     },
@@ -145,11 +145,11 @@ const server = Bun.serve<WebSocketData>({
         open(ws) {
             for (const player in games[ws.data.gameId].players) {
                 if (games[ws.data.gameId].players[player].id === ws.data.authToken) {
-                    ws.close(403, "Player already in game");
+                    ws.close(403, 'Player already in game');
                     return;
                 }
             }
-            console.log("openning in game n°" + ws.data.gameId);
+            console.log('openning in game n°' + ws.data.gameId);
 
             // Join the game
             ws.subscribe(ws.data.gameId);
@@ -165,22 +165,22 @@ const server = Bun.serve<WebSocketData>({
         },
         message(ws, message) {
             let jsonMessage;
-            if (typeof message === "string") {
+            if (typeof message === 'string') {
                 jsonMessage = JSON.parse(message);
             }
 
             let tilesToUpdate: any[] = [];
 
-            if (jsonMessage.type === "extinguish" || jsonMessage.type === "axe") {
+            if (jsonMessage.type === 'extinguish' || jsonMessage.type === 'axe') {
                 for (const playerKey in games[ws.data.gameId].players) {
                     const player = games[ws.data.gameId].players[playerKey];
 
                     if (player.id === jsonMessage.id) {
                         let updatedTiles = [];
 
-                        if (jsonMessage.type === "extinguish") {
+                        if (jsonMessage.type === 'extinguish') {
                             updatedTiles = player.onDocumentClickExtinguishFire();
-                        } else if (jsonMessage.type === "axe") {
+                        } else if (jsonMessage.type === 'axe') {
                             updatedTiles = player.onDocumentRightClick();
                         }
 
@@ -195,13 +195,13 @@ const server = Bun.serve<WebSocketData>({
             }
 
 
-            if (jsonMessage.type === "move") {
+            if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
             }
         },
         close(ws) {
-            console.log("closing");
+            console.log('closing');
             games[ws.data.gameId].removePlayer(ws.data.authToken);
 
             const msg = JSON.stringify({
@@ -216,7 +216,7 @@ const server = Bun.serve<WebSocketData>({
         console.log(error);
         if (error.errno === -2) {
             // TODO: redirect to 404 page
-            return new Response("Not Found", {status: 404});
+            return new Response('Not Found', {status: 404});
         }
         return new Response(null, {status: 500});
     },

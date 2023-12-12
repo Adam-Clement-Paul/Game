@@ -1,7 +1,7 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import {scene, camera} from '../script_modules/init3DScene.js';
-import gsap from "gsap";
-import * as UTILS from "../script_modules/utils.js";
+import gsap from 'gsap';
+import * as UTILS from '../script_modules/utils.js';
 
 export class Player {
     constructor (name, x, y, color, game, socket, id, active = false) {
@@ -82,7 +82,7 @@ export class Player {
     onDocumentClickExtinguishFire () {
         // TODO: Use backend token to check if the player is allowed to extinguish fire
         this.socket.send(JSON.stringify({
-            type: "extinguish",
+            type: 'extinguish',
             id: this.id,
         }));
     }
@@ -93,17 +93,17 @@ export class Player {
 
         // TODO: Use backend token to check if the player is allowed to use the axe
         this.socket.send(JSON.stringify({
-            type: "axe",
+            type: 'axe',
             id: this.id,
         }));
     }
 
-    // Check if the player is colliding with a tile of a type other than "grass" at the position of the player
+    // Check if the player is colliding with a tile of a type other than 'grass' at the position of the player
     checkCollisionWithTiles (x, y) {
         return false;
         // Try to edit this code to get a banned
         for (const tile of this.game.board.tiles) {
-            if (tile.type !== "grass" &&
+            if (tile.type !== 'grass' &&
                 Math.abs(tile.x - x) < this.distance_to_collision &&
                 Math.abs(tile.y - y) < this.distance_to_collision
             ) {
@@ -210,7 +210,7 @@ export class Player {
 
     sendPosition () {
         this.socket.send(JSON.stringify({
-            type: "move",
+            type: 'move',
             player: this.id,
             x: this.x,
             y: this.y,
@@ -226,7 +226,7 @@ export class Player {
         let tl = gsap.timeline();
         tl.to(this.cube.position, {
             duration: 0.1,
-            ease: "none",
+            ease: 'none',
             x: x,
             y: this.cube.geometry.parameters.height / 2,
             z: y

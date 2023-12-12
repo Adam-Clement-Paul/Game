@@ -1,6 +1,6 @@
-import {Section} from "./Background_Section.js";
-import {Corridor} from "./Background_Corridor.js";
-import {Tile} from "./Background_Tile.js";
+import {Section} from './Background_Section.js';
+import {Corridor} from './Background_Corridor.js';
+import {Tile} from './Background_Tile.js';
 
 /*
 * Board class
@@ -295,7 +295,7 @@ export class Board {
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
                 if (!this.tiles.find(tile => tile.x === x && tile.y === y)) {
-                    this.tiles.push(new Tile(x, y, 0, "border"));
+                    this.tiles.push(new Tile(x, y, 0, 'border'));
                 }
             }
         }
@@ -317,7 +317,7 @@ export class Board {
 
                 // For each tile, if it's a tree, set it on fire
                 adjacentTiles.forEach(tile => {
-                    if (tile && tile.type === "tree" && tile.fire === 0) {
+                    if (tile && tile.type === 'tree' && tile.fire === 0) {
                         tile.setFire();
                         tile.growingFire();
                     }

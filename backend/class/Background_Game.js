@@ -1,5 +1,5 @@
-import {Board} from "./Background_Board.js";
-import {Player} from "./Background_Player.js";
+import {Board} from './Background_Board.js';
+import {Player} from './Background_Player.js';
 
 export class Game {
     constructor () {
@@ -30,7 +30,7 @@ export class Game {
     gameLoop () {
         if (this.endOfTheGame()) {
             clearTimeout(this.timeGameLoop);
-            console.log("Game over !");
+            console.log('Game over !');
         } else {
             // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
             this.timeGameLoop = setTimeout(() => this.gameLoop(), 1000);

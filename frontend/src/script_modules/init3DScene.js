@@ -1,7 +1,7 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {GUI} from "three/addons/libs/lil-gui.module.min.js";
+import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
 
 let scene, camera, renderer, controls, stats;
 

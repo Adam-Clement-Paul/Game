@@ -1,4 +1,4 @@
-import {Tile} from "./Background_Tile.js";
+import {Tile} from './Background_Tile.js';
 
 export class Section {
     constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree,  origin = { x: 0, y: 0 }, isSpawn = false) {
@@ -21,7 +21,7 @@ export class Section {
     }
 
     initSection () {
-        const type = ["grass", "tree", "obstacle", "border"];
+        const type = ['grass', 'tree', 'obstacle', 'border'];
         let selectedType = 0;
 
         for (let x = this.origin.x; x < this.origin.x + this.widthX; x++) {
@@ -79,7 +79,7 @@ export class Section {
 
             const tile = tiles[tileIndex];
 
-            if (tile && tile.fire === 0 && tile.type === "tree") {
+            if (tile && tile.fire === 0 && tile.type === 'tree') {
                 tile.setFire();
                 fireCount++;
             }

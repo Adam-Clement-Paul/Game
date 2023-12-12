@@ -1,5 +1,5 @@
 export class Tile {
-    constructor (x, y, fire = 0, type = "grass") {
+    constructor (x, y, fire = 0, type = 'grass') {
         this.x = x;
         this.y = y;
         this.fire = fire;
@@ -13,7 +13,7 @@ export class Tile {
         // Miliseconds before a tree is burnt
         this.time_before_burnt = 10000 + 20000 * Math.random();
 
-        if (this.type === "tree") {
+        if (this.type === 'tree') {
             this.life = 5;
         }
     }
@@ -32,7 +32,7 @@ export class Tile {
 
         if (this.life <= 1) {
             // The color becomes darker and darker
-            this.type = "grass";
+            this.type = 'grass';
         }
     }
 
