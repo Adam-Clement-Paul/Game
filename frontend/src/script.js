@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {gsap} from 'gsap';
 
 import {loadModel} from './script_modules/glbImport.js';
-//import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
+import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
 import * as UTILS from './script_modules/utils.js';
 
 import {Game} from './class/Game.js';
@@ -16,7 +16,7 @@ let game, playground;
 
 playground = new Playground();
 window.playground = playground;
-playground.addTruck(0, 20, 0);
+playground.addTruck(0, 20, 0, true);
 playground.addTruck(20, 20, 0);
 
 /*
@@ -60,12 +60,12 @@ function animate () {
     playground.update();
 
     // controls.update();
-    /*
+
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
-    stats.update();*/
+    stats.update();
 }
-/*
+
 function windowResize () {
     let size = {
         width: window.innerWidth,
@@ -77,7 +77,6 @@ function windowResize () {
 }
 
 window.addEventListener('resize', windowResize, false);
-*/
 
 function connectToWebsocket (gameId) {
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/` + gameId);

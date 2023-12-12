@@ -1,32 +1,33 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import {gsap} from 'gsap';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-let
-    wheelModelL,
-    wheelModelR,
-    truckSize = { w: 3.5, h: 3, l: 8 },
-    truckGroup;
+import {camera, scene} from "../script_modules/init3DScene";
 
-class Camion {
-    constructor (scene, world, x, y, z, groundMaterial, wheelMaterial) {
-        this.scene = scene;
+let wheelModelL, wheelModelR, truckSize = { w: 3.5, h: 3, l: 8 }, truckGroup;
+
+export class Camion {
+    constructor (world, x, y, z, groundMaterial, wheelMaterial, active = false) {
         this.world = world;
         this.x = x;
         this.y = y;
         this.z = z;
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
+        this.active = active;
+
+        this.truckGroup = new THREE.Group();
+        this.vehicle = null;
+
+        this.loaded = false;
         this.clock = new THREE.Clock();
-        this.init();
+        this.controllerIndex = null;
+
+        this.loadTruck();
     }
 
-    init () {
-        truckGroup = new THREE.Group();
-        this.createTruck();
-    }
-
-    createTruck () {
+    loadTruck () {
         const loader = new GLTFLoader();
 
         loader.load('../models/Camion3.glb', (gltf) => {
@@ -47,16 +48,17 @@ class Camion {
             this.roue2 = wheelModelR.clone();
             this.roue3 = wheelModelL.clone();
             this.roue4 = wheelModelR.clone();
-            this.roue1.visible = true;
-            this.roue2.visible = true;
-            this.roue3.visible = true;
-            this.roue4.visible = true;
-            this.scene.add(this.roue1);
-            this.scene.add(this.roue2);
-            this.scene.add(this.roue3);
-            this.scene.add(this.roue4);
 
-            truckGroup.add(this.truck);
+
+            let wheels = [this.roue1, this.roue2, this.roue3, this.roue4];
+            wheels.forEach((wheel) => {
+                wheel.visible = true;
+                scene.add(wheel);
+            });
+
+            this.truckGroup.add(this.truck);
+            scene.add(this.truckGroup);
+
             this.mixer = new THREE.AnimationMixer(this.truck);
 
             const animationLumiere = animations.find(
@@ -69,10 +71,13 @@ class Camion {
             action.play();
 
             this.horn = new Audio('../models/horn.mp3');
+
+            this.createTruck();
         });
+    }
 
-
-        this.scene.add(truckGroup);
+    createTruck () {
+        const wheelBodies = [];
 
         const chassisShape = new CANNON.Box(
             new CANNON.Vec3(truckSize.w, truckSize.h, truckSize.l)
@@ -125,7 +130,17 @@ class Camion {
 
         this.vehicle.addToWorld(this.world);
 
-        const wheelBodies = [];
+        this.world.addEventListener('postStep', () => {
+            let index = 0;
+            this.vehicle.wheelInfos.forEach((wheel) => {
+                this.vehicle.updateWheelTransform(index);
+                const t = wheel.worldTransform;
+                wheelBodies[index].position.copy(t.position);
+                wheelBodies[index].quaternion.copy(t.quaternion);
+                index++;
+            });
+        });
+
         this.vehicle.wheelInfos.forEach((wheel) => {
             const cylinderShape = new CANNON.Cylinder(
                 wheel.radius,
@@ -140,20 +155,185 @@ class Camion {
             wheelBodies.push(wheelBody);
         });
 
-        this.world.addEventListener('postStep', () => {
-            let index = 0;
-            this.vehicle.wheelInfos.forEach((wheel) => {
-                this.vehicle.updateWheelTransform(index);
-                const t = wheel.worldTransform;
-                wheelBodies[index].position.copy(t.position);
-                wheelBodies[index].quaternion.copy(t.quaternion);
-                index++;
-            });
-        });
-
+        if (this.active) {
+            this.setEvents();
+        }
+        this.update();
     }
 
+    setEvents () {
+        window.addEventListener('gamepadconnected', (event) => {
+            const gamepad = event.gamepad;
+            this.controllerIndex = gamepad.index;
+            console.log('connected');
+        });
+
+        window.addEventListener('gamepaddisconnected', (event) => {
+            this.controllerIndex = null;
+            console.log('disconnected');
+        });
+
+        document.addEventListener('keydown', (ev) => {
+            this.onKey(ev);
+        });
+        document.addEventListener('keyup', (ev) => {
+            this.onKey(ev);
+        });
+    }
+
+    onKey (ev) {
+        const maxSteerVal = 0.75;
+        const maxForce = 500;
+        const brakeForce = 5000;
+
+        let up = ev.type == 'keyup';
+
+        if (!up && ev.type !== 'keydown') {
+            return;
+        }
+
+        this.vehicle.setBrake(0, 0);
+        this.vehicle.setBrake(0, 1);
+        this.vehicle.setBrake(0, 2);
+        this.vehicle.setBrake(0, 3);
+
+        switch (ev.keyCode) {
+            case 38: // forward
+                this.vehicle.applyEngineForce(up ? 0 : -maxForce, 2);
+                this.vehicle.applyEngineForce(up ? 0 : -maxForce, 3);
+                break;
+
+            case 40: // backward
+                this.vehicle.applyEngineForce(up ? 0 : maxForce, 2);
+                this.vehicle.applyEngineForce(up ? 0 : maxForce, 3);
+                break;
+
+            case 32: // spacebar
+                this.vehicle.setBrake(brakeForce, 0);
+                this.vehicle.setBrake(brakeForce, 1);
+                // this.vehicle.setBrake(brakeForce, 2);
+                // this.vehicle.setBrake(brakeForce, 3);
+                break;
+
+            case 39: // right
+                this.vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 2);
+                this.vehicle.setSteeringValue(up ? 0 : -maxSteerVal, 3);
+                break;
+
+            case 37: // left
+                this.vehicle.setSteeringValue(up ? 0 : maxSteerVal, 2);
+                this.vehicle.setSteeringValue(up ? 0 : maxSteerVal, 3);
+                break;
+            case 87: // w
+                this.truck.hornSound();
+                break;
+        }
+    }
+
+    handleButtons (buttons) {
+        const maxForce = 5000;
+        const brakeForce = 5000;
+        let onepressed = false;
+        for (let i = 0; i < buttons.length; i++) {
+            const button = buttons[i];
+            button.pressed ? (onepressed = true) : onepressed = onepressed;
+
+            if (i == 6 && button.pressed) {
+                this.vehicle.applyEngineForce(button.value * maxForce / 10, 2);
+                this.vehicle.applyEngineForce(button.value * maxForce / 10, 3);
+            }
+            if (i == 7 && button.pressed) {
+                this.vehicle.applyEngineForce(button.value * -maxForce, 2);
+                this.vehicle.applyEngineForce(button.value * -maxForce, 3);
+            }
+
+            if (i == 0 && button.pressed) {
+                this.truck.hornSound();
+            }
+
+            if (i == 1 && button.pressed) {
+                this.vehicle.setBrake(button.value * brakeForce, 0);
+                this.vehicle.setBrake(button.value * brakeForce, 1);
+            } else if (i == 1 && !button.pressed) {
+                this.vehicle.setBrake(0, 0);
+                this.vehicle.setBrake(0, 1);
+            }
+
+            if (i == 9 && button.pressed) {
+                console.log('reset')
+                this.respawn();
+            }
+
+            if (onepressed == false) {
+                this.vehicle.applyEngineForce(0, 2);
+                this.vehicle.applyEngineForce(0, 3);
+            }
+        }
+    }
+
+    updateStick (leftRightAxis, upDownAxis) {
+        const maxSteerVal = 0.75;
+        const multiplier = 1;
+        const stickLeftRight = leftRightAxis * multiplier;
+        // const stickUpDown = upDownAxis * multiplier;
+
+        if (stickLeftRight > 0.1 || stickLeftRight < -0.1) {
+            this.vehicle.setSteeringValue(-stickLeftRight * maxSteerVal, 2);
+            this.vehicle.setSteeringValue(-stickLeftRight * maxSteerVal, 3);
+        } else {
+            this.vehicle.setSteeringValue(0, 2);
+            this.vehicle.setSteeringValue(0, 3);
+        }
+    }
+
+    handleSticks (axes) {
+        this.updateStick(axes[0], axes[1]);
+        // updateStick(axes[2], axes[3]);
+    }
+
+    respawn () {
+        this.vehicle.applyEngineForce(0, 2);
+        this.vehicle.applyEngineForce(0, 3);
+        this.vehicle.setSteeringValue(0, 2);
+        this.vehicle.setSteeringValue(0, 3);
+        this.vehicle.setBrake(0, 0);
+        this.vehicle.setBrake(0, 1);
+
+        this.vehicle.chassisBody.position.set(this.x, this.y, this.z);
+        this.vehicle.chassisBody.velocity.set(0, 0, 0);
+        this.vehicle.chassisBody.angularVelocity.set(0, 0, 0);
+        this.vehicle.chassisBody.quaternion.setFromAxisAngle(
+            new CANNON.Vec3(0, 1, 0), 0);
+    }
+
+    hornSound () {
+        this.horn.currentTime = 0;
+        this.horn.play();
+    }
+
+    // Updates the camera position and lookAt
+    cameraMovements(x, y) {
+        let scale = 8;
+        camera.position.set(x, 3 * scale, y - 2 * scale);
+        camera.lookAt(x, 0, y);
+    }
+
+
     update () {
+        setTimeout((this.update.bind(this)), 1000 / 60);
+
+        if (this.active) {
+            this.cameraMovements(this.vehicle.chassisBody.position.x, this.vehicle.chassisBody.position.z);
+        }
+
+        /*
+        if (this.controllerIndex !== null) {
+            const gamepad = navigator.getGamepads()[this.controllerIndex];
+            this.handleButtons(gamepad.buttons);
+            this.handleSticks(gamepad.axes);
+        }
+        */
+
         if (this.mixer) {
             const delta = this.clock.getDelta();
             this.mixer.update(delta);
@@ -174,19 +354,4 @@ class Camion {
             this.roue4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
         }
     }
-
-    respawn () {
-        this.vehicle.chassisBody.position.set(this.x, this.y, this.z);
-        this.vehicle.chassisBody.velocity.set(0, 0, 0);
-        this.vehicle.chassisBody.angularVelocity.set(0, 0, 0);
-        this.vehicle.chassisBody.quaternion.setFromAxisAngle(
-            new CANNON.Vec3(0, 1, 0), 0);
-    }
-
-    hornSound () {
-        this.horn.currentTime = 0;
-        this.horn.play();
-    }
 }
-
-export default Camion;
