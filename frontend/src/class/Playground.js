@@ -3,17 +3,14 @@ import * as CANNON from 'cannon-es';
 import {Camion} from './Camion.js';
 import {scene} from "../script_modules/init3DScene";
 
-
 export class Playground {
-
     constructor () {
         this.world = new CANNON.World();
         this.dt = 1 / 30;
         this.truckList = [];
 
-        this.controllerIndex;
-        this.groundMaterial;
-        this.wheelMaterial;
+        this.groundMaterial = new CANNON.Material('this.groundMaterial');
+        this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
 
         this.init();
     }
@@ -37,8 +34,6 @@ export class Playground {
         this.world.gravity.set(0, -9.82, 0);
         this.world.defaultContactMaterial.friction = 0.01;
 
-        this.groundMaterial = new CANNON.Material('this.groundMaterial');
-        this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
         const wheelGroundContactMaterial = new CANNON.ContactMaterial(
             this.wheelMaterial,
             this.groundMaterial,
