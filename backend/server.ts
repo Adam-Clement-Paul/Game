@@ -169,8 +169,16 @@ const server = Bun.serve<WebSocketData>({
                 jsonMessage = JSON.parse(message);
             }
 
-            let tilesToUpdate: any[] = [];
+            /*
+            if (jsonMessage.type === 'requestStartGame') {
+                games[ws.data.gameId].startedAt = Date.now();
+                const msg = JSON.stringify({
+                    type: 'startGame',
+                });
+                ws.publish(ws.data.gameId, msg);
+            }*/
 
+            let tilesToUpdate: any[] = [];
             if (jsonMessage.type === 'extinguish' || jsonMessage.type === 'axe') {
                 for (const playerKey in games[ws.data.gameId].players) {
                     const player = games[ws.data.gameId].players[playerKey];
@@ -194,10 +202,13 @@ const server = Bun.serve<WebSocketData>({
                 console.log(tilesToUpdate);
             }
 
-
             if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
+            }
+            if (jsonMessage.type === 'moveTruck') {
+                // Update player position and rotation on the server
+                // games[ws.data.gameId].updateTruck(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
             }
         },
         close(ws) {
@@ -242,7 +253,7 @@ function sendPlayerPositionRotation(gameId: string) {
         players: playerData,
     };
 
-    server.publish(gameId, JSON.stringify(broadcastData));
+    // server.publish(gameId, JSON.stringify(broadcastData));
 }
 
 setInterval(() => {

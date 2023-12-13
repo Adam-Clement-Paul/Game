@@ -36,6 +36,10 @@ export class Player {
             d: false,
         };
 
+        this.cube = null;
+    }
+
+    init () {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
@@ -222,7 +226,7 @@ export class Player {
 
     updatePosition (x, y, rotation) {
         this.x = x;
-        this.y = y
+        this.y = y;
         let tl = gsap.timeline();
         tl.to(this.cube.position, {
             duration: 0.1,

@@ -1,25 +1,16 @@
-import * as THREE from 'three';
-import {gsap} from 'gsap';
-
 import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
 import * as UTILS from './script_modules/utils.js';
 
 import {Game} from './class/Game.js';
-import {Playground} from './class/Playground.js';
 
 
 // Get the game ID from the URL
 const gameId = window.location.pathname.split('/')[1];
-//const socket = connectToWebsocket(gameId);
-let game, playground;
+const socket = connectToWebsocket(gameId);
+let game;
+let inGame;
 
-playground = new Playground();
-window.playground = playground;
-playground.addTruck(0, 20, 0, true);
-playground.addTruck(20, 20, 0);
-
-/*
 fetch(`/${gameId}`, {
     method: 'GET',
     headers: {
@@ -37,27 +28,25 @@ fetch(`/${gameId}`, {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.game.startedAt === null) {
-            playground = new Playground();
-            window.playground = playground;
-            playground.addTruck(0, 20, 0);
-            playground.addTruck(20, 20, 0);
+        inGame = data.game.startedAt;
+        if (inGame === null) {
+            game = new Game(data.game.board, data.game.players, socket, false);
         } else {
-            game = new Game(data.game.board, data.game.players, socket);
-            // game.setPlayer('John', 4, 3, 0xff00ff, true);
+            game = new Game(data.game.board, data.game.players, socket, true);
         }
     })/*
     .catch(error => {
         console.error(error);
-    })*/
+    })*/;
 
 
 animate();
 
 function animate () {
     setTimeout(animate, 1000 / 120);
-
-    playground.update();
+    if (inGame === null && game) {
+        game.updatePlayground();
+    }
 
     // controls.update();
 
@@ -84,6 +73,7 @@ function connectToWebsocket (gameId) {
 
     socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
+        console.log(data);
         if (data.type === 'addPlayer' && game) {
             game.addPlayer(data.name, 4, 3, data.color, data.playerId);
         }

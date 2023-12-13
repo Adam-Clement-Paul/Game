@@ -3,6 +3,7 @@ import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import {camera, scene} from "../script_modules/init3DScene";
+import gsap from "gsap";
 
 const KEY_FORWARD = 'z';
 const KEY_BACKWARD = 's';
@@ -12,28 +13,55 @@ const KEY_RIGHT = 'd';
 const KEY_HORN = 'w';
 const KEY_RESET = 'r';
 
-export class Camion {
+export class Truck {
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
-    constructor (world, x, y, z, groundMaterial, wheelMaterial, active = false) {
+    constructor (world, x, y, z, groundMaterial, wheelMaterial, socket, id, active = false) {
         this.world = world;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.rotation = null;
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
+        this.socket = socket;
+        this.id = id;
         this.active = active;
 
         this.truckGroup = new THREE.Group();
         this.vehicle = null;
 
+        this.timer2 = 0;
+
         this.clock = new THREE.Clock();
         this.controllerIndex = null;
-
-        this.loadTruck();
     }
 
-    loadTruck () {
+    init () {
+        this.loadTruck(() => {
+            this.horn = new Audio('../models/horn.mp3');
+            this.createTruck();
+            this.update();
+        });
+    }
+
+    activeTruck () {
+        this.active = true;
+        this.setEvents();
+
+        /*
+        const startButton = document.getElementById('start');
+        startButton.addEventListener('click', event => {
+            if (this.socket) {
+                this.socket.send(JSON.stringify({
+                    type: 'requestStartGame',
+                    playerId: this.id
+                }));
+            }
+        });*/
+    }
+
+    loadTruck (callback) {
         const loader = new GLTFLoader();
         let wheelModelL, wheelModelR;
 
@@ -77,13 +105,7 @@ export class Camion {
             action.setLoop(THREE.LoopRepeat, Infinity);
             action.play();
 
-            this.horn = new Audio('../models/horn.mp3');
-
-            this.createTruck();
-            if (this.active) {
-                this.setEvents();
-            }
-            this.update();
+            callback();
         });
     }
 
@@ -91,7 +113,7 @@ export class Camion {
         const wheelBodies = [];
 
         const chassisShape = new CANNON.Box(
-            new CANNON.Vec3(Camion.truckSize.w, Camion.truckSize.h, Camion.truckSize.l)
+            new CANNON.Vec3(Truck.truckSize.w, Truck.truckSize.h, Truck.truckSize.l)
         );
 
         const chassisBody = new CANNON.Body({
@@ -128,10 +150,10 @@ export class Camion {
         });
 
         const wheelPositions = [
-            { x: Camion.truckSize.w - 1, y: -3, z: -Camion.truckSize.l + 4.5 },
-            { x: -Camion.truckSize.w + 1, y: -3, z: -Camion.truckSize.l + 4.5 },
-            { x: Camion.truckSize.w - 1, y: -3, z: Camion.truckSize.l - 3.5 },
-            { x: -Camion.truckSize.w + 1, y: -3, z: Camion.truckSize.l - 3.5 },
+            { x: Truck.truckSize.w - 1, y: -3, z: -Truck.truckSize.l + 4.5 },
+            { x: -Truck.truckSize.w + 1, y: -3, z: -Truck.truckSize.l + 4.5 },
+            { x: Truck.truckSize.w - 1, y: -3, z: Truck.truckSize.l - 3.5 },
+            { x: -Truck.truckSize.w + 1, y: -3, z: Truck.truckSize.l - 3.5 },
         ];
 
         for (const position of wheelPositions) {
@@ -310,11 +332,13 @@ export class Camion {
     hornSound () {
         this.horn.currentTime = 0;
         this.horn.play();
+
+        this.sendPosition();
     }
 
     // Updates the camera position and lookAt
     cameraMovements (x, y) {
-        let scale = 8;
+        let scale = 10;
         camera.position.set(x, 3 * scale, y - 2 * scale);
         camera.lookAt(x, 0, y);
     }
@@ -351,5 +375,42 @@ export class Camion {
             this.roue4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
             this.roue4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
         }
+    }
+
+    sendPosition () {
+        this.socket.send(JSON.stringify({
+            type: 'moveTruck',
+            player: this.id,
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            rotation: this.vehicle.chassisBody.quaternion
+        }));
+
+        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
+    }
+
+    updatePosition (x, y, z, rotation) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rotation = rotation;
+        let tl = gsap.timeline();
+        tl.to(this.vehicle.chassisBody.position, {
+            duration: 0.1,
+            ease: 'none',
+            x: x,
+            y: y,
+            z: z
+        });
+        this.vehicle.chassisBody.quaternion.copy(rotation);
+    }
+
+    remove () {
+        scene.remove(this.truck);
+        scene.remove(this.roue1);
+        scene.remove(this.roue2);
+        scene.remove(this.roue3);
+        scene.remove(this.roue4);
     }
 }
