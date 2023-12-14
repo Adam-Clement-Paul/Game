@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import {camera, scene} from "../script_modules/init3DScene";
-import gsap from "gsap";
+import {scene} from "../script_modules/init3DScene";
+import {Identity} from "./Identity";
 
 const KEY_FORWARD = 'z';
 const KEY_BACKWARD = 's';
@@ -13,15 +13,20 @@ const KEY_RIGHT = 'd';
 const KEY_HORN = 'w';
 const KEY_RESET = 'r';
 
-export class Truck {
+export class Truck extends Identity {
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
-    constructor (world, x, y, z, groundMaterial, wheelMaterial, socket, id, active = false) {
-        this.world = world;
+    constructor (id, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
+        super(id, x, y, z, rotation, socket, active);
+
         this.x = x;
         this.y = y;
         this.z = z;
-        this.rotation = null;
+        this.rotation = rotation;
+
+        this.model = model;
+        this.world = world;
+
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
         this.socket = socket;
@@ -45,9 +50,20 @@ export class Truck {
         });
     }
 
-    activeTruck () {
-        this.active = true;
-        this.setEvents();
+    setActive () {
+        super.setActive();
+
+        window.addEventListener('gamepadconnected', (event) => {
+            const gamepad = event.gamepad;
+            this.controllerIndex = gamepad.index;
+            console.log('connected');
+        });
+        window.addEventListener('gamepaddisconnected', (event) => {
+            this.controllerIndex = null;
+            console.log('disconnected');
+        });
+        document.addEventListener('keydown', (event) => this.onDocumentKeyEvent(true, event), false);
+        document.addEventListener('keyup', (event) => this.onDocumentKeyEvent(false, event), false);
 
         /*
         const startButton = document.getElementById('start');
@@ -59,13 +75,15 @@ export class Truck {
                 }));
             }
         });*/
+
+        super.sendPosition('moveTruck');
     }
 
     loadTruck (callback) {
         const loader = new GLTFLoader();
         let wheelModelL, wheelModelR;
 
-        loader.load('../models/Camion3.glb', (gltf) => {
+        loader.load(`../models/${this.model}`, (gltf) => {
             this.truck = gltf.scene;
             const animations = gltf.animations;
             this.truck.traverse(function (child) {
@@ -189,22 +207,6 @@ export class Truck {
         });
     }
 
-    setEvents () {
-        window.addEventListener('gamepadconnected', (event) => {
-            const gamepad = event.gamepad;
-            this.controllerIndex = gamepad.index;
-            console.log('connected');
-        });
-
-        window.addEventListener('gamepaddisconnected', (event) => {
-            this.controllerIndex = null;
-            console.log('disconnected');
-        });
-
-        document.addEventListener('keydown', (event) => this.onDocumentKeyEvent(true, event), false);
-        document.addEventListener('keyup', (event) => this.onDocumentKeyEvent(false, event), false);
-    }
-
     onDocumentKeyEvent (isKeyDown, event) {
         const maxSteerVal = 0.75;
         const maxForce = 500;
@@ -322,32 +324,32 @@ export class Truck {
         this.vehicle.setBrake(0, 0);
         this.vehicle.setBrake(0, 1);
 
+        this.x = 0;
+        this.y = 5;
+        this.z = 0;
+
         this.vehicle.chassisBody.position.set(this.x, this.y, this.z);
         this.vehicle.chassisBody.velocity.set(0, 0, 0);
         this.vehicle.chassisBody.angularVelocity.set(0, 0, 0);
-        this.vehicle.chassisBody.quaternion.setFromAxisAngle(
+        this.rotation.setFromAxisAngle(
             new CANNON.Vec3(0, 1, 0), 0);
     }
 
     hornSound () {
         this.horn.currentTime = 0;
         this.horn.play();
-
-        this.sendPosition();
-    }
-
-    // Updates the camera position and lookAt
-    cameraMovements (x, y) {
-        let scale = 10;
-        camera.position.set(x, 3 * scale, y - 2 * scale);
-        camera.lookAt(x, 0, y);
     }
 
     update () {
-        setTimeout((this.update.bind(this)), 1000 / 60);
+        console.log(this.vehicle.chassisBody.position);
+
+        this.vehicle.chassisBody.quaternion.copy(this.rotation);
+        this.x = this.vehicle.chassisBody.position.x;
+        this.y = this.vehicle.chassisBody.position.y;
+        this.z = this.vehicle.chassisBody.position.z;
 
         if (this.active) {
-            this.cameraMovements(this.vehicle.chassisBody.position.x, this.vehicle.chassisBody.position.z);
+            // super.cameraMovements(this.x, this.z, 8);
         }
 
         if (this.controllerIndex !== null) {
@@ -362,7 +364,6 @@ export class Truck {
         }
 
         if (this.truck) {
-
             this.truck.position.copy(this.vehicle.chassisBody.position);
             this.truck.quaternion.copy(this.vehicle.chassisBody.quaternion);
 
@@ -375,35 +376,7 @@ export class Truck {
             this.roue4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
             this.roue4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
         }
-    }
-
-    sendPosition () {
-        this.socket.send(JSON.stringify({
-            type: 'moveTruck',
-            player: this.id,
-            x: this.x,
-            y: this.y,
-            z: this.z,
-            rotation: this.vehicle.chassisBody.quaternion
-        }));
-
-        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
-    }
-
-    updatePosition (x, y, z, rotation) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.rotation = rotation;
-        let tl = gsap.timeline();
-        tl.to(this.vehicle.chassisBody.position, {
-            duration: 0.1,
-            ease: 'none',
-            x: x,
-            y: y,
-            z: z
-        });
-        this.vehicle.chassisBody.quaternion.copy(rotation);
+        this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
     }
 
     remove () {

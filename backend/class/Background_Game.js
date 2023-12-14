@@ -5,7 +5,7 @@ export class Game {
     constructor () {
         this.board = new Board(3, 1);
         this.players = [];
-        this.startedAt = null; // TODO
+        this.startedAt = 1; // TODO
     }
 
     start () {

@@ -1,19 +1,19 @@
 import * as THREE from 'three';
-import {scene, camera} from '../script_modules/init3DScene.js';
-import gsap from 'gsap';
+import {camera, scene} from '../script_modules/init3DScene.js';
 import * as UTILS from '../script_modules/utils.js';
+import {Identity} from "./Identity";
+import gsap from "gsap";
 
-export class Player {
-    constructor (name, x, y, color, game, socket, id, active = false) {
-        this.name = name;
+export class Player extends Identity {
+    constructor (id, x, y, rotation, model, game, socket, active) {
+        super(id, x, 0.5, y, rotation, socket, active);
+
         this.x = x;
-        this.y = y;
-        this.color = new THREE.Color(color);
+        this.y = y
+        this.rotation = rotation;
+
+        this.model = new THREE.Color(model);
         this.game = game;
-        // Used to send messages to the server (websocket)
-        this.socket = socket;
-        this.id = id;
-        this.active = active;
 
         // These values are constants
         this.speed = 0.04;
@@ -43,11 +43,11 @@ export class Player {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
-                color: this.color
+                color: this.model
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
-        this.cube.rotation.y = Math.PI;
+        this.rotation = Math.PI;
         scene.add(this.cube);
 
         const cubeOrientation = new THREE.Mesh(
@@ -60,14 +60,15 @@ export class Player {
         this.cube.add(cubeOrientation);
     }
 
-    activePlayer () {
-        this.active = true;
+    setActive () {
+        super.setActive();
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
         document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
+
         this.update();
-        this.sendPosition();
+        super.sendPosition('move');
     }
 
     onDocumentKeyDown (event) {
@@ -117,18 +118,6 @@ export class Player {
         return false; // No collision with a tile, movement is allowed.
     }
 
-    // Updates the camera position and lookAt
-    cameraMovements (x, y) {
-        let tl = gsap.timeline();
-        tl.to(camera.position, {
-            duration: 0.1,
-            x: x,
-            y: 3,
-            z: y - 2
-        });
-        camera.lookAt(x, 0, y);
-    }
-
     changeTargetRotation (targetRotation) {
         if (this.keys.z) targetRotation = 0;
         if (this.keys.s) targetRotation = Math.PI;
@@ -144,19 +133,19 @@ export class Player {
 
     // Updates the player rotation with inertia
     rotationWithInertia () {
-        let targetRotation = this.cube.rotation.y;
+        let targetRotation = this.rotation;
 
         targetRotation = this.changeTargetRotation(targetRotation);
 
-        const currentRotationDegrees = UTILS.radiansToDegrees(this.cube.rotation.y);
+        const currentRotationDegrees = UTILS.radiansToDegrees(this.rotation);
         const targetRotationDegrees = UTILS.radiansToDegrees(targetRotation);
 
         let angleDiff = ((targetRotationDegrees - currentRotationDegrees) + 180) % 360 - 180;
         if (angleDiff < -180) angleDiff += 360;
 
-        this.cube.rotation.y += UTILS.degreesToRadians(angleDiff) * 0.1;
-        if (this.cube.rotation.y > Math.PI) this.cube.rotation.y -= Math.PI * 2;
-        if (this.cube.rotation.y < -Math.PI) this.cube.rotation.y += Math.PI * 2;
+        this.rotation += UTILS.degreesToRadians(angleDiff) * 0.1;
+        if (this.rotation > Math.PI) this.rotation -= Math.PI * 2;
+        if (this.rotation < -Math.PI) this.rotation += Math.PI * 2;
     }
 
     movementsAndCollisions () {
@@ -184,7 +173,7 @@ export class Player {
 
     movementsWithInertia () {
         if (this.keys.z || this.keys.s || this.keys.q || this.keys.d) {
-            this.velocity.set(this.speed * Math.sin(this.cube.rotation.y), this.speed * Math.cos(this.cube.rotation.y));
+            this.velocity.set(this.speed * Math.sin(this.rotation), this.speed * Math.cos(this.rotation));
         }
 
         this.movementsAndCollisions();
@@ -201,42 +190,26 @@ export class Player {
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
     }
 
-    update () {
-        this.rotationWithInertia();
+    cameraMovements (x, y, scale) {
+        // camera.position.set(x, 3 * scale, y - 2 * scale);
+        let tl = gsap.timeline();
+        tl.to(camera.position, {
+            duration: 0.1,
+            x: x,
+            y: 3,
+            z: y - 2
+        });
+        camera.lookAt(x, 0, y);
+    }
 
+    update () {
+        this.cube.rotation.y = this.rotation;
+
+        this.rotationWithInertia();
         this.movementsWithInertia();
 
-        this.cameraMovements(this.x, this.y);
-
-        this.timer = setTimeout(this.update.bind(this), 1000 / 80);
-        // clearTimeout(this.timer);
-    }
-
-    sendPosition () {
-        this.socket.send(JSON.stringify({
-            type: 'move',
-            player: this.id,
-            x: this.x,
-            y: this.y,
-            rotation: this.cube.rotation.y,
-        }));
-
-        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
-    }
-
-    updatePosition (x, y, rotation) {
-        this.x = x;
-        this.y = y;
-        let tl = gsap.timeline();
-        tl.to(this.cube.position, {
-            duration: 0.1,
-            ease: 'none',
-            x: x,
-            y: this.cube.geometry.parameters.height / 2,
-            z: y
-        });
-        // this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
-        this.cube.rotation.y = rotation;
+        this.cameraMovements(this.x, this.z, 1);
+        this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
     }
 
     remove () {
