@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {camera, scene} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
-import {Player} from './Player.js';
+import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
 
 export class Game {
@@ -74,7 +74,7 @@ export class Game {
     }
 
     addPlayer (id, name, x, y, color) {
-        let player = new Player(id, x, y, 0, color, this, this.socket);
+        let player = new Firefighter(id, x, y, 0, color, this, this.socket);
         player.init();
         this.players.push(player);
     }

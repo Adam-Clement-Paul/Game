@@ -4,7 +4,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import gsap from "gsap";
 
 import {scene} from "../script_modules/init3DScene";
-import {Identity} from "./Identity";
+import {Player} from "./Player";
 
 const KEY_FORWARD = 'z';
 const KEY_BACKWARD = 's';
@@ -14,7 +14,7 @@ const KEY_RIGHT = 'd';
 const KEY_HORN = 'w';
 const KEY_RESET = 'r';
 
-export class Truck extends Identity {
+export class Truck extends Player {
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
     constructor (id, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
