@@ -7,6 +7,7 @@ import gsap from "gsap";
 export class Firefighter extends Player {
     constructor (id, x, y, rotation, model, game, socket, active) {
         super(id, x, 0.5, y, rotation, socket, active);
+        this.id = id;
         this.x = x;
         this.y = y;
         this.z = null;
@@ -37,6 +38,7 @@ export class Firefighter extends Player {
         };
 
         this.cube = null;
+        this.init();
     }
 
     init () {

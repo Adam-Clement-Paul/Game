@@ -6,7 +6,7 @@ export class Player {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.rotation = Math.PI;
+        this.rotation = null;
         this.board = board;
     }
 
@@ -94,8 +94,8 @@ export class Player {
         return { frontTile, tile, offsetX, offsetY };
     }
 
-    updateAll (x, y, direction) {
-        this.setPosition(x, y);
+    updateAll (x, y, z, direction) {
+        this.setPosition(x, y, z);
         this.setRotation(direction);
     }
 
@@ -106,9 +106,10 @@ export class Player {
         }
     }
 
-    setPosition (x, y) {
+    setPosition (x, y, z) {
         this.x = x;
         this.y = y;
+        this.z = z;
     }
 
     getRotation () {

@@ -19,8 +19,7 @@ export class Game {
         this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
 
         this.playersBackend.forEach(player => {
-            this.addPlayer(player.id, player.name, player.x, player.y, player.color);
-            this.addTruck(player.id, player.name, player.x, player.y, player.z, 'Camion3.glb');
+            this.addPlayer(player.id, player.name, player.color);
         });
 
         if (this.hasStarted) {
@@ -28,18 +27,11 @@ export class Game {
             camera.far = 20;
 
             this.board = new Board(board);
-            /*
-            this.players.forEach(player => {
-                player.init();
-            }); */
             this.board.displayTiles();
         } else {
             camera.near = 10;
             camera.far = 80;
             this.initPhysics();
-            this.truckList.forEach(truck => {
-                truck.init();
-            });
         }
 
         if (this.players.length > 0 && this.hasStarted) {
@@ -73,10 +65,14 @@ export class Game {
         return this.board;
     }
 
-    addPlayer (id, name, x, y, color) {
-        let player = new Firefighter(id, x, y, 0, color, this, this.socket);
-        player.init();
-        this.players.push(player);
+    addPlayer (id, name, color) {
+        if (this.hasStarted) {
+            let player = new Firefighter(id, 4, 3, 0, color, this, this.socket);
+            this.players.push(player);
+        } else {
+            let player = new Truck(id, 0, 20, 0, 0, 'Camion3.glb', this.world, this.groundMaterial, this.wheelMaterial, this.socket);
+            this.truckList.push(player);
+        }
     }
 
     removePlayer (id) {
@@ -94,8 +90,12 @@ export class Game {
 
         for (let i = 0; i < keys.length; i++) {
             let player = playersData[keys[i]];
-            let playerToUpdate = this.players[i];
-
+            let playerToUpdate;
+            if (this.hasStarted) {
+                playerToUpdate = this.players[i];
+            } else {
+                playerToUpdate = this.truckList[i];
+            }
             if (playerToUpdate && !playerToUpdate.active) {
                 playerToUpdate.updatePosition(player.x, player.y, player.z, player.rotation);
             }
@@ -141,12 +141,6 @@ export class Game {
             -Math.PI / 2
         );
         this.world.addBody(groundBody);
-    }
-
-    addTruck(id, name, x, y, z, model) {
-        this.truckList.push(
-            new Truck(1, 0, 20, 0, 0, model, this.world, this.groundMaterial, this.wheelMaterial, this.socket)
-        );
     }
 
     updatePlayground() {

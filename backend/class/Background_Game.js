@@ -5,7 +5,7 @@ export class Game {
     constructor () {
         this.board = new Board(3, 1);
         this.players = [];
-        this.startedAt = 1; // TODO
+        this.startedAt = null; // TODO
     }
 
     start () {
@@ -51,7 +51,11 @@ export class Game {
     }
 
     addPlayer (id, name, color) {
-        this.players.push(new Player(id, name, color, 4, 3, 0, this.board));
+        if (this.startedAt !== null) {
+            this.players.push(new Player(id, name, color, 4, 3, 0, this.board));
+        } else {
+            this.players.push(new Player(id, name, color, 0, 20, 0, this.board));
+        }
     }
 
     removePlayer (id) {
@@ -59,7 +63,7 @@ export class Game {
         this.players = this.players.filter(player => player.id !== id);
     }
 
-    updatePlayer (id, x, y, rotation) {
-        this.players.find(player => player.id === id).updateAll(x, y, rotation);
+    updatePlayer (id, x, y, z, rotation) {
+        this.players.find(player => player.id === id).updateAll(x, y, z, rotation);
     }
 }

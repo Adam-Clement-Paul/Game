@@ -203,7 +203,7 @@ const server = Bun.serve<WebSocketData>({
 
             if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
-                games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
+                games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
             }
             if (jsonMessage.type === 'moveTruck') {
                 // Update player position and rotation on the server
@@ -242,6 +242,7 @@ function sendPlayerPositionRotation(gameId: string) {
         playerData[player] = {
             x: currentPlayer.x,
             y: currentPlayer.y,
+            z: currentPlayer.z,
             rotation: currentPlayer.rotation,
         };
     }

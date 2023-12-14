@@ -19,6 +19,7 @@ export class Truck extends Player {
 
     constructor (id, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
         super(id, x, y, z, rotation, socket, active);
+        this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -29,7 +30,6 @@ export class Truck extends Player {
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
         this.socket = socket;
-        this.id = id;
         this.active = active;
 
         this.truckGroup = new THREE.Group();
@@ -39,11 +39,12 @@ export class Truck extends Player {
 
         this.clock = new THREE.Clock();
         this.controllerIndex = null;
+
+        this.init();
     }
 
     init () {
         this.loadTruck(() => {
-            this.horn = new Audio('../models/horn.mp3');
             this.createTruck();
             this.update();
         });
@@ -51,7 +52,7 @@ export class Truck extends Player {
 
     setActive () {
         super.setActive();
-
+        this.horn = new Audio('../models/horn.mp3');
         window.addEventListener('gamepadconnected', (event) => {
             const gamepad = event.gamepad;
             this.controllerIndex = gamepad.index;
@@ -75,7 +76,7 @@ export class Truck extends Player {
             }
         });*/
 
-        // super.sendPosition('moveTruck');
+        this.sendPosition('move');
     }
 
     loadTruck (callback) {
@@ -378,32 +379,9 @@ export class Truck extends Player {
         }
     }
 
-    sendPosition () {
-        this.socket.send(JSON.stringify({
-            type: 'moveTruck',
-            player: this.id,
-            x: this.x,
-            y: this.y,
-            z: this.z,
-            rotation: this.vehicle.chassisBody.quaternion
-        }));
-
-        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
-    }
-
     updatePosition (x, y, z, rotation) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.rotation = rotation;
-        let tl = gsap.timeline();
-        tl.to(this.vehicle.chassisBody.position, {
-            duration: 0.1,
-            ease: 'none',
-            x: x,
-            y: y,
-            z: z
-        });
+        super.updatePosition(x, y, z, rotation);
+        this.vehicle.chassisBody.position.set(x, y, z);
         this.vehicle.chassisBody.quaternion.copy(rotation);
     }
 
