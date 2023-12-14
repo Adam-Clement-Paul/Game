@@ -190,25 +190,13 @@ export class Player extends Identity {
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
     }
 
-    cameraMovements (x, y, scale) {
-        // camera.position.set(x, 3 * scale, y - 2 * scale);
-        let tl = gsap.timeline();
-        tl.to(camera.position, {
-            duration: 0.1,
-            x: x,
-            y: 3,
-            z: y - 2
-        });
-        camera.lookAt(x, 0, y);
-    }
-
     update () {
         this.cube.rotation.y = this.rotation;
 
         this.rotationWithInertia();
         this.movementsWithInertia();
 
-        this.cameraMovements(this.x, this.z, 1);
+        this.cameraMovements(this.x, this.y, 1);
         this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
     }
 

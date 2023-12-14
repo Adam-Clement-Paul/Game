@@ -20,7 +20,16 @@ export class Identity {
     }
 
     // Updates the camera position and lookAt
-
+    cameraMovements (x, y, scale) {
+        let tl = gsap.timeline();
+        tl.to(camera.position, {
+            duration: 0.1,
+            x: x * scale,
+            y: 3,
+            z: y - 2 * scale
+        });
+        camera.lookAt(x, 0, y);
+    }
 
     stopUpdate () {
         clearTimeout(this.timer);

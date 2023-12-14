@@ -43,7 +43,6 @@ fetch(`/${gameId}`, {
 animate();
 
 function animate () {
-    setTimeout(animate, 1000 / 120);
     if (inGame === null && game) {
         game.updatePlayground();
     }
@@ -53,6 +52,7 @@ function animate () {
     camera.updateProjectionMatrix();
     renderer.render(scene, camera);
     stats.update();
+    requestAnimationFrame(animate);
 }
 
 function windowResize () {

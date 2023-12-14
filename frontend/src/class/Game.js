@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import {scene} from '../script_modules/init3DScene';
+import {camera, scene} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Player} from './Player.js';
 import {Truck} from './Truck';
 
 export class Game {
     constructor (board, players, socket, hasStarted) {
-        this.board = new Board(board);
+        // this.board = new Board(board);
         this.playersBackend = players;
         this.players = [];
         this.truckList = [];
@@ -20,22 +20,24 @@ export class Game {
         this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
 
         this.playersBackend.forEach(player => {
-            this.addPlayer(player.id, player.name, player.x, player.y, player.color);
+            //this.addPlayer(player.id, player.name, player.x, player.y, player.color);
             this.addTruck(player.id, player.name, player.x, player.y, player.z, 'Camion3.glb');
         });
 
         if (this.hasStarted) {
-            // init tous les joueurs
+            camera.near = 0.1;
+            camera.far = 20;
             this.players.forEach(player => {
                 player.init();
             });
             this.board.displayTiles();
         } else {
-            // init tous les joueurs
+            camera.near = 10;
+            camera.far = 80;
+            this.initPhysics();
             this.truckList.forEach(truck => {
                 truck.init();
             });
-            this.initPhysics();
         }
 
         if (this.players.length > 0 && this.hasStarted) {

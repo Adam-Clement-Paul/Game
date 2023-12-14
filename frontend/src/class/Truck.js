@@ -76,7 +76,7 @@ export class Truck extends Identity {
             }
         });*/
 
-        super.sendPosition('moveTruck');
+        // super.sendPosition('moveTruck');
     }
 
     loadTruck (callback) {
@@ -341,15 +341,13 @@ export class Truck extends Identity {
     }
 
     update () {
-        console.log(this.vehicle.chassisBody.position);
-
         this.vehicle.chassisBody.quaternion.copy(this.rotation);
         this.x = this.vehicle.chassisBody.position.x;
         this.y = this.vehicle.chassisBody.position.y;
         this.z = this.vehicle.chassisBody.position.z;
 
         if (this.active) {
-            // super.cameraMovements(this.x, this.z, 8);
+            this.cameraMovements(this.x, this.z, 8);
         }
 
         if (this.controllerIndex !== null) {

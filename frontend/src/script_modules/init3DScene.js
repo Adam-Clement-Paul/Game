@@ -18,7 +18,7 @@ let size = {
 }
 
 // CAMERA
-camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 20) // 0.1 - 20 / 10 - 80
+camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 80) // 0.1 - 20 / 10 - 80
 
 const canvas = document.querySelector('#webgl');
 
