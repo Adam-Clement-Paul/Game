@@ -128,6 +128,9 @@ const server = Bun.serve<WebSocketData>({
                 // TODO: Request the Mr Portail API to get
                 console.log('Server upgraded to websocket');
                 games[gameId].addPlayer(token, cookie, color);
+                if (Object.keys(games[gameId].players).length === 1) {
+                    games[gameId].owner = token;
+                }
                 return;
             }
             return new Response('WebSocket upgrade error', {status: 500});
@@ -168,14 +171,15 @@ const server = Bun.serve<WebSocketData>({
             if (typeof message === 'string') {
                 jsonMessage = JSON.parse(message);
             }
-            /*
-            if (jsonMessage.type === 'requestStartGame') {
+
+            if (jsonMessage.type === 'requestStartGame' && games[ws.data.gameId].owner === ws.data.authToken) {
+                console.log('starting game');
                 games[ws.data.gameId].startedAt = Date.now();
                 const msg = JSON.stringify({
                     type: 'startGame',
                 });
-                ws.publish(ws.data.gameId, msg);
-            }*/
+                server.publish(ws.data.gameId, msg);
+            }
 
             let tilesToUpdate: any[] = [];
             if (jsonMessage.type === 'extinguish' || jsonMessage.type === 'axe') {

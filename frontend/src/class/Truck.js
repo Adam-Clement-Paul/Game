@@ -66,7 +66,6 @@ export class Truck extends Player {
         document.addEventListener('keydown', (event) => this.onDocumentKeyEvent(true, event), false);
         document.addEventListener('keyup', (event) => this.onDocumentKeyEvent(false, event), false);
 
-        /*
         const startButton = document.getElementById('start');
         startButton.addEventListener('click', event => {
             if (this.socket) {
@@ -75,7 +74,7 @@ export class Truck extends Player {
                     playerId: this.id
                 }));
             }
-        });*/
+        });
 
         this.sendPosition('move');
     }

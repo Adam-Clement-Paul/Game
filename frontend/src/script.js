@@ -29,11 +29,7 @@ fetch(`/${gameId}`, {
     .then(response => response.json())
     .then(data => {
         inGame = data.game.startedAt;
-        if (inGame === null) {
-            game = new Game(data.game.board, data.game.players, socket, false);
-        } else {
-            game = new Game(data.game.board, data.game.players, socket, true);
-        }
+        game = new Game(data.game.board, data.game.players, socket, inGame !== null);
     })/*
     .catch(error => {
         console.error(error);
@@ -81,6 +77,9 @@ function connectToWebsocket (gameId) {
         }
         if (data.type === 'removePlayer' && game) {
             game.removePlayer(data.playerId);
+        }
+        if (data.type === 'startGame' && game) {
+            window.location.reload();
         }
     });
 
