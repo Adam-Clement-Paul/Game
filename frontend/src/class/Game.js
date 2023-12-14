@@ -7,7 +7,6 @@ import {Truck} from './Truck';
 
 export class Game {
     constructor (board, players, socket, hasStarted) {
-        // this.board = new Board(board);
         this.playersBackend = players;
         this.players = [];
         this.truckList = [];
@@ -20,13 +19,15 @@ export class Game {
         this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
 
         this.playersBackend.forEach(player => {
-            //this.addPlayer(player.id, player.name, player.x, player.y, player.color);
+            this.addPlayer(player.id, player.name, player.x, player.y, player.color);
             this.addTruck(player.id, player.name, player.x, player.y, player.z, 'Camion3.glb');
         });
 
         if (this.hasStarted) {
             camera.near = 0.1;
             camera.far = 20;
+
+            this.board = new Board(board);
             this.players.forEach(player => {
                 player.init();
             });

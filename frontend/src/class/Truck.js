@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import {scene} from "../script_modules/init3DScene";
+import {camera, scene} from "../script_modules/init3DScene";
+import gsap from "gsap";
 import {Identity} from "./Identity";
 
 const KEY_FORWARD = 'z';
@@ -18,7 +19,6 @@ export class Truck extends Identity {
 
     constructor (id, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
         super(id, x, y, z, rotation, socket, active);
-
         this.x = x;
         this.y = y;
         this.z = z;
@@ -26,7 +26,6 @@ export class Truck extends Identity {
 
         this.model = model;
         this.world = world;
-
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
         this.socket = socket;
@@ -180,6 +179,7 @@ export class Truck extends Identity {
         }
 
         this.vehicle.addToWorld(this.world);
+        this.rotation = this.vehicle.chassisBody.quaternion;
 
         this.world.addEventListener('postStep', () => {
             let index = 0;
@@ -324,30 +324,31 @@ export class Truck extends Identity {
         this.vehicle.setBrake(0, 0);
         this.vehicle.setBrake(0, 1);
 
-        this.x = 0;
-        this.y = 5;
-        this.z = 0;
-
         this.vehicle.chassisBody.position.set(this.x, this.y, this.z);
         this.vehicle.chassisBody.velocity.set(0, 0, 0);
         this.vehicle.chassisBody.angularVelocity.set(0, 0, 0);
-        this.rotation.setFromAxisAngle(
+        this.vehicle.chassisBody.quaternion.setFromAxisAngle(
             new CANNON.Vec3(0, 1, 0), 0);
     }
 
     hornSound () {
         this.horn.currentTime = 0;
         this.horn.play();
+
+        this.sendPosition();
     }
 
     update () {
+        setTimeout((this.update.bind(this)), 1000 / 60);
+
         this.vehicle.chassisBody.quaternion.copy(this.rotation);
+
         this.x = this.vehicle.chassisBody.position.x;
         this.y = this.vehicle.chassisBody.position.y;
         this.z = this.vehicle.chassisBody.position.z;
 
         if (this.active) {
-            this.cameraMovements(this.x, this.z, 8);
+            this.cameraMovements(this.x, this.z, 10, 0);
         }
 
         if (this.controllerIndex !== null) {
@@ -362,6 +363,7 @@ export class Truck extends Identity {
         }
 
         if (this.truck) {
+
             this.truck.position.copy(this.vehicle.chassisBody.position);
             this.truck.quaternion.copy(this.vehicle.chassisBody.quaternion);
 
@@ -374,7 +376,35 @@ export class Truck extends Identity {
             this.roue4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
             this.roue4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
         }
-        this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
+    }
+
+    sendPosition () {
+        this.socket.send(JSON.stringify({
+            type: 'moveTruck',
+            player: this.id,
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            rotation: this.vehicle.chassisBody.quaternion
+        }));
+
+        this.timer2 = setTimeout(this.sendPosition.bind(this), 1000 / 60);
+    }
+
+    updatePosition (x, y, z, rotation) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rotation = rotation;
+        let tl = gsap.timeline();
+        tl.to(this.vehicle.chassisBody.position, {
+            duration: 0.1,
+            ease: 'none',
+            x: x,
+            y: y,
+            z: z
+        });
+        this.vehicle.chassisBody.quaternion.copy(rotation);
     }
 
     remove () {

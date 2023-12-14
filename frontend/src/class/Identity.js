@@ -20,12 +20,12 @@ export class Identity {
     }
 
     // Updates the camera position and lookAt
-    cameraMovements (x, y, scale) {
+    cameraMovements (x, y, scale, time = 0.1) {
         let tl = gsap.timeline();
         tl.to(camera.position, {
-            duration: 0.1,
-            x: x * scale,
-            y: 3,
+            duration: time,
+            x: x,
+            y: 3 * scale,
             z: y - 2 * scale
         });
         camera.lookAt(x, 0, y);
