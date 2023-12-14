@@ -42,12 +42,8 @@ export class Identity {
             x: this.x,
             y: this.y,
             z: this.z,
-            rotation: this.rotation,
+            rotation: this.rotation
         }));
-        setTimeout((this.sendPosition.bind(this)), 1000 / 60);
-    }
-
-    updatePosition (x, y, z, rotation) {
-
+        setTimeout((this.sendPosition.bind(this)), 1000 / 60, type);
     }
 }

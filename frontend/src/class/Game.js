@@ -28,9 +28,10 @@ export class Game {
             camera.far = 20;
 
             this.board = new Board(board);
+            /*
             this.players.forEach(player => {
                 player.init();
-            });
+            }); */
             this.board.displayTiles();
         } else {
             camera.near = 10;
@@ -73,7 +74,9 @@ export class Game {
     }
 
     addPlayer (id, name, x, y, color) {
-        this.players.push(new Player(id, x, y, 0, color, this, this.socket));
+        let player = new Player(id, x, y, 0, color, this, this.socket);
+        player.init();
+        this.players.push(player);
     }
 
     removePlayer (id) {

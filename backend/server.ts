@@ -168,7 +168,6 @@ const server = Bun.serve<WebSocketData>({
             if (typeof message === 'string') {
                 jsonMessage = JSON.parse(message);
             }
-
             /*
             if (jsonMessage.type === 'requestStartGame') {
                 games[ws.data.gameId].startedAt = Date.now();
@@ -217,7 +216,7 @@ const server = Bun.serve<WebSocketData>({
 
             const msg = JSON.stringify({
                 type: 'removePlayer',
-                playerId: ws.data.name,
+                playerId: ws.data.authToken,
             });
             ws.unsubscribe(ws.data.gameId);
             server.publish(ws.data.gameId, msg);
@@ -253,7 +252,7 @@ function sendPlayerPositionRotation(gameId: string) {
         players: playerData,
     };
 
-    // server.publish(gameId, JSON.stringify(broadcastData));
+    server.publish(gameId, JSON.stringify(broadcastData));
 }
 
 setInterval(() => {

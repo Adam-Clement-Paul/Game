@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-
-import {camera, scene} from "../script_modules/init3DScene";
 import gsap from "gsap";
+
+import {scene} from "../script_modules/init3DScene";
 import {Identity} from "./Identity";
 
 const KEY_FORWARD = 'z';

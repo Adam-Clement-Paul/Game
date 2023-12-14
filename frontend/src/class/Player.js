@@ -7,10 +7,10 @@ import gsap from "gsap";
 export class Player extends Identity {
     constructor (id, x, y, rotation, model, game, socket, active) {
         super(id, x, 0.5, y, rotation, socket, active);
-
         this.x = x;
-        this.y = y
-        this.rotation = rotation;
+        this.y = y;
+        this.z = null;
+        this.rotation = Math.PI;
 
         this.model = new THREE.Color(model);
         this.game = game;
@@ -47,7 +47,6 @@ export class Player extends Identity {
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
-        this.rotation = Math.PI;
         scene.add(this.cube);
 
         const cubeOrientation = new THREE.Mesh(
@@ -68,7 +67,7 @@ export class Player extends Identity {
         document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
 
         this.update();
-        super.sendPosition('move');
+        this.sendPosition('move');
     }
 
     onDocumentKeyDown (event) {
@@ -198,6 +197,16 @@ export class Player extends Identity {
 
         this.cameraMovements(this.x, this.y, 1);
         this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
+    }
+
+    updatePosition (x, y, z, rotation) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rotation = rotation;
+
+        this.cube.rotation.y = this.rotation;
+        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
     }
 
     remove () {
