@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import {camera, scene} from '../script_modules/init3DScene.js';
+
+import {scene} from '../script_modules/init3DScene.js';
 import * as UTILS from '../script_modules/utils.js';
-import {Player} from "./Player";
-import gsap from "gsap";
+import {Player} from './Player';
 
 export class Firefighter extends Player {
     constructor (id, x, y, rotation, model, game, socket, active) {
@@ -37,11 +37,6 @@ export class Firefighter extends Player {
             d: false,
         };
 
-        this.cube = null;
-        this.init();
-    }
-
-    init () {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
@@ -106,7 +101,6 @@ export class Firefighter extends Player {
 
     // Check if the player is colliding with a tile of a type other than 'grass' at the position of the player
     checkCollisionWithTiles (x, y) {
-        return false;
         // Try to edit this code to get a banned
         for (const tile of this.game.board.tiles) {
             if (tile.type !== 'grass' &&

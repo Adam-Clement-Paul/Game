@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import gsap from "gsap";
 
-import {scene} from "../script_modules/init3DScene";
-import {Player} from "./Player";
+import {scene} from '../script_modules/init3DScene';
+import {Player} from './Player';
 
 const KEY_FORWARD = 'z';
 const KEY_BACKWARD = 's';
@@ -40,10 +39,6 @@ export class Truck extends Player {
         this.clock = new THREE.Clock();
         this.controllerIndex = null;
 
-        this.init();
-    }
-
-    init () {
         this.loadTruck(() => {
             this.createTruck();
             this.update();
@@ -97,12 +92,12 @@ export class Truck extends Player {
                 }
             });
 
-            this.roue1 = wheelModelL.clone();
-            this.roue2 = wheelModelR.clone();
-            this.roue3 = wheelModelL.clone();
-            this.roue4 = wheelModelR.clone();
+            this.wheel1 = wheelModelL.clone();
+            this.wheel2 = wheelModelR.clone();
+            this.wheel3 = wheelModelL.clone();
+            this.wheel4 = wheelModelR.clone();
 
-            let wheels = [this.roue1, this.roue2, this.roue3, this.roue4];
+            let wheels = [this.wheel1, this.wheel2, this.wheel3, this.wheel4];
             wheels.forEach((wheel) => {
                 wheel.visible = true;
                 scene.add(wheel);
@@ -365,18 +360,17 @@ export class Truck extends Player {
         }
 
         if (this.truck && this.vehicle) {
-
             this.truck.position.copy(this.vehicle.chassisBody.position);
             this.truck.quaternion.copy(this.vehicle.chassisBody.quaternion);
 
-            this.roue1.position.copy(this.vehicle.wheelInfos[0].worldTransform.position);
-            this.roue1.quaternion.copy(this.vehicle.wheelInfos[0].worldTransform.quaternion);
-            this.roue2.position.copy(this.vehicle.wheelInfos[1].worldTransform.position);
-            this.roue2.quaternion.copy(this.vehicle.wheelInfos[1].worldTransform.quaternion);
-            this.roue3.position.copy(this.vehicle.wheelInfos[2].worldTransform.position);
-            this.roue3.quaternion.copy(this.vehicle.wheelInfos[2].worldTransform.quaternion);
-            this.roue4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
-            this.roue4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
+            this.wheel1.position.copy(this.vehicle.wheelInfos[0].worldTransform.position);
+            this.wheel1.quaternion.copy(this.vehicle.wheelInfos[0].worldTransform.quaternion);
+            this.wheel2.position.copy(this.vehicle.wheelInfos[1].worldTransform.position);
+            this.wheel2.quaternion.copy(this.vehicle.wheelInfos[1].worldTransform.quaternion);
+            this.wheel3.position.copy(this.vehicle.wheelInfos[2].worldTransform.position);
+            this.wheel3.quaternion.copy(this.vehicle.wheelInfos[2].worldTransform.quaternion);
+            this.wheel4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
+            this.wheel4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
         }
     }
 
@@ -390,9 +384,9 @@ export class Truck extends Player {
 
     remove () {
         scene.remove(this.truck);
-        scene.remove(this.roue1);
-        scene.remove(this.roue2);
-        scene.remove(this.roue3);
-        scene.remove(this.roue4);
+        scene.remove(this.wheel1);
+        scene.remove(this.wheel2);
+        scene.remove(this.wheel3);
+        scene.remove(this.wheel4);
     }
 }

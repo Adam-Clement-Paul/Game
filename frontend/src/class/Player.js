@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import {camera} from "../script_modules/init3DScene";
+import {camera} from '../script_modules/init3DScene';
 
 export class Player {
     constructor (id, x, y, z, rotation, socket, active = false) {

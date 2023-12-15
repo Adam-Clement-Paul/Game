@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+
 import {camera, scene} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Firefighter} from './Firefighter.js';
