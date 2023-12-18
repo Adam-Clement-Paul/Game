@@ -14,6 +14,8 @@ export class Game {
         this.socket = socket;
         this.hasStarted = hasStarted;
 
+        this.boardConfig = board;
+
         this.world = new CANNON.World();
         this.dt = 1 / 30;
         this.groundMaterial = new CANNON.Material('this.groundMaterial');
@@ -27,7 +29,7 @@ export class Game {
             camera.near = 0.1;
             camera.far = 20;
 
-            this.board = new Board(board);
+            this.board = new Board(this.boardConfig);
             this.board.displayTiles();
         } else {
             camera.near = 10;
@@ -62,13 +64,39 @@ export class Game {
         this.gameLoop();
     }
 
-    getBoard () {
-        return this.board;
+    goToGame (players) {
+        this.hasStarted = true;
+        camera.near = 0.1;
+        camera.far = 20;
+
+        this.truckList.forEach(truck => {
+            truck.remove();
+        });
+        scene.remove(this.truckList);
+        this.removePlayground();
+
+        this.board = new Board(this.boardConfig);
+        this.board.displayTiles();
+
+        // Add the players to the game
+        players.forEach(player => {
+            this.addPlayer(player.id, player.name, player.color);
+        });
+
+        this.truckList = [];
+
+        camera.position.set(4, 3, 1);
+        camera.lookAt(4, 0, 3);
     }
 
     addPlayer (id, name, color) {
         if (this.hasStarted) {
             let player = new Firefighter(id, 4, 3, 0, color, this, this.socket);
+            this.truckList.forEach(truck => {
+                if (truck.id === id) {
+                    player.setActive();
+                }
+            });
             this.players.push(player);
         } else {
             let player = new Truck(id, 0, 20, 0, 0, 'Camion3.glb', this.world, this.groundMaterial, this.wheelMaterial, this.socket);
@@ -112,9 +140,9 @@ export class Game {
             side: THREE.DoubleSide,
             wireframe: true,
         });
-        const plane = new THREE.Mesh(geometry, material);
-        plane.rotateX(Math.PI / 2);
-        scene.add(plane);
+        this.plane = new THREE.Mesh(geometry, material);
+        this.plane.rotateX(Math.PI / 2);
+        scene.add(this.plane);
 
         this.world.broadphase = new CANNON.SAPBroadphase(this.world);
         this.world.gravity.set(0, -9.82, 0);
@@ -144,8 +172,13 @@ export class Game {
         this.world.addBody(groundBody);
     }
 
+    removePlayground() {
+        scene.remove(this.plane);
+        this.world = null;
+    }
+
     updatePlayground() {
-        if (this.world) {
+        if (this.world && !this.hasStarted) {
             this.world.step(this.dt);
         }
     }

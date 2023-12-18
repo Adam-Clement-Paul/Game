@@ -31,7 +31,7 @@ export class Player {
         camera.lookAt(x, 0, y);
     }
 
-    stopUpdate () {
+    stopSendPosition () {
         clearTimeout(this.timer);
     }
 
@@ -44,7 +44,7 @@ export class Player {
             z: this.z,
             rotation: this.rotation
         }));
-        setTimeout((this.sendPosition.bind(this)), 1000 / 60, type);
+        this.timer = setTimeout((this.sendPosition.bind(this)), 1000 / 60, type);
     }
 
     updatePosition (x, y, z, rotation) {

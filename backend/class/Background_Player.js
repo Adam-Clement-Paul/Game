@@ -99,32 +99,13 @@ export class Player {
         this.setRotation(direction);
     }
 
-    getPosition () {
-        return {
-            x: this.x,
-            y: this.y,
-        }
-    }
-
     setPosition (x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    getRotation () {
-        return this.rotation;
-    }
-
     setRotation (rotation) {
         this.rotation = rotation;
-    }
-
-    setAction (action) {
-        // this.model.action = action;
-    }
-
-    setKeys (keys) {
-        this.keys = keys;
     }
 }

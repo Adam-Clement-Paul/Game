@@ -174,9 +174,15 @@ const server = Bun.serve<WebSocketData>({
 
             if (jsonMessage.type === 'requestStartGame' && games[ws.data.gameId].owner === ws.data.authToken) {
                 console.log('starting game');
+                for (const player in games[ws.data.gameId].players) {
+                    games[ws.data.gameId].players[player].x = 4;
+                    games[ws.data.gameId].players[player].y = 3;
+                    games[ws.data.gameId].players[player].z = null;
+                }
                 games[ws.data.gameId].startedAt = Date.now();
                 const msg = JSON.stringify({
                     type: 'startGame',
+                    players: games[ws.data.gameId].players
                 });
                 server.publish(ws.data.gameId, msg);
             }

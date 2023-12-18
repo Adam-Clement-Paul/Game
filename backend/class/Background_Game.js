@@ -54,7 +54,7 @@ export class Game {
         if (this.startedAt !== null) {
             this.players.push(new Player(id, name, color, 4, 3, 0, this.board));
         } else {
-            this.players.push(new Player(id, name, color, 0, 20, 0, null));
+            this.players.push(new Player(id, name, color, 0, 20, 0, this.board));
         }
     }
 

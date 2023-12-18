@@ -70,6 +70,7 @@ function connectToWebsocket (gameId) {
     socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
         if (data.type === 'addPlayer' && game) {
+            console.log('WS: addPlayer');
             game.addPlayer(data.playerId, data.name, data.color);
         }
         if (data.type === 'updatePlayers' && game) {
@@ -79,7 +80,7 @@ function connectToWebsocket (gameId) {
             game.removePlayer(data.playerId);
         }
         if (data.type === 'startGame' && game) {
-            window.location.reload();
+            game.goToGame(data.players);
         }
     });
 

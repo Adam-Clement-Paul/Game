@@ -34,7 +34,7 @@ export class Truck extends Player {
         this.truckGroup = new THREE.Group();
         this.vehicle = null;
 
-        this.timer2 = 0;
+        this.timer = 0;
 
         this.clock = new THREE.Clock();
         this.controllerIndex = null;
@@ -335,7 +335,7 @@ export class Truck extends Player {
     }
 
     update () {
-        setTimeout((this.update.bind(this)), 1000 / 60);
+        this.timer = setTimeout((this.update.bind(this)), 1000 / 60);
 
         this.vehicle.chassisBody.quaternion.copy(this.rotation);
 
@@ -383,10 +383,19 @@ export class Truck extends Player {
     }
 
     remove () {
+        this.stopSendPosition();
+        clearTimeout(this.timer);
+
         scene.remove(this.truck);
         scene.remove(this.wheel1);
         scene.remove(this.wheel2);
         scene.remove(this.wheel3);
         scene.remove(this.wheel4);
+        scene.remove(this.truckGroup);
+
+        if (this.active) {
+            document.removeEventListener('keydown', (event) => this.onDocumentKeyEvent(true, event), false);
+            document.removeEventListener('keyup', (event) => this.onDocumentKeyEvent(false, event), false);
+        }
     }
 }
