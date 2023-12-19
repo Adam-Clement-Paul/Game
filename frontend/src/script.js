@@ -62,7 +62,7 @@ function windowResize () {
 window.addEventListener('resize', windowResize, false);
 
 function connectToWebsocket (gameId) {
-    const socket = new WebSocket("ws://localhost:3010/websocket/" + gameId);
+    const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/` + gameId);
     // TODO: Send the token to the backend to check if the player is allowed to connect to the game
 
     socket.addEventListener("message", event => {

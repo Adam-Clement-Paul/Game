@@ -3,8 +3,7 @@ import {file} from "bun";
 import {Game} from "./class/Background_Game.js";
 
 const BASE_PATH = "../frontend/dist";
-const domain = "http://localhost";
-
+const domain = `http://${process.env.HOST}`;
 
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
@@ -20,7 +19,7 @@ type WebSocketData = {
 
 
 const server = Bun.serve<WebSocketData>({
-    port: 3010,
+    port: process.env.PORT,
     fetch(request, server) {
         const {url, method} = request;
         const {pathname} = new URL(url);

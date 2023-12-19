@@ -28,4 +28,5 @@ jobs:
         run: |
           ssh root@${{ env.SERVER_IP }} 'rm -rf ~/pyrofighters/Game'
           scp -r $(pwd) root@${{ env.SERVER_IP }}:~/pyrofighters/
+          ssh root@${{ env.SERVER_IP }} 'cp -r ~/pyrofighters/.env ~/pyrofighters/Game/.env'
           ssh root@${{ env.SERVER_IP }} 'cd ~/pyrofighters/Game && docker-compose build && docker-compose up -d'
