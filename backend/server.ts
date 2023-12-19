@@ -19,7 +19,7 @@ type WebSocketData = {
 
 
 const server = Bun.serve<WebSocketData>({
-    port: process.env.PORT,
+    port: process.env.PORT_GAME,
     fetch(request, server) {
         const {url, method} = request;
         const {pathname} = new URL(url);
