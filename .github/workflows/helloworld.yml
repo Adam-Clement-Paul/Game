@@ -1,0 +1,32 @@
+name: Deploy HelloWorld
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SERVER_IP: 193.168.145.153
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add SSH host to known hosts
+        run: ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy HelloWorld
+        run: |
+          echo "Hello, World!" > helloworld.txt
+          scp helloworld.txt root@${{ env.SERVER_IP }}:~/
+          ssh root@${{ env.SERVER_IP }} 'ls ~/'
+          ssh root@${{ env.SERVER_IP }} 'cat ~/helloworld.txt'
