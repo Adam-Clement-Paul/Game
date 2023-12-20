@@ -162,3 +162,13 @@ button:focus {
     cursor: pointer;
     background-color: var(--color-btn-background-hover);
 }
+
+#bottomCode > p {
+    display: none;
+    text-align: left;
+    font-size: 1.1rem;
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0 0 30px calc(50% - 100px);
+}

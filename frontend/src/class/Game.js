@@ -5,6 +5,7 @@ import {camera, scene} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
+import {stopWaiting, waiting} from "../waiting";
 
 export class Game {
     constructor (board, players, socket, hasStarted, owner) {
@@ -34,6 +35,7 @@ export class Game {
             this.board.displayTiles();
 
             document.querySelector('#start').remove();
+            document.querySelector('#bottomCode p').remove();
         } else {
             camera.near = 10;
             camera.far = 80;
@@ -47,6 +49,8 @@ export class Game {
             this.truckList[this.truckList.length - 1].setActive();
             if (this.owner === this.truckList[this.truckList.length - 1].id) {
                 document.querySelector('#start').style.display = 'inline';
+            } else {
+                waiting();
             }
         }
     }
@@ -76,6 +80,7 @@ export class Game {
         camera.far = 20;
 
         document.querySelector('#start').remove();
+        stopWaiting();
 
         this.truckList.forEach(truck => {
             truck.remove();
