@@ -35,7 +35,7 @@ const server = Bun.serve<WebSocketData>({
         // Check all routes for games: at localhost/GAME_ID
         if (pathname.startsWith('/') && method === 'GET' && pathname.split('/').length === 2) {
             // Extract game ID from the URL
-            const gameId = pathname.split('/')[1];
+            const gameId = pathname.split('/')[1].toLowerCase();
             const gameFound = games[gameId];
 
             if (gameFound) {

@@ -2,10 +2,136 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
-button {
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+/* Fonts */
+
+/* fira-sans-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Fira Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/fira-sans-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* fira-sans-600 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Fira Sans';
+    font-style: normal;
+    font-weight: 600;
+    src: url('../fonts/fira-sans-v17-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* fira-sans-800 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Fira Sans';
+    font-style: normal;
+    font-weight: 800;
+    src: url('../fonts/fira-sans-v17-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+
+/* carter-one-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Carter One';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/carter-one-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+:root {
+    --primary: #ffffff;
+    --primary-hover: rgba(255, 255, 255, 0.5);
+    --secondary: #a2a2a2;
+}
+
+onQrCode {
+    --primary: #000000;
+    --primary-hover: rgba(0, 0, 0, 0.5);
+    --secondary: #383838;
+}
+
+#start {
     position: absolute;
     padding: 10px 15px;
     bottom: 0;
+}
+
+#bottomCode {
+    position: absolute;
+    z-index: 2;
+    bottom: 10px;
+    height: 31px;
+    line-height: 31px;
+    width: 100%;
+    color: white;
+    display: flex;
+    justify-content: center;
+}
+
+#bottomCode > p {
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #a2a2a2;
+}
+
+#gameCode {
+    color: white;
+}
+
+#bottomCode > button {
+    margin-left: 12px;
+    height: 30px;
+    width: 30px;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+#bottomCode > button:hover {
+    cursor: pointer;
+    > svg > path {
+        stroke: rgba(255, 255, 255, 0.5);
+    }
+}
+
+#bottomCode > button > svg {
+    height: 30px;
+    width: 30px;
+}
+
+#bottomCode > button > svg > path {
+    stroke: white;
+}
+
+#qrCode {
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #FFB563;
+    display: none;
+}
+
+#canvas {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#canvas > svg {
+    margin: auto;
 }

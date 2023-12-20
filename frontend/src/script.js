@@ -1,15 +1,17 @@
 import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
 import * as UTILS from './script_modules/utils.js';
+import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
 
 
 // Get the game ID from the URL
-const gameId = window.location.pathname.split('/')[1];
+const gameId = window.location.pathname.split('/')[1].toLowerCase();
 const socket = connectToWebsocket(gameId);
 let game;
 let inGame;
+qrcode(gameId);
 
 fetch(`/${gameId}`, {
     method: 'GET',
@@ -30,6 +32,9 @@ fetch(`/${gameId}`, {
     .then(data => {
         inGame = data.game.startedAt;
         game = new Game(data.game.board, data.game.players, socket, inGame !== null);
+
+        const spanGameCode = document.getElementById('gameCode');
+        spanGameCode.innerHTML += gameId.toUpperCase();
     })/*
     .catch(error => {
         console.error(error);
