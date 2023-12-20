@@ -57,10 +57,10 @@ button:focus {
     --secondary: #a2a2a2;
 }
 
-onQrCode {
-    --primary: #000000;
-    --primary-hover: rgba(0, 0, 0, 0.5);
-    --secondary: #383838;
+.onQrCode {
+    --primary: #594141;
+    --primary-hover: rgba(89, 65, 65, 0.5);
+    --secondary: #624c4c;
 }
 
 #start {
@@ -76,7 +76,7 @@ onQrCode {
     height: 31px;
     line-height: 31px;
     width: 100%;
-    color: white;
+    color: var(--primary);
     display: flex;
     justify-content: center;
 }
@@ -85,11 +85,11 @@ onQrCode {
     font-family: 'Fira Sans', sans-serif;
     font-size: 1.2rem;
     font-weight: 800;
-    color: #a2a2a2;
+    color: var(--secondary);
 }
 
 #gameCode {
-    color: white;
+    color: var(--primary);
 }
 
 #bottomCode > button {
@@ -104,7 +104,7 @@ onQrCode {
 #bottomCode > button:hover {
     cursor: pointer;
     > svg > path {
-        stroke: rgba(255, 255, 255, 0.5);
+        stroke: var(--primary-hover);
     }
 }
 
@@ -113,11 +113,16 @@ onQrCode {
     width: 30px;
 }
 
+#backSvg {
+    display: none;
+}
+
 #bottomCode > button > svg > path {
-    stroke: white;
+    stroke: var(--primary);
 }
 
 #qrCode {
+    user-focus: none;
     z-index: 1;
     position: absolute;
     width: 100%;

@@ -2,21 +2,33 @@ import QRCodeStyling from "qr-code-styling";
 
 export function qrcode (gameId) {
     let display = false;
+    const bottomCode = document.querySelector('#bottomCode');
+    const qrSvg = document.querySelector('#qrSvg');
+    const backSvg = document.querySelector('#backSvg');
+
     const qrcode = document.querySelector('#qrCode');
     const button = document.querySelector('#qrButton');
     const canvas = document.querySelector('#canvas');
 
     button.addEventListener('click', () => {
         if (display) {
+            bottomCode.classList.remove('onQrCode');
             qrcode.style.display = 'none';
+
+            qrSvg.style.display = 'block';
+            backSvg.style.display = 'none';
             display = false;
         } else {
+            bottomCode.classList.add('onQrCode');
             qrcode.style.display = 'block';
+
+            qrSvg.style.display = 'none';
+            backSvg.style.display = 'block';
             display = true;
         }
+        button.blur();
     });
 
-    // Récupère la taille del'écran
     const size = {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -37,7 +49,7 @@ export function qrcode (gameId) {
         type: "svg",
         data: "http://localhost:3000/" + gameId,
         dotsOptions: {
-            color: "#000000",
+            color: "#594141",
         },
         backgroundOptions: {
             color: "#ffffff00",
