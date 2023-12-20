@@ -7,12 +7,13 @@ import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
 
 export class Game {
-    constructor (board, players, socket, hasStarted) {
+    constructor (board, players, socket, hasStarted, owner) {
         this.playersBackend = players;
         this.players = [];
         this.truckList = [];
         this.socket = socket;
         this.hasStarted = hasStarted;
+        this.owner = owner;
 
         this.boardConfig = board;
 
@@ -31,6 +32,8 @@ export class Game {
 
             this.board = new Board(this.boardConfig);
             this.board.displayTiles();
+
+            document.querySelector('#start').remove();
         } else {
             camera.near = 10;
             camera.far = 80;
@@ -42,6 +45,9 @@ export class Game {
         }
         if (this.truckList.length > 0 && !this.hasStarted) {
             this.truckList[this.truckList.length - 1].setActive();
+            if (this.owner === this.truckList[this.truckList.length - 1].id) {
+                document.querySelector('#start').style.display = 'inline';
+            }
         }
     }
 
@@ -68,6 +74,8 @@ export class Game {
         this.hasStarted = true;
         camera.near = 0.1;
         camera.far = 20;
+
+        document.querySelector('#start').remove();
 
         this.truckList.forEach(truck => {
             truck.remove();

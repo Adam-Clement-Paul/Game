@@ -31,7 +31,7 @@ fetch(`/${gameId}`, {
     .then(response => response.json())
     .then(data => {
         inGame = data.game.startedAt;
-        game = new Game(data.game.board, data.game.players, socket, inGame !== null);
+        game = new Game(data.game.board, data.game.players, socket, inGame !== null, data.game.owner);
 
         const spanGameCode = document.getElementById('gameCode');
         spanGameCode.innerHTML += gameId.toUpperCase();

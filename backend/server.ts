@@ -125,11 +125,12 @@ const server = Bun.serve<WebSocketData>({
             });
 
             if (success) {
-                // TODO: Request the Mr Portail API to get
+                // TODO: Request the Mr Portail API to get the player skin
                 console.log('Server upgraded to websocket');
                 games[gameId].addPlayer(token, cookie, color);
                 if (Object.keys(games[gameId].players).length === 1) {
                     games[gameId].owner = token;
+                    console.log('owner: ' + games[gameId].owner);
                 }
                 return;
             }
@@ -161,7 +162,7 @@ const server = Bun.serve<WebSocketData>({
                 type: 'addPlayer',
                 name: ws.data.name,
                 color: ws.data.color,
-                playerId: ws.data.authToken,
+                playerId: ws.data.authToken
             });
 
             ws.publish(ws.data.gameId, newPlayerData);
