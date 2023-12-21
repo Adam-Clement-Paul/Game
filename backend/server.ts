@@ -1,5 +1,4 @@
 import {file} from 'bun';
-
 import {Game} from './class/Background_Game.js';
 
 const BASE_PATH = "../frontend/dist";
@@ -8,7 +7,12 @@ const domain = `http://${process.env.HOST}`;
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
 
+
+
+
 // Define the data type for the WebSocket
+/// <reference lib="dom" />
+
 type WebSocketData = {
     createdAt: number;
     gameId: string;
@@ -16,11 +20,11 @@ type WebSocketData = {
     name: string;
     color: number;
 };
-
+let token: any, email: any;
 
 const server = Bun.serve<WebSocketData>({
     port: process.env.PORT_GAME,
-    fetch(request, server) {
+    async fetch(request, server) {
         const {url, method} = request;
         const {pathname} = new URL(url);
 
@@ -84,6 +88,37 @@ const server = Bun.serve<WebSocketData>({
 
             // Return the redirect URL in the response
             return new Response(JSON.stringify({redirectUrl}), {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-control-allow-origin': '*',
+                },
+            });
+        }
+
+        // Get data from the user_api microservice
+        if (pathname === '/api/game' && method === 'POST') {
+            const json = await Bun.readableStreamToJSON(request.body);
+            if (json.token && json.email) {
+                token = json.token;
+                email = json.email;
+            }
+            const response = await fetch(`http://164.81.228.233:1000/api/users/`, {
+                method: "POST",
+                body: JSON.stringify({
+                    email: email,
+                    token: token
+                }),
+                headers: { 
+                    "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+                },
+            });
+            const data = await response.json();
+            console.log(data);
+            
+
+            return new Response(JSON.stringify({}), {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json',
