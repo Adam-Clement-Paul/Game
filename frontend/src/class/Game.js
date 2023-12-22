@@ -93,6 +93,7 @@ export class Game {
 
         // Add the players to the game
         players.forEach(player => {
+            console.log(player.id, player.name, player.color);
             this.addPlayer(player.id, player.name, player.color);
         });
 
@@ -103,8 +104,9 @@ export class Game {
     }
 
     addPlayer (id, name, color) {
+        console.log(`Add player ${name} (${id})`);
         if (this.hasStarted) {
-            let player = new Firefighter(id, 4, 3, 0, color, this, this.socket);
+            let player = new Firefighter(id, name, 4, 3, 0, color, this, this.socket);
             this.truckList.forEach(truck => {
                 if (truck.id === id) {
                     player.setActive();
@@ -112,7 +114,7 @@ export class Game {
             });
             this.players.push(player);
         } else {
-            let player = new Truck(id, 0, 20, 0, 0, 'Camion3.glb', this.world, this.groundMaterial, this.wheelMaterial, this.socket);
+            let player = new Truck(id, name, 0, 20, 0, 0, 'Camion3.glb', this.world, this.groundMaterial, this.wheelMaterial, this.socket);
             this.truckList.push(player);
         }
     }

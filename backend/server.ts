@@ -7,12 +7,7 @@ const domain = `http://${process.env.HOST}`;
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
 
-
-
-
 // Define the data type for the WebSocket
-/// <reference lib="dom" />
-
 type WebSocketData = {
     createdAt: number;
     gameId: string;
@@ -20,7 +15,7 @@ type WebSocketData = {
     name: string;
     color: number;
 };
-let token: any, email: any;
+let sessions: { [key: string]: any } = {};
 
 const server = Bun.serve<WebSocketData>({
     port: process.env.PORT_GAME,
@@ -98,27 +93,41 @@ const server = Bun.serve<WebSocketData>({
 
         // Get data from the user_api microservice
         if (pathname === '/api/game' && method === 'POST') {
+            // @ts-ignore
             const json = await Bun.readableStreamToJSON(request.body);
-            if (json.token && json.email) {
-                token = json.token;
-                email = json.email;
-            }
+            const email = json.email;
+            const token = json.token;
+            const gameId = json.gameId;
+
+            const sessionId = generateUniqueSessionId();
+
             const response = await fetch(`http://164.81.228.233:1000/api/users/`, {
                 method: "POST",
                 body: JSON.stringify({
                     email: email,
                     token: token
                 }),
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${token}`
                 },
             });
-            const data = await response.json();
-            console.log(data);
-            
 
-            return new Response(JSON.stringify({}), {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la requête POST');
+            }
+
+            const data = await response.json();
+            const id = data.userData.id;
+            const username = data.userData.username;
+
+            sessions[sessionId] = {
+                gameId: gameId,
+                id: id,
+                username: username
+            };
+
+            return new Response(JSON.stringify({sessionId}), {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/json',
@@ -129,47 +138,39 @@ const server = Bun.serve<WebSocketData>({
 
         // Route to join the websocket room
         if (pathname.startsWith('/websocket')) {
-            // TODO: Extract the token sended by the client to identify the player
-
             const gameId = pathname.split('/')[2];
+            const sessionId = pathname.split('/')[3];
 
-            // TODO: Get the name of the player from the cookie
-            const cookie = `Paul${Math.random().toString(36).substring(2)}`;
-            const token = Math.random().toString(36).substring(2, 12);
-
-            // TODO: Get the skin of the player with a request to the database
-            // Colors begin with 0x
-            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
-
-            // If the player is already in the game, do not upgrade the request
-            for (const player in games[gameId].players) {
-                if (games[gameId].players[player].name === cookie) {
-                    return;
-                }
+            let id, username;
+            if (sessions[sessionId]) {
+                id = sessions[sessionId].id;
+                username = sessions[sessionId].username;
+            } else {
+                return new Response('Invalid session id', { status: 400 });
             }
 
-            // Upgrade the request to a websocket
+            // Connexion WebSocket
+            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
             const success = server.upgrade(request, {
                 data: {
                     createAt: Date.now(),
                     gameId: gameId,
-                    authToken: token,
-                    name: cookie,
+                    authToken: id,
+                    name: username,
                     color: color,
                 },
             });
 
-            if (success) {
-                // TODO: Request the Mr Portail API to get the player skin
-                console.log('Server upgraded to websocket');
-                games[gameId].addPlayer(token, cookie, color);
-                if (Object.keys(games[gameId].players).length === 1) {
-                    games[gameId].owner = token;
-                    console.log('owner: ' + games[gameId].owner);
-                }
-                return;
+            if (!success) {
+                throw new Error('Erreur lors de la connexion WebSocket');
             }
-            return new Response('WebSocket upgrade error', {status: 500});
+            console.log('Server upgraded to websocket');
+
+            // Ajouter le joueur à la partie
+            games[gameId].addPlayer(id, username, color);
+            if (Object.keys(games[gameId].players).length === 1) {
+                games[gameId].owner = id;
+            }
         }
 
         // Serve static files
@@ -309,3 +310,24 @@ setInterval(() => {
 }, 1000 / 60); // Adjust the frequency of the updates
 
 console.log(`Server running on port ${server.port}`);
+
+// Fonction pour générer un identifiant de session unique
+function generateUniqueSessionId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Fonction pour extraire l'identifiant de session du header de la requête WebSocket
+function extractSessionIdFromWebSocketRequest(request: Request) {
+    const cookies = request.headers.get('Cookie');
+    if (!cookies) {
+        throw new Error('Cookie not found in WebSocket request');
+    }
+
+    const sessionIdMatch = cookies.match(/sessionId=([^;]+)/);
+    if (!sessionIdMatch) {
+        throw new Error('sessionId not found in cookies');
+    }
+
+    return sessionIdMatch[1];
+}
+

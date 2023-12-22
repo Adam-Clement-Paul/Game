@@ -5,8 +5,8 @@ import * as UTILS from '../script_modules/utils.js';
 import {Player} from './Player';
 
 export class Firefighter extends Player {
-    constructor (id, x, y, rotation, model, game, socket, active) {
-        super(id, x, 0.5, y, rotation, socket, active);
+    constructor (id, name, x, y, rotation, model, game, socket, active) {
+        super(id, name, x, 0.5, y, rotation, socket, active);
         this.id = id;
         this.x = x;
         this.y = y;

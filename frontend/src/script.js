@@ -4,6 +4,7 @@ import * as UTILS from './script_modules/utils.js';
 import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
+import { checkCookie } from './checkCookie.js';
 
 
 // Get the game ID from the URL
@@ -13,32 +14,34 @@ let game;
 let inGame;
 qrcode(gameId);
 
-fetch(`/${gameId}`, {
-    method: 'GET',
-    headers: {
-        'Content-Type': 'text/html',
-    }
-})
-    .then(response => {
-        // Make a second request to get the game data
-        return fetch(`/api/game/data/${gameId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+async function getGame (socket) {
+    await fetch(`/${gameId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'text/html',
+        }
     })
-    .then(response => response.json())
-    .then(data => {
-        inGame = data.game.startedAt;
-        game = new Game(data.game.board, data.game.players, socket, inGame !== null, data.game.owner);
+        .then(response => {
+            // Make a second request to get the game data
+            return fetch(`/api/game/data/${gameId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            inGame = data.game.startedAt;
+            game = new Game(data.game.board, data.game.players, socket, inGame !== null, data.game.owner);
 
-        const spanGameCode = document.getElementById('gameCode');
-        spanGameCode.innerHTML += gameId.toUpperCase();
-    })/*
+            const spanGameCode = document.getElementById('gameCode');
+            spanGameCode.innerHTML += gameId.toUpperCase();
+        })/*
     .catch(error => {
         console.error(error);
     })*/;
+}
 
 
 animate();
@@ -68,8 +71,9 @@ function windowResize () {
 
 window.addEventListener('resize', windowResize, false);
 
-function connectToWebsocket (gameId) {
-    const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/` + gameId);
+async function connectToWebsocket (gameId) {
+    const sessionId = await checkCookie(gameId);
+    const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
     // TODO: Send the token to the backend to check if the player is allowed to connect to the game
 
     socket.addEventListener('message', event => {
@@ -93,5 +97,6 @@ function connectToWebsocket (gameId) {
         throw new Error('Error: cannot connect to the websocket');
     });
 
+    getGame(socket);
     return socket;
 }

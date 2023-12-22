@@ -2,8 +2,9 @@ import gsap from 'gsap';
 import {camera} from '../script_modules/init3DScene';
 
 export class Player {
-    constructor (id, x, y, z, rotation, socket, active = false) {
+    constructor (id, name, x, y, z, rotation, socket, active = false) {
         this.id = id;
+        this.name = name;
         this.x = x;
         this.y = y;
         this.z = z;

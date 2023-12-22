@@ -16,8 +16,8 @@ const KEY_RESET = 'r';
 export class Truck extends Player {
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
-    constructor (id, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
-        super(id, x, y, z, rotation, socket, active);
+    constructor (id, name, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
+        super(id, name, x, y, z, rotation, socket, active);
         this.id = id;
         this.x = x;
         this.y = y;
