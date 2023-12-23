@@ -101,7 +101,7 @@ const server = Bun.serve<WebSocketData>({
 
             const sessionId = generateUniqueSessionId();
 
-            const response = await fetch(`http://164.81.228.233:1000/api/users/`, {
+            const response = await fetch(`http://${process.env.IP}:1000/api/users/`, {
                 method: "POST",
                 body: JSON.stringify({
                     email: email,
@@ -253,8 +253,7 @@ const server = Bun.serve<WebSocketData>({
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
             }
             if (jsonMessage.type === 'moveTruck') {
-                // Update player position and rotation on the server
-                // games[ws.data.gameId].updateTruck(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
+
             }
         },
         close(ws) {
@@ -287,6 +286,7 @@ function sendPlayerPositionRotation(gameId: string) {
         const currentPlayer = games[gameId].players[player];
         // @ts-ignore
         playerData[player] = {
+            id: currentPlayer.id,
             x: currentPlayer.x,
             y: currentPlayer.y,
             z: currentPlayer.z,

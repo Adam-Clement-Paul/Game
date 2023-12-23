@@ -52,9 +52,9 @@ export class Game {
 
     addPlayer (id, name, color) {
         if (this.startedAt !== null) {
-            this.players.push(new Player(id, name, color, 4, 3, 0, this.board));
+            this.players.push(new Player(id, name, color, 4, 3, 0, this.board, 0));
         } else {
-            this.players.push(new Player(id, name, color, 0, 20, 0, this.board));
+            this.players.push(new Player(id, name, color, 0, 20, 0, this.board, {x: 0, y: 0, z: 0, w:0}));
         }
     }
 

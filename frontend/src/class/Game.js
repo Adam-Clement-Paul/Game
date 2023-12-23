@@ -130,18 +130,17 @@ export class Game {
     }
 
     updatePlayers (playersData) {
-        const keys = Object.keys(playersData);
-
-        for (let i = 0; i < keys.length; i++) {
-            let player = playersData[keys[i]];
-            let playerToUpdate;
+        const playersDataArray = Object.values(playersData);
+        for (const player of playersDataArray) {
+            let element;
             if (this.hasStarted) {
-                playerToUpdate = this.players[i];
+                element = this.players.find(p => p.id === player.id);
             } else {
-                playerToUpdate = this.truckList[i];
+                element = this.truckList.find(p => p.id === player.id);
             }
-            if (playerToUpdate && !playerToUpdate.active) {
-                playerToUpdate.updatePosition(player.x, player.y, player.z, player.rotation);
+            if (element && !element.active) {
+                console.log(player.id);
+                element.updatePosition(player.x, player.y, player.z, player.rotation);
             }
         }
     }
@@ -187,12 +186,12 @@ export class Game {
         this.world.addBody(groundBody);
     }
 
-    removePlayground() {
+    removePlayground () {
         scene.remove(this.plane);
         this.world = null;
     }
 
-    updatePlayground() {
+    updatePlayground () {
         if (this.world && !this.hasStarted) {
             this.world.step(this.dt);
         }

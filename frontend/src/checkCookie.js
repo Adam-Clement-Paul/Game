@@ -15,9 +15,6 @@ export async function checkCookie(gameId) {
     if (userData) {
         email = userData.email;
         token = userData.token;
-
-        console.log("Email:", email);
-        console.log("Token:", token);
     } else {
         console.error("Impossible de récupérer les données utilisateur depuis le cookie.");
     }
@@ -35,7 +32,6 @@ export async function checkCookie(gameId) {
             })
         }).then(response => response.json())
             .then(data => {
-                console.log(data.sessionId);
                 return data.sessionId;
             });
     }

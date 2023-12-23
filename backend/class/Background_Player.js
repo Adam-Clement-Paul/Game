@@ -1,12 +1,12 @@
 export class Player {
-    constructor (id, name, color, x, y, z, board) {
+    constructor (id, name, color, x, y, z, board, rotation) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.x = x;
         this.y = y;
         this.z = z;
-        this.rotation = null;
+        this.rotation = rotation;
         this.board = board;
     }
 
