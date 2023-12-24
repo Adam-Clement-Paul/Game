@@ -2,7 +2,7 @@ import gsap from 'gsap';
 import {camera} from '../script_modules/init3DScene';
 
 export class Player {
-    constructor (id, name, x, y, z, rotation, socket, active = false) {
+    constructor (id, name, x, y, z, rotation, socket, active) {
         this.id = id;
         this.name = name;
         this.x = x;
@@ -14,10 +14,6 @@ export class Player {
         this.active = active;
 
         this.timer = 0;
-    }
-
-    setActive () {
-        this.active = true;
     }
 
     // Updates the camera position and lookAt
@@ -32,8 +28,11 @@ export class Player {
         camera.lookAt(x, 0, y);
     }
 
-    stopSendPosition () {
-        clearTimeout(this.timer);
+    updatePosition (x, y, z, rotation) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.rotation = rotation;
     }
 
     sendPosition (type) {
@@ -46,12 +45,5 @@ export class Player {
             rotation: this.rotation
         }));
         this.timer = setTimeout((this.sendPosition.bind(this)), 1000 / 60, type);
-    }
-
-    updatePosition (x, y, z, rotation) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.rotation = rotation;
     }
 }

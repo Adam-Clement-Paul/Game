@@ -13,7 +13,7 @@ type WebSocketData = {
     gameId: string;
     authToken: string;
     name: string;
-    color: number;
+    models: object;
 };
 let sessions: { [key: string]: any } = {};
 
@@ -151,13 +151,18 @@ const server = Bun.serve<WebSocketData>({
 
             // Connexion WebSocket
             const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
+            const models = {
+                truck: 'Camion3.glb',
+                player: color,
+                backpack: null
+            }
             const success = server.upgrade(request, {
                 data: {
                     createAt: Date.now(),
                     gameId: gameId,
                     authToken: id,
                     name: username,
-                    color: color,
+                    models: models,
                 },
             });
 
@@ -167,7 +172,7 @@ const server = Bun.serve<WebSocketData>({
             console.log('Server upgraded to websocket');
 
             // Ajouter le joueur à la partie
-            games[gameId].addPlayer(id, username, color);
+            games[gameId].addPlayer(id, username, models);
             if (Object.keys(games[gameId].players).length === 1) {
                 games[gameId].owner = id;
             }
@@ -197,7 +202,7 @@ const server = Bun.serve<WebSocketData>({
             const newPlayerData = JSON.stringify({
                 type: 'addPlayer',
                 name: ws.data.name,
-                color: ws.data.color,
+                models: ws.data.models,
                 playerId: ws.data.authToken
             });
 
@@ -218,8 +223,7 @@ const server = Bun.serve<WebSocketData>({
                 }
                 games[ws.data.gameId].startedAt = Date.now();
                 const msg = JSON.stringify({
-                    type: 'startGame',
-                    players: games[ws.data.gameId].players
+                    type: 'startGame'
                 });
                 server.publish(ws.data.gameId, msg);
             }
@@ -248,12 +252,11 @@ const server = Bun.serve<WebSocketData>({
                 console.log(tilesToUpdate);
             }
 
+            console.log(jsonMessage.type);
+
             if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
-            }
-            if (jsonMessage.type === 'moveTruck') {
-
             }
         },
         close(ws) {

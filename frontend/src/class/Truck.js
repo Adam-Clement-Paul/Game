@@ -16,7 +16,7 @@ const KEY_RESET = 'r';
 export class Truck extends Player {
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
-    constructor (id, name, x, y, z, rotation, model, world, groundMaterial, wheelMaterial, socket, active) {
+    constructor (id, name, x, y, z, rotation, models, world, groundMaterial, wheelMaterial, socket, active = false) {
         super(id, name, x, y, z, rotation, socket, active);
         this.id = id;
         this.x = x;
@@ -24,7 +24,7 @@ export class Truck extends Player {
         this.z = z;
         this.rotation = rotation;
 
-        this.model = model;
+        this.models = models;
         this.world = world;
         this.groundMaterial = groundMaterial;
         this.wheelMaterial = wheelMaterial;
@@ -34,7 +34,7 @@ export class Truck extends Player {
         this.truckGroup = new THREE.Group();
         this.vehicle = null;
 
-        this.timer = 0;
+        this.timer2 = 0;
 
         this.clock = new THREE.Clock();
         this.controllerIndex = null;
@@ -46,7 +46,7 @@ export class Truck extends Player {
     }
 
     setActive () {
-        super.setActive();
+        this.active = true;
         this.horn = new Audio('../models/horn.mp3');
 
         window.addEventListener('gamepadconnected', (event) => {
@@ -78,7 +78,7 @@ export class Truck extends Player {
         const loader = new GLTFLoader();
         let wheelModelL, wheelModelR;
 
-        loader.load(`../models/${this.model}`, (gltf) => {
+        loader.load(`../models/${this.models['truck']}`, (gltf) => {
             this.truck = gltf.scene;
             const animations = gltf.animations;
             this.truck.traverse(function (child) {
@@ -330,12 +330,10 @@ export class Truck extends Player {
     hornSound () {
         this.horn.currentTime = 0;
         this.horn.play();
-
-        this.sendPosition();
     }
 
     update () {
-        this.timer = setTimeout((this.update.bind(this)), 1000 / 60);
+        this.timer2 = setTimeout((this.update.bind(this)), 1000 / 60);
 
         this.vehicle.chassisBody.quaternion.copy(this.rotation);
 
@@ -383,7 +381,7 @@ export class Truck extends Player {
     }
 
     remove () {
-        this.stopSendPosition();
+        clearTimeout(this.timer2);
         clearTimeout(this.timer);
 
         scene.remove(this.truck);
