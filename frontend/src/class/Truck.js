@@ -335,14 +335,11 @@ export class Truck extends Player {
     update () {
         this.timer2 = setTimeout((this.update.bind(this)), 1000 / 60);
 
-        this.vehicle.chassisBody.quaternion.copy(this.rotation);
-
-        this.x = this.vehicle.chassisBody.position.x;
-        this.y = this.vehicle.chassisBody.position.y;
-        this.z = this.vehicle.chassisBody.position.z;
-
-
         if (this.active) {
+            this.vehicle.chassisBody.quaternion.copy(this.rotation);
+            this.x = this.vehicle.chassisBody.position.x;
+            this.y = this.vehicle.chassisBody.position.y;
+            this.z = this.vehicle.chassisBody.position.z;
             this.cameraMovements(this.x, this.z, 10, 0);
         }
 
@@ -358,6 +355,11 @@ export class Truck extends Player {
         }
 
         if (this.truck && this.vehicle) {
+            if (!this.active) {
+                this.vehicle.chassisBody.position.set(this.x, this.y, this.z);
+                this.vehicle.chassisBody.quaternion.copy(this.rotation);
+            }
+
             this.truck.position.copy(this.vehicle.chassisBody.position);
             this.truck.quaternion.copy(this.vehicle.chassisBody.quaternion);
 
@@ -369,14 +371,6 @@ export class Truck extends Player {
             this.wheel3.quaternion.copy(this.vehicle.wheelInfos[2].worldTransform.quaternion);
             this.wheel4.position.copy(this.vehicle.wheelInfos[3].worldTransform.position);
             this.wheel4.quaternion.copy(this.vehicle.wheelInfos[3].worldTransform.quaternion);
-        }
-    }
-
-    updatePosition (x, y, z, rotation) {
-        super.updatePosition(x, y, z, rotation);
-        if (this.vehicle) {
-            this.vehicle.chassisBody.position.set(x, y, z);
-            this.vehicle.chassisBody.quaternion.copy(rotation);
         }
     }
 

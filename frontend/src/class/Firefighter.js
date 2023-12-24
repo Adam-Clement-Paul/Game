@@ -8,6 +8,7 @@ export class Firefighter extends Player {
     constructor (id, name, x, y, rotation, models, game, socket, active = false) {
         super(id, name, x, 0.5, y, rotation, socket, active);
         this.id = id;
+        this.name = name;
         this.x = x;
         this.y = y;
         this.z = null;
