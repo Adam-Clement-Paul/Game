@@ -1,8 +1,8 @@
 export class Player {
-    constructor (id, name, color, x, y, z, board, rotation) {
+    constructor (id, name, models, x, y, z, board, rotation) {
         this.id = id;
         this.name = name;
-        this.color = color;
+        this.models = models;
         this.x = x;
         this.y = y;
         this.z = z;

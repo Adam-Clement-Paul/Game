@@ -24,7 +24,7 @@ export class Game {
         this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
 
         this.playersBackend.forEach(player => {
-            this.addPlayer(player.id, player.name, player.color);
+            this.addPlayer(player.id, player.name, player.models);
         });
 
         if (this.hasStarted) {
@@ -74,7 +74,7 @@ export class Game {
         this.gameLoop();
     }
 
-    goToGame (players) {
+    goToGame () {
         this.hasStarted = true;
         camera.near = 0.1;
         camera.far = 20;
@@ -83,7 +83,10 @@ export class Game {
         stopWaiting();
 
         this.truckList.forEach(truck => {
+            console.log(truck);
             truck.remove();
+            truck.timer = null;
+            truck = null;
         });
         scene.remove(this.truckList);
         this.removePlayground();
@@ -92,9 +95,8 @@ export class Game {
         this.board.displayTiles();
 
         // Add the players to the game
-        players.forEach(player => {
-            console.log(player.id, player.name, player.color);
-            this.addPlayer(player.id, player.name, player.color);
+        this.truckList.forEach(player => {
+            this.addPlayer(player.id, player.name, player.models);
         });
 
         this.truckList = [];
@@ -103,18 +105,18 @@ export class Game {
         camera.lookAt(4, 0, 3);
     }
 
-    addPlayer (id, name, color) {
+    addPlayer (id, name, models) {
         console.log(`Add player ${name} (${id})`);
         if (this.hasStarted) {
-            let player = new Firefighter(id, name, 4, 3, 0, color, this, this.socket);
+            let player = new Firefighter(id, name, 4, 3, 0, models, this, this.socket);
             this.truckList.forEach(truck => {
-                if (truck.id === id) {
+                if (truck.id === id && truck.active) {
                     player.setActive();
                 }
             });
             this.players.push(player);
         } else {
-            let player = new Truck(id, name, 0, 20, 0, 0, 'Camion3.glb', this.world, this.groundMaterial, this.wheelMaterial, this.socket);
+            let player = new Truck(id, name, 0, 20, 0, 0, models, this.world, this.groundMaterial, this.wheelMaterial, this.socket);
             this.truckList.push(player);
         }
     }
@@ -139,7 +141,6 @@ export class Game {
                 element = this.truckList.find(p => p.id === player.id);
             }
             if (element && !element.active) {
-                console.log(player.id);
                 element.updatePosition(player.x, player.y, player.z, player.rotation);
             }
         }

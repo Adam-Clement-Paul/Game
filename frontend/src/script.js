@@ -80,7 +80,7 @@ async function connectToWebsocket (gameId) {
         const data = JSON.parse(event.data);
         if (data.type === 'addPlayer' && game) {
             console.log('WS: addPlayer');
-            game.addPlayer(data.playerId, data.name, data.color);
+            game.addPlayer(data.playerId, data.name, data.models);
         }
         if (data.type === 'updatePlayers' && game) {
             game.updatePlayers(data.players);
@@ -89,7 +89,7 @@ async function connectToWebsocket (gameId) {
             game.removePlayer(data.playerId);
         }
         if (data.type === 'startGame' && game) {
-            game.goToGame(data.players);
+            game.goToGame();
         }
     });
 

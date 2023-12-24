@@ -5,7 +5,7 @@ import * as UTILS from '../script_modules/utils.js';
 import {Player} from './Player';
 
 export class Firefighter extends Player {
-    constructor (id, name, x, y, rotation, model, game, socket, active) {
+    constructor (id, name, x, y, rotation, models, game, socket, active = false) {
         super(id, name, x, 0.5, y, rotation, socket, active);
         this.id = id;
         this.x = x;
@@ -13,7 +13,8 @@ export class Firefighter extends Player {
         this.z = null;
         this.rotation = Math.PI;
 
-        this.model = new THREE.Color(model);
+        this.player = new THREE.Color(models['player']);
+        this.backpack = new THREE.Color(models['backpack']);
         this.game = game;
 
         // These values are constants
@@ -26,7 +27,6 @@ export class Firefighter extends Player {
         this.velocity = new THREE.Vector2(0, 0);
         this.angularVelocity = 0;
 
-        this.timer = 0;
         this.timer2 = 0;
 
         // Booleans to track which keys are currently pressed
@@ -40,7 +40,7 @@ export class Firefighter extends Player {
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
-                color: this.model
+                color: this.player
             })
         );
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
@@ -57,7 +57,7 @@ export class Firefighter extends Player {
     }
 
     setActive () {
-        super.setActive();
+        this.active = true;
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
@@ -192,7 +192,7 @@ export class Firefighter extends Player {
         this.movementsWithInertia();
 
         this.cameraMovements(this.x, this.y, 1);
-        this.timer = setTimeout((this.update.bind(this)), 1000 / 80);
+        this.timer2 = setTimeout((this.update.bind(this)), 1000 / 80);
     }
 
     updatePosition (x, y, z, rotation) {
