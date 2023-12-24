@@ -252,8 +252,6 @@ const server = Bun.serve<WebSocketData>({
                 console.log(tilesToUpdate);
             }
 
-            console.log(jsonMessage.type);
-
             if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
                 games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);

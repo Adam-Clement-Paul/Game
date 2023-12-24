@@ -79,11 +79,14 @@ export class Game {
         camera.near = 0.1;
         camera.far = 20;
 
-        document.querySelector('#start').remove();
+        let lobby = document.getElementsByClassName('lobby');
+        while (lobby.length > 0) {
+            lobby[0].remove();
+        }
+
         stopWaiting();
 
         this.truckList.forEach(truck => {
-            console.log(truck);
             truck.remove();
             truck.timer = null;
             truck = null;
@@ -133,15 +136,15 @@ export class Game {
 
     updatePlayers (playersData) {
         const playersDataArray = Object.values(playersData);
-        for (const player of playersDataArray) {
-            let element;
+        for (const playersData of playersDataArray) {
+            let player;
             if (this.hasStarted) {
-                element = this.players.find(p => p.id === player.id);
+                player = this.players.find(p => p.id === playersData.id);
             } else {
-                element = this.truckList.find(p => p.id === player.id);
+                player = this.truckList.find(p => p.id === playersData.id);
             }
-            if (element && !element.active) {
-                element.updatePosition(player.x, player.y, player.z, player.rotation);
+            if (player && !player.active) {
+                player.updatePosition(playersData.x, playersData.y, playersData.z, playersData.rotation);
             }
         }
     }
