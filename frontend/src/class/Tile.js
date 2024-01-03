@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import {scene} from '../script_modules/init3DScene.js';
 
 export class Tile {
-    constructor (x, y, fire = 0, type = "grass") {
+    constructor (x, y, fire = 0, type = 'grass') {
         this.x = x;
         this.y = y;
         this.fire = fire;
         this.type = type;
 
-        if (this.type === "tree") {
+        if (this.type === 'tree') {
             this.life = 5;
         }
 
@@ -27,16 +27,16 @@ export class Tile {
     }
 
     updateDisplay () {
-        if (this.type === "tree") {
+        if (this.type === 'tree') {
             this.plane.material.color.setHex(0x00ff00);
         }
-        if (this.type === "obstacle") {
+        if (this.type === 'obstacle') {
             this.plane.material.color.setHex(0x999999);
         }
-        if (this.type === "border") {
+        if (this.type === 'border') {
             this.plane.material.color.setHex(0x000000);
         }
-        if (this.type === "grass") {
+        if (this.type === 'grass') {
             this.plane.material.color.setHex(0xffffff);
         }
 

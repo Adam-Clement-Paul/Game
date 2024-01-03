@@ -1,4 +1,4 @@
-import {Tile} from "./Tile.js";
+import {Tile} from './Tile.js';
 
 /*
 * Board class
@@ -22,5 +22,13 @@ export class Board {
     // Return the tile at the given position
     getTileAtPosition (x, y) {
         return this.tiles.find(tile => tile.x === x && tile.y === y);
+    }
+
+    updateBoard (tilesToUpdate) {
+        tilesToUpdate.forEach(tileToUpdate => {
+            const index = tileToUpdate[0];
+            this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
+            this.tiles[index].updateDisplay();
+        });
     }
 }

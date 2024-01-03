@@ -1,22 +1,58 @@
-import {Board} from "./Board.js";
-import {Player} from "./Player.js";
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+
+import {camera, scene} from '../script_modules/init3DScene';
+import {Board} from './Board.js';
+import {Firefighter} from './Firefighter.js';
+import {Truck} from './Truck';
+import {stopWaiting, waiting} from "../waiting";
 
 export class Game {
-    constructor (board, players, socket) {
-        this.board = new Board(board);
+    constructor (board, players, socket, hasStarted, owner) {
         this.playersBackend = players;
         this.players = [];
+        this.truckList = [];
         this.socket = socket;
+        this.hasStarted = hasStarted;
+        this.owner = owner;
 
-        // Pour tous les joueurs impairs
+        this.boardConfig = board;
+
+        this.world = new CANNON.World();
+        this.dt = 1 / 30;
+        this.groundMaterial = new CANNON.Material('this.groundMaterial');
+        this.wheelMaterial = new CANNON.Material('this.wheelMaterial');
+
         this.playersBackend.forEach(player => {
-            this.addPlayer(player.name, player.x, player.y, player.color, player.id);
+            this.addPlayer(player.id, player.name, player.models);
         });
-        if (this.players.length > 0) {
-            this.players[this.players.length - 1].activePlayer();
+
+        if (this.hasStarted) {
+            camera.near = 0.1;
+            camera.far = 20;
+
+            this.board = new Board(this.boardConfig);
+            this.board.displayTiles();
+
+            document.querySelector('#start').remove();
+            document.querySelector('#bottomCode p').remove();
+        } else {
+            camera.near = 10;
+            camera.far = 80;
+            this.initPhysics();
         }
 
-        this.board.displayTiles();
+        if (this.players.length > 0 && this.hasStarted) {
+            this.players[this.players.length - 1].setActive();
+        }
+        if (this.truckList.length > 0 && !this.hasStarted) {
+            this.truckList[this.truckList.length - 1].setActive();
+            if (this.owner === this.truckList[this.truckList.length - 1].id) {
+                document.querySelector('#start').style.display = 'inline';
+            } else {
+                waiting();
+            }
+        }
     }
 
     start () {
@@ -38,12 +74,54 @@ export class Game {
         this.gameLoop();
     }
 
-    getBoard () {
-        return this.board;
+    goToGame () {
+        this.hasStarted = true;
+        camera.near = 0.1;
+        camera.far = 20;
+
+        let lobby = document.getElementsByClassName('lobby');
+        while (lobby.length > 0) {
+            lobby[0].remove();
+        }
+
+        stopWaiting();
+
+        this.truckList.forEach(truck => {
+            truck.remove();
+            truck.timer = null;
+            truck = null;
+        });
+        scene.remove(this.truckList);
+        this.removePlayground();
+
+        this.board = new Board(this.boardConfig);
+        this.board.displayTiles();
+
+        // Add the players to the game
+        this.truckList.forEach(player => {
+            this.addPlayer(player.id, player.name, player.models);
+        });
+
+        this.truckList = [];
+
+        camera.position.set(4, 3, 1);
+        camera.lookAt(4, 0, 3);
     }
 
-    addPlayer (name, x, y, color, id) {
-        this.players.push(new Player(name, x, y, color, this, this.socket, id));
+    addPlayer (id, name, models) {
+        console.log(`Add player ${name} (${id})`);
+        if (this.hasStarted) {
+            let player = new Firefighter(id, name, 4, 3, 0, models, this, this.socket);
+            this.truckList.forEach(truck => {
+                if (truck.id === id && truck.active) {
+                    player.setActive();
+                }
+            });
+            this.players.push(player);
+        } else {
+            let player = new Truck(id, name, 0, 20, 0, 0, models, this.world, this.groundMaterial, this.wheelMaterial, this.socket);
+            this.truckList.push(player);
+        }
     }
 
     removePlayer (id) {
@@ -57,15 +135,73 @@ export class Game {
     }
 
     updatePlayers (playersData) {
-        const keys = Object.keys(playersData);
-
-        for (let i = 0; i < keys.length; i++) {
-            let player = playersData[keys[i]];
-            let playerToUpdate = this.players[i];
-
-            if (playerToUpdate && !playerToUpdate.active) {
-                playerToUpdate.updatePosition(player.x, player.y, player.rotation);
+        const playersDataArray = Object.values(playersData);
+        for (const playersData of playersDataArray) {
+            let player;
+            if (this.hasStarted) {
+                player = this.players.find(p => p.id === playersData.id);
+            } else {
+                player = this.truckList.find(p => p.id === playersData.id);
             }
+            if (player && !player.active) {
+                player.updatePosition(playersData.x, playersData.y, playersData.z, playersData.rotation);
+            }
+        }
+    }
+
+    updateBoard (tilesToUpdate) {
+        this.board.updateBoard(tilesToUpdate);
+    }
+
+    /* Playground */
+
+    initPhysics () {
+        const geometry = new THREE.PlaneGeometry(500, 500, 100, 100);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x555555,
+            side: THREE.DoubleSide,
+            wireframe: true,
+        });
+        this.plane = new THREE.Mesh(geometry, material);
+        this.plane.rotateX(Math.PI / 2);
+        scene.add(this.plane);
+
+        this.world.broadphase = new CANNON.SAPBroadphase(this.world);
+        this.world.gravity.set(0, -9.82, 0);
+        this.world.defaultContactMaterial.friction = 0.01;
+
+        const wheelGroundContactMaterial = new CANNON.ContactMaterial(
+            this.wheelMaterial,
+            this.groundMaterial,
+            {
+                friction: 0.75,
+                restitution: 0,
+                contactEquationStiffness: 1000,
+            }
+        );
+
+        // We must add the contact materials to the this.world
+        this.world.addContactMaterial(wheelGroundContactMaterial);
+
+        // Add plane to this.scene
+        const groundShape = new CANNON.Plane();
+        const groundBody = new CANNON.Body({ mass: 0, material: this.groundMaterial });
+        groundBody.addShape(groundShape);
+        groundBody.quaternion.setFromAxisAngle(
+            new CANNON.Vec3(1, 0, 0),
+            -Math.PI / 2
+        );
+        this.world.addBody(groundBody);
+    }
+
+    removePlayground () {
+        scene.remove(this.plane);
+        this.world = null;
+    }
+
+    updatePlayground () {
+        if (this.world && !this.hasStarted) {
+            this.world.step(this.dt);
         }
     }
 }

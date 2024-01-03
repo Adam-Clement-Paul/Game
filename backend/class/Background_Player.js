@@ -1,10 +1,11 @@
 export class Player {
-    constructor (id, name, color, x, y, rotation, board) {
+    constructor (id, name, models, x, y, z, board, rotation) {
         this.id = id;
         this.name = name;
-        this.color = color;
+        this.models = models;
         this.x = x;
         this.y = y;
+        this.z = z;
         this.rotation = rotation;
         this.board = board;
     }
@@ -65,7 +66,7 @@ export class Player {
         let result = this.getFrontTile(this.rotation);
         if (result) {
             let { frontTile } = result;
-            if (frontTile.type === "tree" && frontTile.fire === 0) {
+            if (frontTile.type === 'tree' && frontTile.fire === 0) {
                 frontTile.destroyTree();
                 const index = this.board.tiles.indexOf(frontTile);
                 tilesToUpdate.push([index, frontTile]);
@@ -93,36 +94,18 @@ export class Player {
         return { frontTile, tile, offsetX, offsetY };
     }
 
-    updateAll (x, y, direction) {
-        this.setPosition(x, y);
+    updateAll (x, y, z, direction) {
+        this.setPosition(x, y, z);
         this.setRotation(direction);
     }
 
-    getPosition () {
-        return {
-            x: this.x,
-            y: this.y,
-        }
-    }
-
-    setPosition (x, y) {
+    setPosition (x, y, z) {
         this.x = x;
         this.y = y;
-    }
-
-    getRotation () {
-        return this.rotation;
+        this.z = z;
     }
 
     setRotation (rotation) {
         this.rotation = rotation;
-    }
-
-    setAction (action) {
-        // this.model.action = action;
-    }
-
-    setKeys (keys) {
-        this.keys = keys;
     }
 }

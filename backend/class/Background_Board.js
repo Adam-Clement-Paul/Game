@@ -1,6 +1,6 @@
-import {Section} from "./Background_Section.js";
-import {Corridor} from "./Background_Corridor.js";
-import {Tile} from "./Background_Tile.js";
+import {Section} from './Background_Section.js';
+import {Corridor} from './Background_Corridor.js';
+import {Tile} from './Background_Tile.js';
 
 /*
 * Board class
@@ -295,16 +295,17 @@ export class Board {
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
                 if (!this.tiles.find(tile => tile.x === x && tile.y === y)) {
-                    this.tiles.push(new Tile(x, y, 0, "border"));
+                    this.tiles.push(new Tile(x, y, 0, 'border'));
                 }
             }
         }
     }
 
     // Recursive function to generate fires
-    fireContamination (timer) {
+    fireContamination (timer, server, id) {
         clearTimeout(timer);
         // Each second, if a fire tile have fire to 1, it will contaminate the adjacent tiles
+        let tilesToUpdate = [];
         this.tiles.forEach(tile => {
             if (tile.fire > 1) {
                 const adjacentTiles = [];
@@ -317,16 +318,26 @@ export class Board {
 
                 // For each tile, if it's a tree, set it on fire
                 adjacentTiles.forEach(tile => {
-                    if (tile && tile.type === "tree" && tile.fire === 0) {
+                    if (tile && tile.type === 'tree' && tile.fire === 0) {
+                        tilesToUpdate.push([this.tiles.indexOf(tile), tile]);
                         tile.setFire();
                         tile.growingFire();
                     }
                 });
             }
         });
+        if (tilesToUpdate.length > 0) {
+            console.log(`Broadcasting ${tilesToUpdate.length} tiles to ${id}`);
+            const broadcastData = {
+                type: 'updateTiles',
+                tiles: tilesToUpdate,
+            };
+            server.publish(id, JSON.stringify(broadcastData));
+        }
+
         // Loop every second with timer
         timer = setTimeout(() => {
-            this.fireContamination(timer);
+            this.fireContamination(timer, server, id);
         }, 2000);
     }
 }

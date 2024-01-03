@@ -8,8 +8,10 @@
     "dev-node": "nodemon server.ts",
     "dev": "bun --hot server.ts"
   },
-  "devDependencies": {
-    "bun-types": "^0.7.0",
-    "bunrest": "1.3.7"
+  "importmap": {
+    "imports": {
+      "bunrest": "/node_modules/bunrest/index.ts",
+      "bun-types": "/node_modules/bun-types/types.d.ts"
+    }
   }
 }

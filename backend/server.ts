@@ -1,6 +1,5 @@
-import {file} from "bun";
-
-import {Game} from "./class/Background_Game.js";
+import {file} from 'bun';
+import {Game} from './class/Background_Game.js';
 
 const BASE_PATH = "../frontend/dist";
 const domain = `http://${process.env.HOST}`;
@@ -14,42 +13,42 @@ type WebSocketData = {
     gameId: string;
     authToken: string;
     name: string;
-    color: number;
+    models: object;
 };
-
+let sessions: { [key: string]: any } = {};
 
 const server = Bun.serve<WebSocketData>({
     port: process.env.PORT_GAME,
-    fetch(request, server) {
+    async fetch(request, server) {
         const {url, method} = request;
         const {pathname} = new URL(url);
 
         // Landing page
-        if (pathname === "/") {
-            const indexPath = BASE_PATH + "/createJoinGame.html";
+        if (pathname === '/') {
+            const indexPath = BASE_PATH + '/createJoinGame.html';
             const response = new Response(file(indexPath));
-            response.headers.set("Cache-Control", "public, max-age=3600");
+            response.headers.set('Cache-Control', 'public, max-age=3600');
             return response;
         }
 
         // Check all routes for games: at localhost/GAME_ID
-        if (pathname.startsWith("/") && method === "GET" && pathname.split("/").length === 2) {
+        if (pathname.startsWith('/') && method === 'GET' && pathname.split('/').length === 2) {
             // Extract game ID from the URL
-            const gameId = pathname.split("/")[1];
+            const gameId = pathname.split('/')[1].toLowerCase();
             const gameFound = games[gameId];
 
             if (gameFound) {
                 // Serve the game page
-                const response = new Response(file(BASE_PATH + "/index.html"));
-                response.headers.set("Cache-Control", "public, max-age=3600");
+                const response = new Response(file(BASE_PATH + '/index.html'));
+                response.headers.set('Cache-Control', 'public, max-age=3600');
                 return response;
             }
         }
 
         // Give the game data to the frontend
-        if (pathname.startsWith("/api/game/data/") && method === "GET") {
+        if (pathname.startsWith('/api/game/data/') && method === 'GET') {
             // Extract game ID from the URL
-            const gameId = pathname.split("/")[4];
+            const gameId = pathname.split('/')[4];
             const gameFound = games[gameId];
 
             if (gameFound) {
@@ -57,24 +56,24 @@ const server = Bun.serve<WebSocketData>({
                 return new Response(JSON.stringify({game: gameFound}), {
                     status: 200,
                     headers: {
-                        "Content-Type": "application/json",
-                        "Access-control-allow-origin": "*",
+                        'Content-Type': 'application/json',
+                        'Access-control-allow-origin': '*',
                     },
                 });
 
             } else {
-                return new Response("Game not found", {
+                return new Response('Game not found', {
                     status: 404,
                     headers: {
-                        "Content-Type": "text/plain",
-                        "Access-control-allow-origin": "*",
+                        'Content-Type': 'text/plain',
+                        'Access-control-allow-origin': '*',
                     },
                 });
             }
         }
 
         // Create the room
-        if (pathname === "/api/game" && method === "GET") {
+        if (pathname === '/api/game' && method === 'GET') {
             // Generate a random game ID
             const gameId = Math.random().toString(36).substring(7);
             // Store a new game instance with its ID
@@ -86,58 +85,104 @@ const server = Bun.serve<WebSocketData>({
             return new Response(JSON.stringify({redirectUrl}), {
                 status: 200,
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Access-control-allow-origin': '*',
+                },
+            });
+        }
+
+        // Get data from the user_api microservice
+        if (pathname === '/api/game' && method === 'POST') {
+            // @ts-ignore
+            const json = await Bun.readableStreamToJSON(request.body);
+            const email = json.email;
+            const token = json.token;
+            const gameId = json.gameId;
+
+            const sessionId = generateUniqueSessionId();
+
+            const response = await fetch(`http://${process.env.IP}:1000/api/users/`, {
+                method: "POST",
+                body: JSON.stringify({
+                    email: email,
+                    token: token
+                }),
+                headers: {
                     "Content-Type": "application/json",
-                    "Access-control-allow-origin": "*",
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur lors de la requête POST');
+            }
+
+            const data = await response.json();
+            const id = data.userData.id;
+            const username = data.userData.username;
+
+            sessions[sessionId] = {
+                gameId: gameId,
+                id: id,
+                username: username
+            };
+
+            return new Response(JSON.stringify({sessionId}), {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-control-allow-origin': '*',
                 },
             });
         }
 
         // Route to join the websocket room
-        if (pathname.startsWith("/websocket")) {
-            // TODO: Extract the token sended by the client to identify the player
+        if (pathname.startsWith('/websocket')) {
+            const gameId = pathname.split('/')[2];
+            const sessionId = pathname.split('/')[3];
 
-            const gameId = pathname.split("/")[2];
-
-            // TODO: Get the name of the player from the cookie
-            const cookie = `Paul${Math.random().toString(36).substring(2)}`;
-            const token = Math.random().toString(36).substring(2, 12);
-
-            // TODO: Get the skin of the player with a request to the database
-            // Colors begin with 0x
-            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
-
-            // If the player is already in the game, do not upgrade the request
-            for (const player in games[gameId].players) {
-                if (games[gameId].players[player].name === cookie) {
-                    return;
-                }
+            let id, username;
+            if (sessions[sessionId]) {
+                id = sessions[sessionId].id;
+                username = sessions[sessionId].username;
+            } else {
+                return new Response('Invalid session id', { status: 400 });
             }
 
-            // Upgrade the request to a websocket
+            // Connexion WebSocket
+            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
+            const models = {
+                truck: 'Camion3.glb',
+                player: color,
+                backpack: null
+            }
             const success = server.upgrade(request, {
                 data: {
                     createAt: Date.now(),
                     gameId: gameId,
-                    authToken: token,
-                    name: cookie,
-                    color: color,
+                    authToken: id,
+                    name: username,
+                    models: models,
                 },
             });
 
-            if (success) {
-                // TODO: Request the Mr Portail API to get
-                console.log("Server upgraded to websocket");
-                games[gameId].addPlayer(token, cookie, color);
-                return;
+            if (!success) {
+                throw new Error('Erreur lors de la connexion WebSocket');
             }
-            return new Response("WebSocket upgrade error", {status: 500});
+            console.log('Server upgraded to websocket');
+
+            // Ajouter le joueur à la partie
+            games[gameId].addPlayer(id, username, models);
+            if (Object.keys(games[gameId].players).length === 1) {
+                games[gameId].owner = id;
+            }
         }
 
         // Serve static files
         const filePath = BASE_PATH + pathname;
 
         const response = new Response(file(filePath));
-        response.headers.set("Cache-Control", "public, max-age=3600");
+        response.headers.set('Cache-Control', 'public, max-age=3600');
         return response;
 
     },
@@ -145,11 +190,11 @@ const server = Bun.serve<WebSocketData>({
         open(ws) {
             for (const player in games[ws.data.gameId].players) {
                 if (games[ws.data.gameId].players[player].id === ws.data.authToken) {
-                    ws.close(403, "Player already in game");
+                    ws.close(403, 'Player already in game');
                     return;
                 }
             }
-            console.log("openning in game n°" + ws.data.gameId);
+            console.log('openning in game n°' + ws.data.gameId);
 
             // Join the game
             ws.subscribe(ws.data.gameId);
@@ -157,30 +202,47 @@ const server = Bun.serve<WebSocketData>({
             const newPlayerData = JSON.stringify({
                 type: 'addPlayer',
                 name: ws.data.name,
-                color: ws.data.color,
-                playerId: ws.data.authToken,
+                models: ws.data.models,
+                playerId: ws.data.authToken
             });
 
             ws.publish(ws.data.gameId, newPlayerData);
         },
         message(ws, message) {
             let jsonMessage;
-            if (typeof message === "string") {
+            if (typeof message === 'string') {
                 jsonMessage = JSON.parse(message);
             }
 
-            let tilesToUpdate: any[] = [];
+            if (jsonMessage.type === 'requestStartGame' && games[ws.data.gameId].owner === ws.data.authToken) {
+                console.log('starting game');
+                for (const player in games[ws.data.gameId].players) {
+                    games[ws.data.gameId].players[player].x = 4;
+                    games[ws.data.gameId].players[player].y = 3;
+                    games[ws.data.gameId].players[player].z = null;
+                }
+                games[ws.data.gameId].startedAt = Date.now();
+                const msg = JSON.stringify({
+                    type: 'startGame'
+                });
+                server.publish(ws.data.gameId, msg);
+                // Start the game
+                setTimeout(() => {
+                    games[ws.data.gameId].start(server, ws.data.gameId);
+                }, 3000);
+            }
 
-            if (jsonMessage.type === "extinguish" || jsonMessage.type === "axe") {
+            let tilesToUpdate: any[] = [];
+            if (jsonMessage.type === 'extinguish' || jsonMessage.type === 'axe') {
                 for (const playerKey in games[ws.data.gameId].players) {
                     const player = games[ws.data.gameId].players[playerKey];
 
                     if (player.id === jsonMessage.id) {
                         let updatedTiles = [];
 
-                        if (jsonMessage.type === "extinguish") {
+                        if (jsonMessage.type === 'extinguish') {
                             updatedTiles = player.onDocumentClickExtinguishFire();
-                        } else if (jsonMessage.type === "axe") {
+                        } else if (jsonMessage.type === 'axe') {
                             updatedTiles = player.onDocumentRightClick();
                         }
 
@@ -191,22 +253,29 @@ const server = Bun.serve<WebSocketData>({
                         break; // Only one player can perform an action in one message
                     }
                 }
-                console.log(tilesToUpdate);
+                // Send data to all clients
+                if (tilesToUpdate.length > 0) {
+                    const broadcastData = {
+                        type: 'updateTiles',
+                        tiles: tilesToUpdate,
+                    };
+
+                    server.publish(ws.data.gameId, JSON.stringify(broadcastData));
+                }
             }
 
-
-            if (jsonMessage.type === "move") {
+            if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server
-                games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.rotation);
+                games[ws.data.gameId].updatePlayer(jsonMessage.player, jsonMessage.x, jsonMessage.y, jsonMessage.z, jsonMessage.rotation);
             }
         },
         close(ws) {
-            console.log("closing");
+            console.log('closing');
             games[ws.data.gameId].removePlayer(ws.data.authToken);
 
             const msg = JSON.stringify({
                 type: 'removePlayer',
-                playerId: ws.data.name,
+                playerId: ws.data.authToken,
             });
             ws.unsubscribe(ws.data.gameId);
             server.publish(ws.data.gameId, msg);
@@ -216,7 +285,7 @@ const server = Bun.serve<WebSocketData>({
         console.log(error);
         if (error.errno === -2) {
             // TODO: redirect to 404 page
-            return new Response("Not Found", {status: 404});
+            return new Response('Not Found', {status: 404});
         }
         return new Response(null, {status: 500});
     },
@@ -230,8 +299,10 @@ function sendPlayerPositionRotation(gameId: string) {
         const currentPlayer = games[gameId].players[player];
         // @ts-ignore
         playerData[player] = {
+            id: currentPlayer.id,
             x: currentPlayer.x,
             y: currentPlayer.y,
+            z: currentPlayer.z,
             rotation: currentPlayer.rotation,
         };
     }
@@ -252,3 +323,24 @@ setInterval(() => {
 }, 1000 / 60); // Adjust the frequency of the updates
 
 console.log(`Server running on port ${server.port}`);
+
+// Fonction pour générer un identifiant de session unique
+function generateUniqueSessionId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Fonction pour extraire l'identifiant de session du header de la requête WebSocket
+function extractSessionIdFromWebSocketRequest(request: Request) {
+    const cookies = request.headers.get('Cookie');
+    if (!cookies) {
+        throw new Error('Cookie not found in WebSocket request');
+    }
+
+    const sessionIdMatch = cookies.match(/sessionId=([^;]+)/);
+    if (!sessionIdMatch) {
+        throw new Error('sessionId not found in cookies');
+    }
+
+    return sessionIdMatch[1];
+}
+

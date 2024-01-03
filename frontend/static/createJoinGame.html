@@ -9,6 +9,12 @@
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
 </head>
 <body>
+<script>
+    const cookieValue = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)user_data\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+    if (cookieValue === '') {
+        window.location.href = 'http://localhost:3000/';
+    }
+</script>
 <main>
     <h1>PYROFIGHTERS</h1>
     <button id="new">New game</button>
