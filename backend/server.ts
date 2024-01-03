@@ -226,6 +226,10 @@ const server = Bun.serve<WebSocketData>({
                     type: 'startGame'
                 });
                 server.publish(ws.data.gameId, msg);
+                // Start the game
+                setTimeout(() => {
+                    games[ws.data.gameId].start(server, ws.data.gameId);
+                }, 3000);
             }
 
             let tilesToUpdate: any[] = [];
@@ -249,7 +253,15 @@ const server = Bun.serve<WebSocketData>({
                         break; // Only one player can perform an action in one message
                     }
                 }
-                console.log(tilesToUpdate);
+                // Send data to all clients
+                if (tilesToUpdate.length > 0) {
+                    const broadcastData = {
+                        type: 'updateTiles',
+                        tiles: tilesToUpdate,
+                    };
+
+                    server.publish(ws.data.gameId, JSON.stringify(broadcastData));
+                }
             }
 
             if (jsonMessage.type === 'move') {

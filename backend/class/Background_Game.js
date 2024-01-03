@@ -8,7 +8,7 @@ export class Game {
         this.startedAt = null; // TODO
     }
 
-    start () {
+    start (server, id) {
         for (let i = 0; i < this.players.length; i++) {
             console.log(`Player ${i + 1} : ${this.players[i].name}`);
         }
@@ -20,7 +20,7 @@ export class Game {
             }
         });
         // Activate the contamination
-        this.board.fireContamination(0);
+        this.board.fireContamination(0, server, id);
 
         // Start the game loop
         this.timeGameLoop = 0;
@@ -32,7 +32,7 @@ export class Game {
             clearTimeout(this.timeGameLoop);
             console.log('Game over !');
         } else {
-            // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
+            console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
             this.timeGameLoop = setTimeout(() => this.gameLoop(), 1000);
         }
     }

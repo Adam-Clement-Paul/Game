@@ -149,6 +149,10 @@ export class Game {
         }
     }
 
+    updateBoard (tilesToUpdate) {
+        this.board.updateBoard(tilesToUpdate);
+    }
+
     /* Playground */
 
     initPhysics () {

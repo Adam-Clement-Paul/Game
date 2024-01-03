@@ -91,6 +91,9 @@ async function connectToWebsocket (gameId) {
         if (data.type === 'startGame' && game) {
             game.goToGame();
         }
+        if (data.type === 'updateTiles' && game) {
+            game.updateBoard(data.tiles);
+        }
     });
 
     socket.addEventListener('error', event => {
