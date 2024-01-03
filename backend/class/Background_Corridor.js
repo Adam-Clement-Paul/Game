@@ -26,7 +26,7 @@ export class Corridor {
                         // Check if the tile is in the spawn
                         if ( !(x >= 1 && x <= this.spawn.l && y >= 1 && y <= this.spawn.w)) {
                             tile.type = 'tree';
-                            tile.life = 5;
+                            tile.life = 3;
                         }
                     }
                 } else {

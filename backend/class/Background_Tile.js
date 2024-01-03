@@ -14,7 +14,7 @@ export class Tile {
         this.time_before_burnt = 10000 + 20000 * Math.random();
 
         if (this.type === 'tree') {
-            this.life = 5;
+            this.life = 3;
         }
     }
 
@@ -30,7 +30,7 @@ export class Tile {
     destroyTree () {
         this.life--;
 
-        if (this.life <= 1) {
+        if (this.life <= 0) {
             // The color becomes darker and darker
             this.type = 'grass';
         }
