@@ -153,6 +153,10 @@ export class Game {
         this.board.updateBoard(tilesToUpdate);
     }
 
+    gameOver (time) {
+        console.log('Game over !','time: ' + time/1000);
+    }
+
     /* Playground */
 
     initPhysics () {

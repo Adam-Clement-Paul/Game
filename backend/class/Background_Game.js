@@ -24,16 +24,21 @@ export class Game {
 
         // Start the game loop
         this.timeGameLoop = 0;
-        this.gameLoop();
+        this.gameLoop(server, id);
     }
 
-    gameLoop () {
+    gameLoop (server, id) {
         if (this.endOfTheGame()) {
             clearTimeout(this.timeGameLoop);
             console.log('Game over !');
+            const data = {
+                type: 'gameOver',
+                time: Date.now() - this.startedAt,
+            };
+            server.publish(id, JSON.stringify(data));
         } else {
-            console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
-            this.timeGameLoop = setTimeout(() => this.gameLoop(), 1000);
+            // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
+            this.timeGameLoop = setTimeout(() => this.gameLoop(server, id), 2000);
         }
     }
 
