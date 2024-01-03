@@ -12,7 +12,8 @@
 <script>
     const cookieValue = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)user_data\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
     if (cookieValue === '') {
-        window.location.href = 'http://localhost:3000/';
+        const NextJS_PORT = 3000;
+        window.location.href = `http://${import.meta.env.VITE_HOST}:${NextJS_PORT}`;
     }
 </script>
 <main>
