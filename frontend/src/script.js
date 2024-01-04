@@ -78,6 +78,13 @@ termine.addEventListener('click', () => {
     }
 });
 
+const perdu = document.getElementById('PERDU');
+perdu.addEventListener('click', () => {
+    if (game) {
+        game.gameLost(1000);
+    }
+});
+
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);

@@ -5,6 +5,15 @@
     box-sizing: border-box;
 }
 
+a,input,select,textarea,button {
+    text-decoration: none;
+    color: inherit;
+}
+
+a,input,select,textarea,button:focus {
+    outline: none;
+}
+
 input:focus,
 select:focus,
 textarea:focus,
@@ -57,6 +66,7 @@ button:focus {
     --secondary: #a2a2a2;
 
     --color-text: #594141;
+    --color-text-secondary: #545151;
     --color-background: #FFB563;
     --color-btn-background-hover: #FFC27A;
 }
@@ -66,8 +76,6 @@ button:not(#qrButton) {
     font-family: 'Fira Sans', sans-serif;
     font-weight: 800;
     text-transform: uppercase;
-    background-color: var(--color-background);
-    color: var(--color-text);
     border: none;
     border-radius: 0;
     padding: 10px 20px;
@@ -75,12 +83,21 @@ button:not(#qrButton) {
 
 button:not(#qrButton):hover {
     cursor: pointer;
+}
+
+.btn-yellow {
+    background-color: var(--color-background);
+    color: var(--color-text);
+}
+
+.btn-yellow:hover {
+    cursor: pointer;
     background-color: var(--color-btn-background-hover);
 }
 
 .btn-secondary {
     background-color: #E9E9E9;
-    color: var(--color-text);
+    color: var(--color-text-secondary);
 }
 
 .btn-secondary:hover {
@@ -217,7 +234,6 @@ button:not(#qrButton):hover {
     height: 100vh;
     background-color: #383232;
     overflow-y: hidden;
-    background-image: url('../images/smoke.jpg');
     background-size: cover;
     background-blend-mode: hard-light;
 }

@@ -222,6 +222,12 @@ export class Firefighter extends Player {
         this.rotation = Math.PI - Math.PI / 9;
         this.cube.rotation.y = this.rotation;
         clearTimeout(this.timer2);
+
+        document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+        document.removeEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+        document.removeEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
+        document.removeEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
+
         super.stopMoving();
     }
 }

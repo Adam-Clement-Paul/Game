@@ -153,28 +153,33 @@ export class Game {
     }
 
     gameWon (time) {
-        console.log('Game Won !','time: ' + time/1000);
-        const gameOver = document.getElementById('gameOver');
-        gameOver.style.display = 'flex';
-        const webgl = document.getElementById('webgl');
-        // Place the game over message after the canvas
-        webgl.parentNode.insertBefore(gameOver, webgl.nextSibling);
-
-        this.gameOver();
+        this.gameOver('You\'ve beaten the flames!', 'smoke.jpg');
     }
 
     gameLost (time) {
-        console.log('Game Lost !','time: ' + time/1000);
+        const next = document.getElementById('next');
+        next.remove();
+
+        // Change la classe du bouton d'id menu en btn-yellow
+        const menu = document.getElementById('menu');
+        menu.classList.remove('btn-secondary');
+        menu.classList.add('btn-yellow');
+
+        this.gameOver('Mission failed', 'fire.jpg');
+    }
+
+    gameOver (text, image) {
+        const title = document.querySelector('.gameOverMain > h1');
+        title.innerHTML = text;
+
         const gameOver = document.getElementById('gameOver');
         gameOver.style.display = 'flex';
+        gameOver.style.backgroundImage = `url(../images/${image})`;
+
         const webgl = document.getElementById('webgl');
         // Place the game over message after the canvas
         webgl.parentNode.insertBefore(gameOver, webgl.nextSibling);
 
-        this.gameOver();
-    }
-
-    gameOver () {
         // Met le background de la scène transparent
         scene.background = null;
 
@@ -190,12 +195,12 @@ export class Game {
         let lookAt = new THREE.Vector3(player.x, 0, player.y);
         tl.to(camera.position, {
             duration: 3,
-            x: player.x + 0.7,
+            x: player.x + 0.8,
             y: 1,
             ease: 'power2.inOut'}
         ).to(lookAt, {
             duration: 3,
-            x: player.x + 0.7,
+            x: player.x + 0.8,
             y: 0.8,
             z: player.y,
             onUpdate: () => {
