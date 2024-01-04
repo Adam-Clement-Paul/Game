@@ -71,6 +71,13 @@ function windowResize () {
 
 window.addEventListener('resize', windowResize, false);
 
+const termine = document.getElementById('TERMINE');
+termine.addEventListener('click', () => {
+    if (game) {
+        game.gameWon(1000);
+    }
+});
+
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
@@ -94,8 +101,11 @@ async function connectToWebsocket (gameId) {
         if (data.type === 'updateTiles' && game) {
             game.updateBoard(data.tiles);
         }
-        if (data.type === 'gameOver' && game) {
-            game.gameOver(data.time);
+        if (data.type === 'gameWon' && game) {
+            game.gameWon(data.time);
+        }
+        if (data.type === 'gameLost' && game) {
+            game.gameLost(data.time);
         }
     });
 

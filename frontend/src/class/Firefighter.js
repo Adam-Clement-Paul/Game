@@ -205,4 +205,23 @@ export class Firefighter extends Player {
     remove () {
         scene.remove(this.cube);
     }
+
+    stopMoving () {
+        // Ajoute un cercle noir en dessous du joueur actif pour simuler une ombre
+        const shadow = new THREE.Mesh(
+            new THREE.CircleGeometry(0.3, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                side: THREE.DoubleSide,
+            })
+        );
+        shadow.rotation.x = Math.PI / 2;
+        shadow.position.set(this.x, 0, this.y);
+        scene.add(shadow);
+
+        this.rotation = Math.PI - Math.PI / 9;
+        this.cube.rotation.y = this.rotation;
+        clearTimeout(this.timer2);
+        super.stopMoving();
+    }
 }

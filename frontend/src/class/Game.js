@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import gsap from 'gsap';
 
 import {camera, scene} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
@@ -32,7 +33,6 @@ export class Game {
             camera.far = 20;
 
             this.board = new Board(this.boardConfig);
-            this.board.displayTiles();
 
             document.querySelector('#start').remove();
             document.querySelector('#bottomCode p').remove();
@@ -95,7 +95,6 @@ export class Game {
         this.removePlayground();
 
         this.board = new Board(this.boardConfig);
-        this.board.displayTiles();
 
         // Add the players to the game
         this.truckList.forEach(player => {
@@ -153,8 +152,56 @@ export class Game {
         this.board.updateBoard(tilesToUpdate);
     }
 
-    gameOver (time) {
-        console.log('Game over !','time: ' + time/1000);
+    gameWon (time) {
+        console.log('Game Won !','time: ' + time/1000);
+        const gameOver = document.getElementById('gameOver');
+        gameOver.style.display = 'flex';
+        const webgl = document.getElementById('webgl');
+        // Place the game over message after the canvas
+        webgl.parentNode.insertBefore(gameOver, webgl.nextSibling);
+
+        this.gameOver();
+    }
+
+    gameLost (time) {
+        console.log('Game Lost !','time: ' + time/1000);
+        const gameOver = document.getElementById('gameOver');
+        gameOver.style.display = 'flex';
+        const webgl = document.getElementById('webgl');
+        // Place the game over message after the canvas
+        webgl.parentNode.insertBefore(gameOver, webgl.nextSibling);
+
+        this.gameOver();
+    }
+
+    gameOver () {
+        // Met le background de la scène transparent
+        scene.background = null;
+
+        this.board.hideBoard();
+        this.players.forEach(player => {
+            player.stopMoving();
+        })
+        // Récupère la position x du joueur actif
+        const player = this.players.find(player => player.active);
+
+        // Déplace la caméra vers la gauche
+        let tl = gsap.timeline();
+        let lookAt = new THREE.Vector3(player.x, 0, player.y);
+        tl.to(camera.position, {
+            duration: 3,
+            x: player.x + 0.7,
+            y: 1,
+            ease: 'power2.inOut'}
+        ).to(lookAt, {
+            duration: 3,
+            x: player.x + 0.7,
+            y: 0.8,
+            z: player.y,
+            onUpdate: () => {
+                camera.lookAt(lookAt);
+            }
+        }, '<');
     }
 
     /* Playground */

@@ -46,4 +46,8 @@ export class Tile {
             this.plane.material.color.copy(interpolatedColor);
         }
     }
+
+    hide () {
+        scene.remove(this.plane);
+    }
 }

@@ -48,4 +48,8 @@ export class Player {
         }));
         this.timer = setTimeout((this.sendPosition.bind(this)), 1000 / 60, type);
     }
+
+    stopMoving () {
+        clearTimeout(this.timer);
+    }
 }

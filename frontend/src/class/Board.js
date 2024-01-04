@@ -9,13 +9,8 @@ export class Board {
         this.board = board;
         this.tiles = board.tiles;
 
-        this.displayTiles();
-    }
-
-
-    displayTiles () {
         this.tiles.forEach(tile => {
-            new Tile(tile.x, tile.y, tile.fire, tile.type);
+            this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
         });
     }
 
@@ -27,8 +22,16 @@ export class Board {
     updateBoard (tilesToUpdate) {
         tilesToUpdate.forEach(tileToUpdate => {
             const index = tileToUpdate[0];
+            this.tiles[index].hide();
+            this.tiles[index] = null;
             this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
             this.tiles[index].updateDisplay();
+        });
+    }
+
+    hideBoard () {
+        this.tiles.forEach(tile => {
+            tile.hide();
         });
     }
 }

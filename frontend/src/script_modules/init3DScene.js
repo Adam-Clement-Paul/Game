@@ -11,6 +11,8 @@ document.body.appendChild(stats.dom)
 
 // SCÈNE
 scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
 
 let size = {
     width: window.innerWidth,
@@ -25,7 +27,8 @@ const canvas = document.querySelector('#webgl');
 // RENDERER
 renderer = new THREE.WebGLRenderer({
     antialias: true,
-    canvas: canvas
+    canvas: canvas,
+    alpha: true
 });
 renderer.setSize(size.width, size.height);
 renderer.shadowMap.enabled = true;
