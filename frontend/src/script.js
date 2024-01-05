@@ -87,8 +87,14 @@ perdu.addEventListener('click', () => {
 
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
+
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
-    // TODO: Send the token to the backend to check if the player is allowed to connect to the game
+
+    socket.addEventListener('error', event => {
+        if (event.target.readyState === WebSocket.CLOSED || event.target.readyState === WebSocket.CLOSING) {
+            window.location.reload();
+        }
+    });
 
     socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
@@ -114,10 +120,6 @@ async function connectToWebsocket (gameId) {
         if (data.type === 'gameLost' && game) {
             game.gameLost(data.time);
         }
-    });
-
-    socket.addEventListener('error', event => {
-        throw new Error('Error: cannot connect to the websocket');
     });
 
     getGame(socket);

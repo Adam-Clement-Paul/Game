@@ -29,10 +29,10 @@ export class Game {
 
     gameLoop (server, id) {
         if (this.endOfTheGame()) {
-            clearTimeout(this.timeGameLoop);
-            console.log('Game over !');
+            clearTimeout(this.timeGameLoop);    
+            console.log('Game won !');
             const data = {
-                type: 'gameOver',
+                type: 'gameWon',
                 time: Date.now() - this.startedAt,
             };
             server.publish(id, JSON.stringify(data));
