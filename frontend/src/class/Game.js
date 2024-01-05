@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import gsap from 'gsap';
 
-import {camera, scene} from '../script_modules/init3DScene';
+import {camera, scene, renderer, gameOverSize} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
@@ -108,7 +108,6 @@ export class Game {
     }
 
     addPlayer (id, name, models) {
-        console.log(`Add player ${name} (${id})`);
         if (this.hasStarted) {
             let player = new Firefighter(id, name, 4, 3, 0, models, this, this.socket);
             this.truckList.forEach(truck => {
@@ -179,7 +178,13 @@ export class Game {
         const webgl = document.getElementById('webgl');
         // Place the game over message after the canvas
         webgl.parentNode.insertBefore(gameOver, webgl.nextSibling);
+        webgl.style.width = '67%';
+        webgl.style.left = null;
+        webgl.style.right = '0';
 
+        gameOverSize();
+        renderer.setSize(window.innerWidth * 0.67, window.innerHeight);
+        camera.aspect = window.innerWidth * 0.67 / window.innerHeight;
         // Met le background de la scène transparent
         scene.background = null;
 
@@ -195,14 +200,11 @@ export class Game {
         let lookAt = new THREE.Vector3(player.x, 0, player.y);
         tl.to(camera.position, {
             duration: 3,
-            x: player.x + 0.8,
             y: 1,
             ease: 'power2.inOut'}
         ).to(lookAt, {
             duration: 3,
-            x: player.x + 0.8,
             y: 0.8,
-            z: player.y,
             onUpdate: () => {
                 camera.lookAt(lookAt);
             }

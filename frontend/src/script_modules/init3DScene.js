@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
+import {Vector2} from "three";
 
 let scene, camera, renderer, controls, stats;
 
@@ -23,6 +24,7 @@ let size = {
 camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 80) // 0.1 - 20 / 10 - 80
 
 const canvas = document.querySelector('#webgl');
+canvas.style.left = 0;
 
 // RENDERER
 renderer = new THREE.WebGLRenderer({
@@ -50,4 +52,26 @@ directionalLight.position.set(0, 10, 5);
 directionalLight.target.position.set(0, 0, -20)
 scene.add(directionalLight);
 
-export {scene, camera, renderer, controls, stats};
+let gameOver = false;
+
+function gameOverSize () {
+    gameOver = true;
+}
+
+function windowResize () {
+    let size = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+    }
+
+    if (gameOver) {
+        size.width = window.innerWidth * 0.67;
+    }
+    camera.aspect = size.width / size.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(size.width, size.height);
+}
+
+window.addEventListener('resize', windowResize, false);
+
+export {scene, camera, renderer, controls, stats, gameOverSize};

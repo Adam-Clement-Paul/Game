@@ -33,8 +33,6 @@ export class Player {
         this.y = y;
         this.z = z;
         this.rotation = rotation;
-
-        console.log(`Update position of (${this.id}) to (${this.x}, ${this.y}, ${this.z})`);
     }
 
     sendPosition (type) {

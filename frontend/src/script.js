@@ -59,18 +59,6 @@ function animate () {
     requestAnimationFrame(animate);
 }
 
-function windowResize () {
-    let size = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-    }
-    camera.aspect = size.width / size.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(size.width, size.height);
-}
-
-window.addEventListener('resize', windowResize, false);
-
 const termine = document.getElementById('TERMINE');
 termine.addEventListener('click', () => {
     if (game) {
