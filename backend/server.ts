@@ -227,7 +227,6 @@ const server = Bun.serve<WebSocketData>({
                     games[ws.data.gameId].players[player].y = 3;
                     games[ws.data.gameId].players[player].z = null;
                 }
-                games[ws.data.gameId].startedAt = Date.now();
                 const msg = JSON.stringify({
                     type: 'startGame'
                 });

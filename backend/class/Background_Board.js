@@ -19,6 +19,8 @@ export class Board {
 
         this.chance_to_have_tree_corridor = 0.3;
 
+        this.timer = null;
+
         this.initBoard();
     }
 
@@ -302,8 +304,7 @@ export class Board {
     }
 
     // Recursive function to generate fires
-    fireContamination (timer, server, id) {
-        clearTimeout(timer);
+    fireContamination (server, id) {
         // Each second, if a fire tile have fire to 1, it will contaminate the adjacent tiles
         let tilesToUpdate = [];
         this.tiles.forEach(tile => {
@@ -336,8 +337,8 @@ export class Board {
         }
 
         // Loop every second with timer
-        timer = setTimeout(() => {
-            this.fireContamination(timer, server, id);
-        }, 2000);
+        this.timer = setTimeout(() => {
+            this.fireContamination(server, id);
+        }, 2000); // 2000
     }
 }

@@ -16,6 +16,7 @@ export class Game {
     static LOSE_TEXT = 'Mission failed';
     static LOSE_IMAGE = 'fire.jpg';
     static LOSE_COINS = 0;
+    static MAX_DURATION = 300;
 
     constructor (board, players, socket, hasStarted, owner) {
         this.playersBackend = players;
@@ -63,36 +64,21 @@ export class Game {
         }
     }
 
-    start () {
-        for (let i = 0; i < this.players.length; i++) {
-            console.log(`Player ${i + 1} : ${this.players[i].name}`);
-        }
-
-        // Activate the fire growth
-        this.board.tiles.forEach(tile => {
-            if (tile.fire !== 0) {
-                tile.growingFire();
-            }
-        });
-        // Activate the contamination
-        this.board.fireContamination(0);
-
-        // Start the game loop
-        this.timeGameLoop = 0;
-        this.gameLoop();
-    }
-
     goToGame () {
         this.hasStarted = true;
         camera.near = 0.1;
         camera.far = 20;
 
+        // Remove "Waiting for players" message and the start button
         let lobby = document.getElementsByClassName('lobby');
         while (lobby.length > 0) {
             lobby[0].remove();
         }
-
         stopWaiting();
+
+        const spanTimer = document.getElementById('timer');
+        spanTimer.innerHTML = `${Game.MAX_DURATION}`;
+        setTimeout(() => this.timerLoop(spanTimer, Game.MAX_DURATION), 3000);
 
         this.truckList.forEach(truck => {
             truck.remove();
@@ -113,6 +99,17 @@ export class Game {
 
         camera.position.set(4, 3, 1);
         camera.lookAt(4, 0, 3);
+    }
+
+    timerLoop (spanTimer, time) {
+        if (this.hasStarted) {
+            let timeLeft = time - 1
+            if (time <= 0) {
+                timeLeft = 0;
+            }
+            spanTimer.innerHTML = `${timeLeft}`;
+            setTimeout(() => this.timerLoop(spanTimer, timeLeft), 1000);
+        }
     }
 
     addPlayer (id, name, models) {
@@ -178,6 +175,10 @@ export class Game {
             menu.classList.remove('btn-secondary');
             menu.classList.add('btn-yellow');
         }
+        this.hasStarted = null;
+        const spanTimer = document.getElementById('timer');
+        // Suppress the timer
+        spanTimer.parentNode.removeChild(spanTimer);
 
         // ---------- Set content in the html
         const title = document.querySelector('.gameOverMain > h1');
