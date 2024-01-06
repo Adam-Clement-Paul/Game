@@ -57,12 +57,13 @@ function animate () {
         const treeInstances = game.board.treeInstanceMesh;
         const instances = game.board.instances;
 
-        for (let i = 0; i < treeInstances.count; i++) {
-            instances[i].updateMatrix();
-            treeInstances.setMatrixAt(i, instances[i].matrix);
+        for (let j = 0; j < 2; j++) {
+            for (let i = 0; i < treeInstances[j].count; i++) {
+                instances[i].updateMatrix();
+                treeInstances[j].setMatrixAt(i, instances[i].matrix);
+            }
+            treeInstances[j].instanceMatrix.needsUpdate = true;
         }
-
-        treeInstances.instanceMatrix.needsUpdate = true;
     }
 
     camera.updateProjectionMatrix();
