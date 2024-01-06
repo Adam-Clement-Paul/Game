@@ -54,7 +54,7 @@ scene.add(directionalLight);
 
 let gameOver = false;
 
-function gameOverSize () {
+function changeWindowResize () {
     gameOver = true;
 }
 
@@ -74,4 +74,4 @@ function windowResize () {
 
 window.addEventListener('resize', windowResize, false);
 
-export {scene, camera, renderer, controls, stats, gameOverSize};
+export {scene, camera, renderer, controls, stats, changeWindowResize};

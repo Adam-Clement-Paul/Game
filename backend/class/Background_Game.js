@@ -29,11 +29,14 @@ export class Game {
 
     gameLoop (server, id) {
         if (this.endOfTheGame()) {
-            clearTimeout(this.timeGameLoop);    
+            clearTimeout(this.timeGameLoop);
+            // Create an array of arrays with the playerID, the number of fires extinguished and the number of trees cut
+            const playerData = this.players.map(player => [player.id, player.firePoints, player.cutTrees]);
             console.log('Game won !');
             const data = {
                 type: 'gameWon',
                 time: Date.now() - this.startedAt,
+                playersData: playerData
             };
             server.publish(id, JSON.stringify(data));
         } else {

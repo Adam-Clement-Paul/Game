@@ -2,13 +2,21 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import gsap from 'gsap';
 
-import {camera, scene, renderer, gameOverSize} from '../script_modules/init3DScene';
+import {camera, scene, renderer, changeWindowResize} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
 import {stopWaiting, waiting} from "../waiting";
 
+
 export class Game {
+    static WIN_TEXT = 'You\'ve beaten the flames!';
+    static WIN_IMAGE = 'smoke.jpg';
+    static WIN_COINS = 100;
+    static LOSE_TEXT = 'Mission failed';
+    static LOSE_IMAGE = 'fire.jpg';
+    static LOSE_COINS = 0;
+
     constructor (board, players, socket, hasStarted, owner) {
         this.playersBackend = players;
         this.players = [];
@@ -151,29 +159,53 @@ export class Game {
         this.board.updateBoard(tilesToUpdate);
     }
 
-    gameWon (time) {
-        this.gameOver('You\'ve beaten the flames!', 'smoke.jpg');
-    }
+    gameOver (time, playersData, win) {
+        let text, image, coins;
+        if (win) {
+            text = Game.WIN_TEXT;
+            image = Game.WIN_IMAGE;
+            coins = Game.WIN_COINS;
+        } else {
+            text = Game.LOSE_TEXT;
+            image = Game.LOSE_IMAGE;
+            coins = Game.LOSE_COINS;
 
-    gameLost (time) {
-        const next = document.getElementById('next');
-        next.remove();
+            const next = document.getElementById('next');
+            next.remove();
 
-        // Change la classe du bouton d'id menu en btn-yellow
-        const menu = document.getElementById('menu');
-        menu.classList.remove('btn-secondary');
-        menu.classList.add('btn-yellow');
+            // Change the color of the menu button, because this is the only button left
+            const menu = document.getElementById('menu');
+            menu.classList.remove('btn-secondary');
+            menu.classList.add('btn-yellow');
+        }
 
-        this.gameOver('Mission failed', 'fire.jpg');
-    }
-
-    gameOver (text, image) {
+        // ---------- Set content in the html
         const title = document.querySelector('.gameOverMain > h1');
         title.innerHTML = text;
 
         const gameOver = document.getElementById('gameOver');
         gameOver.style.display = 'flex';
         gameOver.style.backgroundImage = `url(../images/${image})`;
+
+        const playerName = document.getElementById('playerName');
+        playerName.innerHTML = this.players.find(player => player.active).name;
+
+        const missionDuration = document.getElementById('missionDuration');
+        missionDuration.innerHTML = `${Math.floor(time / 60000)}min ${Math.floor(time / 1000) % 60}s`;
+
+        const player = this.players.find(player => player.active);
+        const fires = playersData.find(data => data[0] === player.id)[1];
+        const trees = playersData.find(data => data[0] === player.id)[2];
+
+        const flamesExtinguished = document.getElementById('flamesExting');
+        flamesExtinguished.innerHTML = fires;
+
+        const treesCutted = document.getElementById('treesCutted');
+        treesCutted.innerHTML = trees;
+
+        const coinsEarned = document.getElementById('coinsEarned');
+        coinsEarned.innerHTML = coins;
+        // ----------
 
         const webgl = document.getElementById('webgl');
         // Place the game over message after the canvas
@@ -182,20 +214,18 @@ export class Game {
         webgl.style.left = null;
         webgl.style.right = '0';
 
-        gameOverSize();
+        // Adapt the canvas size
+        changeWindowResize();
         renderer.setSize(window.innerWidth * 0.67, window.innerHeight);
         camera.aspect = window.innerWidth * 0.67 / window.innerHeight;
-        // Met le background de la scène transparent
         scene.background = null;
 
         this.board.hideBoard();
         this.players.forEach(player => {
             player.stopMoving();
         })
-        // Récupère la position x du joueur actif
-        const player = this.players.find(player => player.active);
 
-        // Déplace la caméra vers la gauche
+        // Make the camera look at the player
         let tl = gsap.timeline();
         let lookAt = new THREE.Vector3(player.x, 0, player.y);
         tl.to(camera.position, {

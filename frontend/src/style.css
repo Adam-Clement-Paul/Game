@@ -257,6 +257,13 @@ button:not(#qrButton):hover {
     :is(span)  {
         font-weight: 800;
     }
+
+    :is(img) {
+        margin-bottom: -6.5px;
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+    }
 }
 
 .gameOverMain {

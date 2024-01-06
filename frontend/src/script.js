@@ -59,20 +59,6 @@ function animate () {
     requestAnimationFrame(animate);
 }
 
-const termine = document.getElementById('TERMINE');
-termine.addEventListener('click', () => {
-    if (game) {
-        game.gameWon(1000);
-    }
-});
-
-const perdu = document.getElementById('PERDU');
-perdu.addEventListener('click', () => {
-    if (game) {
-        game.gameLost(1000);
-    }
-});
-
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
 
@@ -103,10 +89,10 @@ async function connectToWebsocket (gameId) {
             game.updateBoard(data.tiles);
         }
         if (data.type === 'gameWon' && game) {
-            game.gameWon(data.time);
+            game.gameOver(data.time, data.playersData, true);
         }
         if (data.type === 'gameLost' && game) {
-            game.gameLost(data.time);
+            game.gameOver(data.time, data.playersData, false);
         }
     });
 

@@ -253,7 +253,9 @@ const server = Bun.serve<WebSocketData>({
                             player.firePoints += updatedTiles.length;
                         } else if (jsonMessage.type === 'axe') {
                             updatedTiles = player.onDocumentRightClick();
-                            player.cutTrees += updatedTiles.length;
+                            if (updatedTiles[0] && updatedTiles[0][1].type === 'grass') {
+                                player.cutTrees += updatedTiles.length;
+                            }
                         }
 
                         updatedTiles.forEach((tile: any) => {
