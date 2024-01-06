@@ -59,22 +59,16 @@ function animate () {
     requestAnimationFrame(animate);
 }
 
-function windowResize () {
-    let size = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-    }
-    camera.aspect = size.width / size.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(size.width, size.height);
-}
-
-window.addEventListener('resize', windowResize, false);
-
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
+
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
-    // TODO: Send the token to the backend to check if the player is allowed to connect to the game
+
+    socket.addEventListener('error', event => {
+        if (event.target.readyState === WebSocket.CLOSED || event.target.readyState === WebSocket.CLOSING) {
+            window.location.reload();
+        }
+    });
 
     socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
@@ -94,10 +88,12 @@ async function connectToWebsocket (gameId) {
         if (data.type === 'updateTiles' && game) {
             game.updateBoard(data.tiles);
         }
-    });
-
-    socket.addEventListener('error', event => {
-        throw new Error('Error: cannot connect to the websocket');
+        if (data.type === 'gameWon' && game) {
+            game.gameOver(data.time, data.playersData, true);
+        }
+        if (data.type === 'gameLost' && game) {
+            game.gameOver(data.time, data.playersData, false);
+        }
     });
 
     getGame(socket);

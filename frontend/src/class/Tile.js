@@ -8,10 +8,6 @@ export class Tile {
         this.fire = fire;
         this.type = type;
 
-        if (this.type === 'tree') {
-            this.life = 5;
-        }
-
         this.plane = new THREE.Mesh(
             new THREE.PlaneGeometry(0.9, 0.9),
             new THREE.MeshStandardMaterial({
@@ -49,5 +45,9 @@ export class Tile {
 
             this.plane.material.color.copy(interpolatedColor);
         }
+    }
+
+    hide () {
+        scene.remove(this.plane);
     }
 }

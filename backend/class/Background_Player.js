@@ -1,5 +1,5 @@
 export class Player {
-    constructor (id, name, models, x, y, z, board, rotation) {
+    constructor (id, name, models, x, y, z, board, rotation, firePoints = 0, cutTrees = 0) {
         this.id = id;
         this.name = name;
         this.models = models;
@@ -8,6 +8,9 @@ export class Player {
         this.z = z;
         this.rotation = rotation;
         this.board = board;
+
+        this.firePoints = firePoints;
+        this.cutTrees = cutTrees;
     }
 
     // FireHose

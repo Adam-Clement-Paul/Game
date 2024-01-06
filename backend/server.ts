@@ -3,6 +3,7 @@ import {Game} from './class/Background_Game.js';
 
 const BASE_PATH = "../frontend/dist";
 const domain = `http://${process.env.HOST}`;
+import {readFileSync} from 'fs';
 
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
@@ -137,16 +138,21 @@ const server = Bun.serve<WebSocketData>({
         }
 
         // Route to join the websocket room
+        // Doesn't wait response so errors can't be handled here
         if (pathname.startsWith('/websocket')) {
             const gameId = pathname.split('/')[2];
             const sessionId = pathname.split('/')[3];
+
+            if (!games[gameId]) {
+                return;
+            }
 
             let id, username;
             if (sessions[sessionId]) {
                 id = sessions[sessionId].id;
                 username = sessions[sessionId].username;
             } else {
-                return new Response('Invalid session id', { status: 400 });
+                return;
             }
 
             // Connexion WebSocket
@@ -167,7 +173,7 @@ const server = Bun.serve<WebSocketData>({
             });
 
             if (!success) {
-                throw new Error('Erreur lors de la connexion WebSocket');
+                return;
             }
             console.log('Server upgraded to websocket');
 
@@ -221,14 +227,15 @@ const server = Bun.serve<WebSocketData>({
                     games[ws.data.gameId].players[player].y = 3;
                     games[ws.data.gameId].players[player].z = null;
                 }
-                games[ws.data.gameId].startedAt = Date.now();
                 const msg = JSON.stringify({
                     type: 'startGame'
                 });
                 server.publish(ws.data.gameId, msg);
                 // Start the game
                 setTimeout(() => {
-                    games[ws.data.gameId].start(server, ws.data.gameId);
+                    if (games[ws.data.gameId]) {
+                        games[ws.data.gameId].start(server, ws.data.gameId);
+                    }
                 }, 3000);
             }
 
@@ -242,8 +249,12 @@ const server = Bun.serve<WebSocketData>({
 
                         if (jsonMessage.type === 'extinguish') {
                             updatedTiles = player.onDocumentClickExtinguishFire();
+                            player.firePoints += updatedTiles.length;
                         } else if (jsonMessage.type === 'axe') {
                             updatedTiles = player.onDocumentRightClick();
+                            if (updatedTiles[0] && updatedTiles[0][1].type === 'grass') {
+                                player.cutTrees += updatedTiles.length;
+                            }
                         }
 
                         updatedTiles.forEach((tile: any) => {
@@ -271,6 +282,10 @@ const server = Bun.serve<WebSocketData>({
         },
         close(ws) {
             console.log('closing');
+            if (!games[ws.data.gameId]) {
+                ws.close(400, 'Wrong game ID');
+                return;
+            }
             games[ws.data.gameId].removePlayer(ws.data.authToken);
 
             const msg = JSON.stringify({
@@ -279,13 +294,24 @@ const server = Bun.serve<WebSocketData>({
             });
             ws.unsubscribe(ws.data.gameId);
             server.publish(ws.data.gameId, msg);
+
+            if (Object.keys(games[ws.data.gameId].players).length === 0 && games.hasOwnProperty(ws.data.gameId)) {
+                console.log('game deleted', ws.data.gameId);
+                delete games[ws.data.gameId];
+            }
         },
     },
     error(error) {
         console.log(error);
         if (error.errno === -2) {
-            // TODO: redirect to 404 page
-            return new Response('Not Found', {status: 404});
+            // Affiche le contenu de la page 404.html
+            return new Response(readFileSync(BASE_PATH + '/404.html'), {
+                status: 404,
+                headers: {
+                    'Content-Type': 'text/html',
+                    'Access-control-allow-origin': '*',
+                },
+            });
         }
         return new Response(null, {status: 500});
     },

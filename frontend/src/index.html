@@ -29,7 +29,28 @@
         </button>
     </div>
 </div>
+<span id="timer"></span>
+
 <canvas id="webgl"></canvas>
+
+<div id="gameOver">
+    <div class="gameOverData">
+        <p>
+            <span id="playerName">Paul</span><br>
+            Mission duration : <span id="missionDuration"></span><br>
+            Flames extinguished : <span id="flamesExting"></span><br>
+            Cutted trees : <span id="treesCutted"></span><br>
+            + <span id="coinsEarned"></span><img src="../images/coin.png" alt="coin"><br>
+        </p>
+    </div>
+    <div class="gameOverMain">
+        <h1></h1>
+        <div>
+            <a href="/"><button id="menu" class="btn-secondary">MAIN MENU</button></a>
+            <button id="next" class="btn-yellow">NEXT WAVE</button>
+        </div>
+    </div>
+</div>
 <script type="module" src="./script.js"></script>
 </body>
 </html>

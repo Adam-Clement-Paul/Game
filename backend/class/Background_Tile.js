@@ -6,7 +6,7 @@ export class Tile {
         this.type = type;
 
         // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 1;
+        this.growing_fire_timer = 1000;
         this.timer = 0;
         clearTimeout(this.timer);
 
@@ -14,7 +14,7 @@ export class Tile {
         this.time_before_burnt = 10000 + 20000 * Math.random();
 
         if (this.type === 'tree') {
-            this.life = 5;
+            this.life = 3;
         }
     }
 
@@ -30,7 +30,7 @@ export class Tile {
     destroyTree () {
         this.life--;
 
-        if (this.life <= 1) {
+        if (this.life <= 0) {
             // The color becomes darker and darker
             this.type = 'grass';
         }
@@ -43,7 +43,7 @@ export class Tile {
                     this.fire += 0.01;
                     this.growingFire();
                 }
-            }, this.growing_fire_timer * 1000 * Math.random());
+            }, this.growing_fire_timer * Math.random());
         }
     }
 }

@@ -4,6 +4,8 @@ import {scene} from '../script_modules/init3DScene.js';
 import * as UTILS from '../script_modules/utils.js';
 import {Player} from './Player';
 
+let fpsInterval, now, then, elapsed;
+
 export class Firefighter extends Player {
     constructor (id, name, x, y, rotation, models, game, socket, active = false) {
         super(id, name, x, 0.5, y, rotation, socket, active);
@@ -28,7 +30,7 @@ export class Firefighter extends Player {
         this.velocity = new THREE.Vector2(0, 0);
         this.angularVelocity = 0;
 
-        this.timer2 = 0;
+        this.stop = false;
 
         // Booleans to track which keys are currently pressed
         this.keys = {
@@ -64,7 +66,7 @@ export class Firefighter extends Player {
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
         document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
 
-        this.update();
+        this.startUpdating(60);
         this.sendPosition('move');
     }
 
@@ -186,14 +188,31 @@ export class Firefighter extends Player {
         this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
     }
 
+    startUpdating(fps) {
+        fpsInterval = 1000 / fps;
+        then = Date.now();
+        this.update();
+    }
+
     update () {
-        this.cube.rotation.y = this.rotation;
+        if (this.stop) {
+            return;
+        }
+        requestAnimationFrame(this.update.bind(this));
+        now = Date.now();
+        elapsed = now - then;
+        if (elapsed > fpsInterval) {
+            // Get ready for next frame by setting then=now, but...
+            // Also, adjust for fpsInterval not being multiple of 16.67
+            then = now - (elapsed % fpsInterval);
 
-        this.rotationWithInertia();
-        this.movementsWithInertia();
+            this.cube.rotation.y = this.rotation;
 
-        this.cameraMovements(this.x, this.y, 1);
-        this.timer2 = setTimeout((this.update.bind(this)), 1000 / 80);
+            this.rotationWithInertia();
+            this.movementsWithInertia();
+
+            this.cameraMovements(this.x, this.y, 1);
+        }
     }
 
     updatePosition (x, y, z, rotation) {
@@ -204,5 +223,30 @@ export class Firefighter extends Player {
 
     remove () {
         scene.remove(this.cube);
+    }
+
+    stopMoving () {
+        // Ajoute un cercle noir en dessous du joueur actif pour simuler une ombre
+        const shadow = new THREE.Mesh(
+            new THREE.CircleGeometry(0.3, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                side: THREE.DoubleSide,
+            })
+        );
+        shadow.rotation.x = Math.PI / 2;
+        shadow.position.set(this.x, 0, this.y);
+        scene.add(shadow);
+
+        this.rotation = Math.PI - Math.PI / 9;
+        this.cube.rotation.y = this.rotation;
+        this.stop = true;
+
+        document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+        document.removeEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+        document.removeEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
+        document.removeEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
+
+        super.stopMoving();
     }
 }
