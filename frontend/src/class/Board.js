@@ -35,24 +35,25 @@ export class Board {
         this.instance = new THREE.Object3D();
         loadModel('./models/tree.glb', (model) => {
             for (let i = 0; i < 2; i++) {
-                console.log(model.children[i]);
                 const geometry = model.children[i].geometry;
                 const material = model.children[i].material;
 
                 this.treeInstanceMesh[i] = new THREE.InstancedMesh(geometry, material, this.nbTree);
                 this.treeInstanceMesh[i].position.set(0, 0, 0);
                 this.treeInstanceMesh[i].instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-                this.tiles.forEach((tile, index) => {
+                let instanceCloned= null;
+                this.tiles.forEach((tile) => {
                     if (tile.type === 'tree') {
-                        this.instance.position.set(tile.x, 0, tile.y);
                         this.instance.scale.set(scale, scale, scale);
-                        this.instance.rotation.y = Math.random() * Math.PI; // Optionally, rotate the instances
-                        this.instances.push(this.instance.clone());
+                        this.instance.position.set(tile.x, 0, tile.y);
+                        this.instance.rotation.y = Math.random() * Math.PI;
+                        instanceCloned = this.instance.clone();
+                        this.instances.push(instanceCloned);
+                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, instanceCloned);
                     }
                 });
 
-                // this.treeInstanceMesh.instanceMatrix.needsUpdate = true;
+                this.treeInstanceMesh[i].instanceMatrix.needsUpdate = true;
                 scene.add(this.treeInstanceMesh[i]);
             }
 
@@ -62,6 +63,8 @@ export class Board {
         this.tiles.forEach(tile => {
             this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
         });
+
+
     }
 
     // Return the tile at the given position
@@ -72,9 +75,16 @@ export class Board {
     updateBoard (tilesToUpdate) {
         tilesToUpdate.forEach(tileToUpdate => {
             const index = tileToUpdate[0];
-            this.tiles[index].hide();
+            const instance = this.tiles[index].instance;
+            if (this.tiles[index].type === 'tree' && tileToUpdate[1].type !== 'tree') {
+                for (let i = 0; i < 2; i++) {
+                    this.tiles[index].hide(true, this.treeInstanceMesh[i]);
+                }
+            } else {
+                this.tiles[index].hide(false);
+            }
             this.tiles[index] = null;
-            this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
+            this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type, instance);
             this.tiles[index].updateDisplay();
         });
     }
