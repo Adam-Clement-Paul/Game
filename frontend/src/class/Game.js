@@ -180,6 +180,9 @@ export class Game {
         // Suppress the timer
         spanTimer.parentNode.removeChild(spanTimer);
 
+        // Manage board instances
+        this.board.suppressInstances();
+
         // ---------- Set content in the html
         const title = document.querySelector('.gameOverMain > h1');
         title.innerHTML = text;

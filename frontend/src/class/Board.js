@@ -84,4 +84,17 @@ export class Board {
             tile.hide();
         });
     }
+
+    suppressInstances () {
+        this.modelsLoaded = null;
+
+        for (let i = 0; i < 2; i++) {
+            this.treeInstanceMesh[i].instanceMatrix.needsUpdate = false;
+            this.treeInstanceMesh[i].dispose();
+        }
+
+        this.treeInstanceMesh.forEach(tree => {
+            scene.remove(tree);
+        });
+    }
 }
