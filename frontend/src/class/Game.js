@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import gsap from 'gsap';
 
-import {camera, scene, renderer, changeWindowResize, setChildrenPlayer} from '../script_modules/init3DScene';
+import {camera, scene, renderer, changeWindowResize} from '../script_modules/init3DScene';
 import {Board} from './Board.js';
 import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
@@ -118,7 +118,6 @@ export class Game {
             this.truckList.forEach(truck => {
                 if (truck.id === id && truck.active) {
                     player.setActive();
-                    setChildrenPlayer(new THREE.Vector3(player.x, 0, player.y));
                 }
             });
             this.players.push(player);
