@@ -13,18 +13,18 @@ export class Board {
         this.tiles = board.tiles;
 
         this.modelsLoaded = false;
-        this.treeInstanceMesh = [];
-        this.instances = [];
         let scale = 0.08;
 
-        let nbrObstacle = 0;
+        // Borders
+        this.treeInstanceMesh = [];
+        this.instances = [];
+
+        let nbrBorder = 0;
         this.tiles.forEach(tile => {
             if (tile.type === 'border') {
-                nbrObstacle++;
+                nbrBorder++;
             }
         });
-        console.log(nbrObstacle);
-
 
         /*loadModel('./models/tree.glb', (model) => {
             this.tree = model;
@@ -33,31 +33,44 @@ export class Board {
             scene.add(this.tree);
         });*/
 
-        let instance = new THREE.Object3D();
         loadModel('./models/treeBorder.glb', (model) => {
             const geometry = model.children[0].geometry;
             const material = model.children[0].material;
-            this.treeInstanceMesh = new THREE.InstancedMesh(geometry, material, nbrObstacle);
+            this.treeInstanceMesh = new THREE.InstancedMesh(geometry, material, nbrBorder);
             this.treeInstanceMesh.position.set(0, 0, 0);
             this.treeInstanceMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            this.tiles.forEach((tile) => {
-                if (tile.type === 'border') {
-                    instance.position.set(tile.x, 0, tile.y);
-                    instance.scale.set(scale, scale, scale);
-                    instance.rotation.y = Math.random() * Math.PI;
-                    this.instances.push(instance.clone());
-                    this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
-                }
-            });
-
             this.treeInstanceMesh.instanceMatrix.needsUpdate = true;
-            scene.add(this.treeInstanceMesh);
 
-            this.modelsLoaded = true;
+            let instance = new THREE.Object3D();
+
+            loadModel('./models/tree.glb', (model) => {
+                const tree = model;
+                tree.scale.set(scale, scale, scale);
+
+                this.tiles.forEach((tile) => {
+                    if (tile.type === 'border') {
+                        instance.position.set(tile.x, 0, tile.y);
+                        instance.scale.set(scale, scale, scale);
+                        instance.rotation.y = Math.random() * Math.PI;
+                        this.instances.push(instance.clone());
+                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
+                    }
+                    if (tile.type === 'tree') {
+                        tree.position.set(tile.x, 0, tile.y);
+                        tree.rotation.y = Math.random() * Math.PI;
+                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, tree.clone());
+                    }
+                });
+
+                scene.add(this.treeInstanceMesh);
+                this.modelsLoaded = true;
+            });
         });
 
         this.tiles.forEach(tile => {
-            this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
+            if (tile.type === 'grass' || tile.type === 'obstacle') {
+                this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
+            }
         });
 
 
@@ -71,16 +84,15 @@ export class Board {
     updateBoard (tilesToUpdate) {
         tilesToUpdate.forEach(tileToUpdate => {
             const index = tileToUpdate[0];
-            /*
-            if (this.tiles[index].type === 'tree' && tileToUpdate[1].type !== 'tree') {
-                for (let i = 0; i < 2; i++) {
-                    this.tiles[index].hide(true, this.treeInstanceMesh);
-                }
-            } else {
-                this.tiles[index].hide(false);
-            }*/
-            this.tiles[index] = null;
-            this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
+            if (this.tiles[index].type === 'tree' && tileToUpdate[1].type === 'grass') {
+                this.tiles[index].cutTree();
+            } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].fire === 0) {
+                this.tiles[index].axeStroke();
+            }
+            if (tileToUpdate[1].type !== 'tree') {
+                this.tiles[index] = null;
+                this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
+            }
             this.tiles[index].updateDisplay();
         });
     }

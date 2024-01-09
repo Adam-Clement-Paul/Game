@@ -2,16 +2,16 @@ import * as THREE from 'three';
 import {scene} from '../script_modules/init3DScene.js';
 
 export class Tile {
-    constructor (x, y, fire = 0, type = 'grass', instance = null) {
+    constructor (x, y, fire = 0, type = 'grass', model = null) {
         this.x = x;
         this.y = y;
         this.fire = fire;
         this.type = type;
-        this.instance = instance;
-        /*if (this.type === 'tree') {
-            this.instance.position.set(this.x, 0, this.y);
-            this.instance.rotation.y = Math.random() * Math.PI;
-        }*/
+        this.model = model;
+
+        if (this.model) {
+            scene.add(this.model);
+        }
 
         this.plane = new THREE.Mesh(
             new THREE.PlaneGeometry(0.9, 0.9),
@@ -52,20 +52,18 @@ export class Tile {
         }
     }
 
-    hide (removeInstance, treeInstanceMesh = null) {
-        if (this.type === 'tree' && removeInstance) {
-            console.log("Passe");
-            // Échanche l'instance à la fin du tableau avec celle actuelle de treeInstanceMesh pour après raccourcir le tableau et donc supprimer l'instance
-            console.log(treeInstanceMesh.count - 1);
-            let temp = new THREE.Matrix4();
-            treeInstanceMesh.getMatrixAt(treeInstanceMesh.count - 1, temp);
-            console.log(temp, this.instance[0], treeInstanceMesh.instanceMatrix.array[this.instance[0]]);
-            //treeInstanceMesh.setMatrixAt(this.instance[0], temp);
-            treeInstanceMesh.setMatrixAt(treeInstanceMesh.count, this.instance[1].matrix);
-            treeInstanceMesh.instanceMatrix.needsUpdate = true;
-            treeInstanceMesh.count--;
-        }
+    cutTree () {
+        console.log('Cutting tree');
+        console.log(this.model);
+        this.model.visible = false;
+        scene.remove(this.model);
+    }
 
+    axeStroke () {
+        console.log('Axe stroke');
+    }
+
+    hide () {
         scene.remove(this.plane);
     }
 }
