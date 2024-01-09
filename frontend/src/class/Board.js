@@ -48,15 +48,19 @@ export class Board {
                 tree.scale.set(scale, scale, scale);
 
                 this.tiles.forEach((tile) => {
+                    const gap = 0.2;
+                    const ramdomX = Math.random() * (gap - (-gap)) + (-gap);
+                    const ramdomY = Math.random() * (gap - (-gap)) + (-gap);
+
                     if (tile.type === 'border') {
-                        instance.position.set(tile.x, 0, tile.y);
+                        instance.position.set(tile.x + ramdomX, 0, tile.y + ramdomY);
                         instance.scale.set(scale, scale, scale);
                         instance.rotation.y = Math.random() * Math.PI;
                         this.instances.push(instance.clone());
                         this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
                     }
                     if (tile.type === 'tree') {
-                        tree.position.set(tile.x, 0, tile.y);
+                        tree.position.set(tile.x + ramdomX, 0, tile.y + ramdomY);
                         tree.rotation.y = Math.random() * Math.PI;
                         this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, tree.clone());
                     }
