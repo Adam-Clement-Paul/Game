@@ -28,34 +28,35 @@ export class Board {
         /*loadModel('./models/tree.glb', (model) => {
             this.tree = model;
             this.tree.scale.set(scale, scale, scale);
-            this.tree.position.set(0, 0, 0);
+            this.tree.position.set(3, 0, 2);
             scene.add(this.tree);
         });*/
 
         this.instance = new THREE.Object3D();
         loadModel('./models/tree.glb', (model) => {
-            for (let i = 0; i < 2; i++) {
-                const geometry = model.children[i].geometry;
-                const material = model.children[i].material;
+            const geometry = model.children[1].geometry;
+            const material = model.children[1].material;
 
-                this.treeInstanceMesh[i] = new THREE.InstancedMesh(geometry, material, this.nbTree);
-                this.treeInstanceMesh[i].position.set(0, 0, 0);
-                this.treeInstanceMesh[i].instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-                let instanceCloned= null;
-                this.tiles.forEach((tile) => {
-                    if (tile.type === 'tree') {
-                        this.instance.scale.set(scale, scale, scale);
-                        this.instance.position.set(tile.x, 0, tile.y);
-                        this.instance.rotation.y = Math.random() * Math.PI;
-                        instanceCloned = this.instance.clone();
-                        this.instances.push(instanceCloned);
-                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, instanceCloned);
-                    }
-                });
+            this.treeInstanceMesh = new THREE.InstancedMesh(geometry, material, this.nbTree);
+            this.treeInstanceMesh.position.set(0, 0, 0);
+            //this.treeInstanceMesh.scale.set(scale, scale, scale);
+            this.treeInstanceMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            let instanceCloned= null;
+            let i = 0;
+            this.tiles.forEach((tile) => {
+                if (tile.type === 'tree') {
+                    this.instance.position.set(tile.x, 0, tile.y);
+                    this.instance.scale.set(scale, scale, scale);
+                    this.instance.rotation.y = Math.random() * Math.PI;
+                    instanceCloned = this.instance.clone();
+                    this.instances.push([i, instanceCloned]);
+                    this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, [i, instanceCloned]);
+                    i++;
+                }
+            });
 
-                this.treeInstanceMesh[i].instanceMatrix.needsUpdate = true;
-                scene.add(this.treeInstanceMesh[i]);
-            }
+            this.treeInstanceMesh.instanceMatrix.needsUpdate = true;
+            scene.add(this.treeInstanceMesh);
 
             this.modelsLoaded = true;
         });
@@ -78,7 +79,7 @@ export class Board {
             const instance = this.tiles[index].instance;
             if (this.tiles[index].type === 'tree' && tileToUpdate[1].type !== 'tree') {
                 for (let i = 0; i < 2; i++) {
-                    this.tiles[index].hide(true, this.treeInstanceMesh[i]);
+                    this.tiles[index].hide(true, this.treeInstanceMesh);
                 }
             } else {
                 this.tiles[index].hide(false);
@@ -98,13 +99,8 @@ export class Board {
     suppressInstances () {
         this.modelsLoaded = null;
 
-        for (let i = 0; i < 2; i++) {
-            this.treeInstanceMesh[i].instanceMatrix.needsUpdate = false;
-            this.treeInstanceMesh[i].dispose();
-        }
-
-        this.treeInstanceMesh.forEach(tree => {
-            scene.remove(tree);
-        });
+        this.treeInstanceMesh.instanceMatrix.needsUpdate = false;
+        this.treeInstanceMesh.dispose();
+        // this.treeInstanceMesh = null;
     }
 }

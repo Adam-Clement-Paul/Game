@@ -57,13 +57,12 @@ function animate () {
         const treeInstances = game.board.treeInstanceMesh;
         const instances = game.board.instances;
 
-        for (let j = 0; j < 2; j++) {
-            for (let i = 0; i < treeInstances[j].count; i++) {
-                instances[i].updateMatrix();
-                treeInstances[j].setMatrixAt(i, instances[i].matrix);
-            }
-            treeInstances[j].instanceMatrix.needsUpdate = true;
-        }
+        instances.forEach(instance => {
+            instance[1].updateMatrix();
+            //console.log(instance[0]);
+            treeInstances.setMatrixAt(instance[0], instance[1].matrix);
+        })
+        treeInstances.instanceMatrix.needsUpdate = true;
     }
 
     camera.updateProjectionMatrix();
@@ -76,7 +75,6 @@ async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
 
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
-
     socket.addEventListener('error', event => {
         if (event.target.readyState === WebSocket.CLOSED || event.target.readyState === WebSocket.CLOSING) {
             window.location.reload();

@@ -56,9 +56,12 @@ export class Tile {
         if (this.type === 'tree' && removeInstance) {
             console.log("Passe");
             // Échanche l'instance à la fin du tableau avec celle actuelle de treeInstanceMesh pour après raccourcir le tableau et donc supprimer l'instance
-            let temp = treeInstanceMesh.instanceMatrix.array[treeInstanceMesh.count - 1];
-            treeInstanceMesh.setMatrixAt(treeInstanceMesh.count - 1, this.instance.matrix);
-            treeInstanceMesh.setMatrixAt(this.instance, temp);
+            console.log(treeInstanceMesh.count - 1);
+            let temp = new THREE.Matrix4();
+            treeInstanceMesh.getMatrixAt(treeInstanceMesh.count - 1, temp);
+            console.log(temp, this.instance[0], treeInstanceMesh.instanceMatrix.array[this.instance[0]]);
+            //treeInstanceMesh.setMatrixAt(this.instance[0], temp);
+            treeInstanceMesh.setMatrixAt(treeInstanceMesh.count, this.instance[1].matrix);
             treeInstanceMesh.instanceMatrix.needsUpdate = true;
             treeInstanceMesh.count--;
         }
