@@ -284,9 +284,13 @@ export class Game {
             -Math.PI / 2
         );
         this.world.addBody(groundBody);
+
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        scene.add(this.directionalLight);
     }
 
     removePlayground () {
+        scene.remove(this.directionalLight);
         scene.remove(this.plane);
         this.world = null;
     }

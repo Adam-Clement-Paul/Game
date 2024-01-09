@@ -21,6 +21,8 @@ export class Tile {
         );
         this.plane.rotation.x = Math.PI / 2;
         this.plane.position.set(this.x, 0, this.y);
+        this.plane.receiveShadow = true;
+        this.plane.castShadow = true;
 
         this.updateDisplay();
 
