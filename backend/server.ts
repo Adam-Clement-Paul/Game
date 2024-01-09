@@ -119,7 +119,6 @@ const server = Bun.serve<WebSocketData>({
             }
 
             const data = await response.json();
-            console.log(data);
             const id = data.userData.id;
             const username = data.userData.username;
 

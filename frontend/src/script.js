@@ -58,9 +58,8 @@ function animate () {
         const instances = game.board.instances;
 
         instances.forEach(instance => {
-            instance[1].updateMatrix();
-            //console.log(instance[0]);
-            treeInstances.setMatrixAt(instance[0], instance[1].matrix);
+            instance.updateMatrix();
+            treeInstances.setMatrixAt(instances.indexOf(instance), instance.matrix);
         })
         treeInstances.instanceMatrix.needsUpdate = true;
     }
