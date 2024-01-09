@@ -119,6 +119,7 @@ const server = Bun.serve<WebSocketData>({
             }
 
             const data = await response.json();
+            console.log(data);
             const id = data.userData.id;
             const username = data.userData.username;
 
@@ -249,7 +250,7 @@ const server = Bun.serve<WebSocketData>({
 
                         if (jsonMessage.type === 'extinguish') {
                             updatedTiles = player.onDocumentClickExtinguishFire();
-                            player.firePoints += updatedTiles.length;
+                            player.extinguishedFlames += updatedTiles.length;
                         } else if (jsonMessage.type === 'axe') {
                             updatedTiles = player.onDocumentRightClick();
                             if (updatedTiles[0] && updatedTiles[0][1].type === 'grass') {

@@ -69,8 +69,21 @@ export class Game {
     // Send the game data (firePoints, cutTrees) to the players
     gameOver (server, id, type) {
         clearTimeout(this.board.timer);
+
+        // TODO: send scores to MrPortail
+        /*const scoreList = [];
+        this.players.forEach(player => {
+            scoreList.push({
+                id: player.id,
+                extinguishedFlames: player.extinguishedFlames,
+                cutTrees: player.cutTrees,
+                coins: player.coins
+            });
+        });*/
+        // localhost:1000/users/gameover (PATCH)
+
         // Create an array of arrays with the playerID, the number of fires extinguished and the number of trees cut
-        const playerData = this.players.map(player => [player.id, player.firePoints, player.cutTrees]);
+        const playerData = this.players.map(player => [player.id, player.extinguishedFlames, player.cutTrees]);
         const data = {
             type: type,
             time: Date.now() - this.startedAt,
