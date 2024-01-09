@@ -1,10 +1,8 @@
-import {loadModel} from './script_modules/glbImport.js';
-import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
-import * as UTILS from './script_modules/utils.js';
+import {setInAnimate} from './script_modules/init3DScene.js';
 import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
-import { checkCookie } from './checkCookie.js';
+import {checkCookie} from './checkCookie.js';
 
 
 // Get the game ID from the URL
@@ -43,10 +41,7 @@ async function getGame (socket) {
     })*/;
 }
 
-
-animate();
-
-function animate () {
+const inAnimate = () => {
     if (inGame === null && game) {
         game.updatePlayground();
     }
@@ -63,12 +58,9 @@ function animate () {
         })
         treeInstances.instanceMatrix.needsUpdate = true;
     }
-
-    camera.updateProjectionMatrix();
-    renderer.render(scene, camera);
-    stats.update();
-    requestAnimationFrame(animate);
 }
+
+setInAnimate(inAnimate);
 
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);

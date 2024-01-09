@@ -1,7 +1,7 @@
 import {Tile} from './Tile.js';
 import {loadModel} from "../script_modules/glbImport";
-import {ambientLight, scene} from "../script_modules/init3DScene";
-import * as THREE from "three";
+import {ambientLight, enablePostprocessing, scene} from "../script_modules/init3DScene";
+import * as THREE from 'three';
 import {GUI} from "three/addons/libs/lil-gui.module.min.js";
 
 /*
@@ -70,6 +70,7 @@ export class Board {
                 scene.add(this.treeInstanceMesh);
                 this.modelsLoaded = true;
                 this.addShadow();
+                enablePostprocessing();
             });
         });
 
