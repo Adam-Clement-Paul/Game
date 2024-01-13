@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {scene} from '../script_modules/init3DScene.js';
 import * as UTILS from '../script_modules/utils.js';
 import {Player} from './Player';
+import {loadModel} from "../script_modules/glbImport";
 
 let fpsInterval, now, then, elapsed;
 
@@ -40,6 +41,10 @@ export class Firefighter extends Player {
             d: false,
         };
 
+        this.armature = null;
+        this.mixer = null;
+        this.clock = new THREE.Clock();
+
         this.cube = new THREE.Mesh(
             new THREE.BoxGeometry(0.3, 0.3, 0.3),
             new THREE.MeshStandardMaterial({
@@ -57,6 +62,90 @@ export class Firefighter extends Player {
             ));
         cubeOrientation.position.set(0, 0, 0.2);
         this.cube.add(cubeOrientation);
+        this.cube.visible = false;
+
+        this.setModel();
+    }
+
+    setModel() {
+        let allBones = [];
+        let geometries = [];
+        let skeletons = [];
+
+        loadModel('./models/groupe.glb', (model) => {
+            console.log("GROUPE", model);
+
+            // Récupère récursivement toutes les géométries du modèle dans chacun de ses enfants
+            this.recursiveGetGeometries(model, geometries, skeletons);
+            skeletons = skeletons[0];
+            console.log("GROUP - GEOMETRIES", geometries);
+            console.log("GROUP - SKELETONS", skeletons);
+        });
+
+        loadModel('./models/armature.glb', (armature, animations) => {
+            armature.traverse((object) => {
+                if (object.isBone) {
+                    allBones.push(object);
+                }
+            });
+            this.armature = armature;
+            this.armature.position.set(this.x, 0, this.y);
+            this.armature.scale.set(0.2, 0.2, 0.2);
+            scene.add(this.armature);
+
+            const personnage = armature.children.find((child) => child.name === 'Personnage');
+
+            this.mixer = new THREE.AnimationMixer(this.armature);
+
+            this.extinguishAnimation = animations.find((clip) => clip.name === 'Extinguish');
+            this.extinguishAction = this.mixer.clipAction(this.extinguishAnimation);
+            this.extinguishAction.setLoop(THREE.LoopRepeat, Infinity);
+            this.extinguishAction.play();
+
+            // Utilise THREE.SkeletonHelper pour afficher les os de l'armature
+            const helper = new THREE.SkeletonHelper(this.armature);
+            helper.material.linewidth = 3;
+            scene.add(helper);
+
+            // Importe le modèle Pompier et l'attache à tous les os de l'armature
+            loadModel('./models/pompier.glb', (modelPompier) => {
+                // modelPompier.rotation.y = Math.PI;
+                this.armature.add(modelPompier);
+                console.log("POMPIER", modelPompier);
+            });
+
+            // Importe le modèle Sac et l'attache à tous les os de l'armature
+            loadModel('./models/sac.glb', (modelSac) => {
+                //personnage.add(modelSac.children[0]);
+                this.armature.add(modelSac);
+                console.log("SAC", modelSac);
+            });
+
+            console.log("ARMATURE", this.armature);
+        });
+    }
+
+    attachModelToAllBones(model, armature) {
+        const personnage = armature.children.find((child) => child.name === 'Personnage');
+        personnage.traverse((object) => {
+            if (object.isBone) {
+            }
+        });
+    }
+
+    // Fonction qui parcours le modèle, quand il y a un children avec la propriété "geometry", on l'ajoute dans le tableau "geometries",
+    // s'il n'y a pas de children, on retourne à celui d'avant et on continue la boucle
+    recursiveGetGeometries(model, geometries, skeletons) {
+        if (model.children.length > 0) {
+            model.children.forEach((child) => {
+                if (child.geometry) {
+                    geometries.push(child.geometry);
+                    skeletons.push(child.skeleton);
+                } else {
+                    this.recursiveGetGeometries(child, geometries, skeletons);
+                }
+            });
+        }
     }
 
     setActive () {
@@ -185,7 +274,7 @@ export class Firefighter extends Player {
         if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
         if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
-        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.armature.position.set(this.x, 1, this.y);
     }
 
     startUpdating(fps) {
@@ -201,28 +290,26 @@ export class Firefighter extends Player {
         requestAnimationFrame(this.update.bind(this));
         now = Date.now();
         elapsed = now - then;
-        if (elapsed > fpsInterval) {
+        if (elapsed > fpsInterval && this.armature !== null && this.mixer !== null) {
             // Get ready for next frame by setting then=now, but...
             // Also, adjust for fpsInterval not being multiple of 16.67
             then = now - (elapsed % fpsInterval);
 
-            this.cube.rotation.y = this.rotation;
+            this.armature.rotation.y = this.rotation;
 
             this.rotationWithInertia();
             this.movementsWithInertia();
-
-            this.cameraMovements(this.x, this.y, 1);
         }
     }
 
     updatePosition (x, y, z, rotation) {
         super.updatePosition(x, y, z, rotation);
-        this.cube.rotation.y = this.rotation;
-        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
+        this.armature.rotation.y = this.rotation;
+        this.armature.position.set(this.x, this.armature.geometry.parameters.height / 2, this.y);
     }
 
     remove () {
-        scene.remove(this.cube);
+        scene.remove(this.armature);
     }
 
     stopMoving () {
@@ -239,7 +326,7 @@ export class Firefighter extends Player {
         scene.add(shadow);
 
         this.rotation = Math.PI - Math.PI / 9;
-        this.cube.rotation.y = this.rotation;
+        this.armature.rotation.y = this.rotation;
         this.stop = true;
 
         document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);

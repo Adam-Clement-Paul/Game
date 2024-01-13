@@ -5,6 +5,7 @@ import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
 import { checkCookie } from './checkCookie.js';
+import * as THREE from "three";
 
 
 // Get the game ID from the URL
@@ -43,6 +44,8 @@ async function getGame (socket) {
     })*/;
 }
 
+let clock = new THREE.Clock();
+
 
 animate();
 
@@ -51,7 +54,7 @@ function animate () {
         game.updatePlayground();
     }
 
-    // controls.update();
+    controls.update();
 
     if (game && game.board && game.board.modelsLoaded) {
         const treeInstances = game.board.treeInstanceMesh;
@@ -62,6 +65,11 @@ function animate () {
             treeInstances.setMatrixAt(instances.indexOf(instance), instance.matrix);
         })
         treeInstances.instanceMatrix.needsUpdate = true;
+
+        const delta = clock.getDelta();
+        if (game.players[0].mixer) {
+            game.players[0].mixer.update(delta);
+        }
     }
 
     camera.updateProjectionMatrix();

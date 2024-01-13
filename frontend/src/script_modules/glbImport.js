@@ -8,13 +8,15 @@ export const loadModel = (modelPath, callback) => {
             const model = gltf.scene;
             model.traverse((o) => {
                 if (o.isMesh) {
-                    o.castShadow = true;
-                    o.receiveShadow = true;
+                    /*o.castShadow = true;
+                    o.receiveShadow = true;*/
                 }
             });
 
+            const animations = gltf.animations;
+
             if (callback) {
-                callback(model);
+                callback(model, animations);
             }
         }
     );

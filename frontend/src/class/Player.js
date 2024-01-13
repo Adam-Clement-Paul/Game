@@ -18,6 +18,7 @@ export class Player {
 
     // Updates the camera position and lookAt
     cameraMovements (x, y, scale, time = 0.1) {
+        /*
         let tl = gsap.timeline();
         tl.to(camera.position, {
             duration: time,
@@ -26,6 +27,8 @@ export class Player {
             z: y - 2 * scale
         });
         camera.lookAt(x, 0, y);
+
+         */
     }
 
     updatePosition (x, y, z, rotation) {
