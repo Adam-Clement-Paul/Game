@@ -41,96 +41,55 @@ export class Firefighter extends Player {
             d: false,
         };
 
-        this.armature = null;
-        this.mixer = null;
-        this.clock = new THREE.Clock();
+        this.clockF = new THREE.Clock();
+        this.clockB = new THREE.Clock();
 
-        this.cube = new THREE.Mesh(
-            new THREE.BoxGeometry(0.3, 0.3, 0.3),
-            new THREE.MeshStandardMaterial({
-                color: this.player
-            })
-        );
-        this.cube.position.set(this.x, this.cube.geometry.parameters.height / 2, this.y);
-        scene.add(this.cube);
-
-        const cubeOrientation = new THREE.Mesh(
-            new THREE.BoxGeometry(0.1, 0.1, 0.5),
-            new THREE.MeshStandardMaterial({
-                    color: 0xff0000
-                }
-            ));
-        cubeOrientation.position.set(0, 0, 0.2);
-        this.cube.add(cubeOrientation);
-        this.cube.visible = false;
+        this.model = new THREE.Group();
+        this.firefighterModel = null;
+        this.backpackModel = null;
 
         this.setModel();
     }
 
     setModel() {
-        let allBones = [];
-        let geometries = [];
-        let skeletons = [];
+        this.model.position.set(this.x, 0.325, this.y);
+        this.model.scale.set(0.15, 0.15, 0.15);
 
-        loadModel('./models/groupe.glb', (model) => {
-            console.log("GROUPE", model);
+        loadModel('./models/pompier.glb', (modelF, animationsF) => {
+            this.firefighterModel = modelF;
+            this.model.add(this.firefighterModel);
 
-            // Récupère récursivement toutes les géométries du modèle dans chacun de ses enfants
-            this.recursiveGetGeometries(model, geometries, skeletons);
-            skeletons = skeletons[0];
-            console.log("GROUP - GEOMETRIES", geometries);
-            console.log("GROUP - SKELETONS", skeletons);
-        });
-
-        loadModel('./models/armature.glb', (armature, animations) => {
-            armature.traverse((object) => {
-                if (object.isBone) {
-                    allBones.push(object);
-                }
-            });
-            this.armature = armature;
-            this.armature.position.set(this.x, 0, this.y);
-            this.armature.scale.set(0.2, 0.2, 0.2);
-            scene.add(this.armature);
-
-            const personnage = armature.children.find((child) => child.name === 'Personnage');
-
-            this.mixer = new THREE.AnimationMixer(this.armature);
-
-            this.extinguishAnimation = animations.find((clip) => clip.name === 'Extinguish');
-            this.extinguishAction = this.mixer.clipAction(this.extinguishAnimation);
-            this.extinguishAction.setLoop(THREE.LoopRepeat, Infinity);
-            this.extinguishAction.play();
-
-            // Utilise THREE.SkeletonHelper pour afficher les os de l'armature
-            const helper = new THREE.SkeletonHelper(this.armature);
-            helper.material.linewidth = 3;
-            scene.add(helper);
+            this.firefighterMixer = new THREE.AnimationMixer(this.firefighterModel);
+            let extinguishAnimationF = animationsF.find((clip) => clip.name === 'Extinguish');
+            this.extinguishActionF = this.firefighterMixer.clipAction(extinguishAnimationF);
+            this.extinguishActionF.setLoop(THREE.LoopOnce);
+            this.extinguishActionF.play();
 
             // Importe le modèle Pompier et l'attache à tous les os de l'armature
-            loadModel('./models/pompier.glb', (modelPompier) => {
-                // modelPompier.rotation.y = Math.PI;
-                this.armature.add(modelPompier);
-                console.log("POMPIER", modelPompier);
-            });
+            loadModel('./models/sac.glb', (modelB, animationsB) => {
+                this.backpackModel = modelB;
+                this.model.add(this.backpackModel);
 
-            // Importe le modèle Sac et l'attache à tous les os de l'armature
-            loadModel('./models/sac.glb', (modelSac) => {
-                //personnage.add(modelSac.children[0]);
-                this.armature.add(modelSac);
-                console.log("SAC", modelSac);
-            });
+                this.backpackMixer = new THREE.AnimationMixer(this.backpackModel);
+                let extinguishAnimationB = animationsB.find((clip) => clip.name === 'Extinguish');
+                this.extinguishActionB = this.backpackMixer.clipAction(extinguishAnimationB);
+                this.extinguishActionB.setLoop(THREE.LoopOnce);
+                this.extinguishActionB.play();
 
-            console.log("ARMATURE", this.armature);
+                scene.add(this.model);
+
+                this.glbLoaded = true;
+            });
         });
     }
 
-    attachModelToAllBones(model, armature) {
-        const personnage = armature.children.find((child) => child.name === 'Personnage');
-        personnage.traverse((object) => {
-            if (object.isBone) {
-            }
-        });
+    loadAnimations () {
+
+    }
+
+    updateAnimation () {
+        this.firefighterMixer.update(this.clockF.getDelta());
+        this.backpackMixer.update(this.clockB.getDelta());
     }
 
     // Fonction qui parcours le modèle, quand il y a un children avec la propriété "geometry", on l'ajoute dans le tableau "geometries",
@@ -274,7 +233,7 @@ export class Firefighter extends Player {
         if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
         if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
-        this.armature.position.set(this.x, 1, this.y);
+        this.model.position.set(this.x, 0.325, this.y);
     }
 
     startUpdating(fps) {
@@ -290,26 +249,28 @@ export class Firefighter extends Player {
         requestAnimationFrame(this.update.bind(this));
         now = Date.now();
         elapsed = now - then;
-        if (elapsed > fpsInterval && this.armature !== null && this.mixer !== null) {
+        if (elapsed > fpsInterval && this.model !== null && this.mixer !== null) {
             // Get ready for next frame by setting then=now, but...
             // Also, adjust for fpsInterval not being multiple of 16.67
             then = now - (elapsed % fpsInterval);
 
-            this.armature.rotation.y = this.rotation;
+            this.model.rotation.y = this.rotation;
 
             this.rotationWithInertia();
             this.movementsWithInertia();
+
+            this.cameraMovements(this.x, this.y, 0.8);
         }
     }
 
     updatePosition (x, y, z, rotation) {
         super.updatePosition(x, y, z, rotation);
-        this.armature.rotation.y = this.rotation;
-        this.armature.position.set(this.x, this.armature.geometry.parameters.height / 2, this.y);
+        this.model.rotation.y = this.rotation;
+        this.model.position.set(this.x, 0.325, this.y);
     }
 
     remove () {
-        scene.remove(this.armature);
+        scene.remove(this.model);
     }
 
     stopMoving () {
@@ -326,7 +287,7 @@ export class Firefighter extends Player {
         scene.add(shadow);
 
         this.rotation = Math.PI - Math.PI / 9;
-        this.armature.rotation.y = this.rotation;
+        this.model.rotation.y = this.rotation;
         this.stop = true;
 
         document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);

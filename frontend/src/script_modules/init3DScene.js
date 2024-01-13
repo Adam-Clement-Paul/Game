@@ -37,10 +37,10 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-
+/*
 controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-
+*/
 
 
 // LIGHTS
