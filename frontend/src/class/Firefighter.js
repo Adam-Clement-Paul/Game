@@ -43,6 +43,7 @@ export class Firefighter extends Player {
 
         this.clockF = new THREE.Clock();
         this.clockB = new THREE.Clock();
+        this.activeAction = null;
 
         this.model = new THREE.Group();
         this.firefighterModel = null;
@@ -59,32 +60,46 @@ export class Firefighter extends Player {
             this.firefighterModel = modelF;
             this.model.add(this.firefighterModel);
 
-            this.firefighterMixer = new THREE.AnimationMixer(this.firefighterModel);
-            let extinguishAnimationF = animationsF.find((clip) => clip.name === 'Extinguish');
-            this.extinguishActionF = this.firefighterMixer.clipAction(extinguishAnimationF);
-            this.extinguishActionF.setLoop(THREE.LoopOnce);
-            this.extinguishActionF.play();
-
             // Importe le modèle Pompier et l'attache à tous les os de l'armature
             loadModel('./models/sac.glb', (modelB, animationsB) => {
                 this.backpackModel = modelB;
                 this.model.add(this.backpackModel);
 
-                this.backpackMixer = new THREE.AnimationMixer(this.backpackModel);
-                let extinguishAnimationB = animationsB.find((clip) => clip.name === 'Extinguish');
-                this.extinguishActionB = this.backpackMixer.clipAction(extinguishAnimationB);
-                this.extinguishActionB.setLoop(THREE.LoopOnce);
-                this.extinguishActionB.play();
-
                 scene.add(this.model);
-
+                this.loadAnimations(animationsF, animationsB);
                 this.glbLoaded = true;
             });
         });
     }
 
-    loadAnimations () {
+    loadAnimations (animationsF, animationsB) {
+        this.firefighterMixer = new THREE.AnimationMixer(this.firefighterModel);
+        this.backpackMixer = new THREE.AnimationMixer(this.backpackModel);
 
+        const states = ['Idle', 'Walking', 'Extinguish'];
+
+        this.actionsFirefighter = {};
+        this.actionsBackpack = {};
+        for (let i = 0; i < animationsF.length; i++) {
+            const clipF = animationsF[i];
+            const clipB = animationsB[i];
+            const actionF = this.firefighterMixer.clipAction(clipF);
+            const actionB = this.backpackMixer.clipAction(clipB);
+            if (states.indexOf(clipF.name) !== -1) {
+                this.actionsFirefighter[clipF.name] = actionF;
+                this.actionsBackpack[clipB.name] = actionB
+            }
+            if (states.indexOf(clipF.name) === 2) {
+                actionF.clampWhenFinished = true;
+                actionF.loop = THREE.LoopOnce;
+                actionB.clampWhenFinished = true;
+                actionB.loop = THREE.LoopOnce;
+            }
+        }
+        this.activeAction = this.actionsFirefighter['Extinguish'];
+        this.activeAction.play();
+        this.activeAction = this.actionsBackpack['Extinguish'];
+        this.activeAction.play();
     }
 
     updateAnimation () {
