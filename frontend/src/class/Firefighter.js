@@ -38,21 +38,22 @@ export class Firefighter extends Player {
             z: false,
             s: false,
             q: false,
-            d: false,
+            d: false
         };
 
         this.clockF = new THREE.Clock();
         this.clockB = new THREE.Clock();
-        this.activeAction = null;
+        this.currentFirefighterAction = null;
+        this.currentBackpackAction = null;
 
         this.model = new THREE.Group();
         this.firefighterModel = null;
         this.backpackModel = null;
 
-        this.setModel();
+        this.setupModel();
     }
 
-    setModel() {
+    setupModel() {
         this.model.position.set(this.x, 0.325, this.y);
         this.model.scale.set(0.15, 0.15, 0.15);
 
@@ -66,8 +67,8 @@ export class Firefighter extends Player {
                 this.model.add(this.backpackModel);
 
                 scene.add(this.model);
+
                 this.loadAnimations(animationsF, animationsB);
-                this.glbLoaded = true;
             });
         });
     }
@@ -76,7 +77,7 @@ export class Firefighter extends Player {
         this.firefighterMixer = new THREE.AnimationMixer(this.firefighterModel);
         this.backpackMixer = new THREE.AnimationMixer(this.backpackModel);
 
-        const states = ['Idle', 'Walking', 'Extinguish'];
+        const states = ['Idle', 'Walk', 'Extinguish', 'Axe'];
 
         this.actionsFirefighter = {};
         this.actionsBackpack = {};
@@ -96,30 +97,49 @@ export class Firefighter extends Player {
                 actionB.loop = THREE.LoopOnce;
             }
         }
-        this.activeAction = this.actionsFirefighter['Extinguish'];
-        this.activeAction.play();
-        this.activeAction = this.actionsBackpack['Extinguish'];
-        this.activeAction.play();
+        this.currentFirefighterAction = this.actionsBackpack['Idle'];
+        this.currentFirefighterAction.play();
+        this.currentBackpackAction = this.actionsFirefighter['Idle'];
+        this.currentBackpackAction.play();
+
+        console.log(this.actionsFirefighter);
+        console.log(this.actionsBackpack);
+
+        this.glbLoaded = true;
     }
+
+    fadeToAction(name, duration) {
+        // For the firefighter model
+        const previousFirefighterAction = this.currentFirefighterAction;
+        this.currentFirefighterAction = this.actionsFirefighter[name];
+        if (previousFirefighterAction !== this.currentFirefighterAction) {
+            previousFirefighterAction.fadeOut(duration);
+        }
+        this.currentFirefighterAction
+            .reset()
+            .setEffectiveTimeScale(1)
+            .setEffectiveWeight(1)
+            .fadeIn(duration)
+            .play();
+
+        // For the backpack model
+        const previousBackpackAction = this.currentBackpackAction;
+        this.currentBackpackAction = this.actionsBackpack[name];
+        if (previousBackpackAction !== this.currentBackpackAction) {
+            previousBackpackAction.fadeOut(duration);
+        }
+        this.currentBackpackAction
+            .reset()
+            .setEffectiveTimeScale(1)
+            .setEffectiveWeight(1)
+            .fadeIn(duration)
+            .play();
+    }
+
 
     updateAnimation () {
         this.firefighterMixer.update(this.clockF.getDelta());
         this.backpackMixer.update(this.clockB.getDelta());
-    }
-
-    // Fonction qui parcours le modèle, quand il y a un children avec la propriété "geometry", on l'ajoute dans le tableau "geometries",
-    // s'il n'y a pas de children, on retourne à celui d'avant et on continue la boucle
-    recursiveGetGeometries(model, geometries, skeletons) {
-        if (model.children.length > 0) {
-            model.children.forEach((child) => {
-                if (child.geometry) {
-                    geometries.push(child.geometry);
-                    skeletons.push(child.skeleton);
-                } else {
-                    this.recursiveGetGeometries(child, geometries, skeletons);
-                }
-            });
-        }
     }
 
     setActive () {
@@ -134,20 +154,26 @@ export class Firefighter extends Player {
     }
 
     onDocumentKeyDown (event) {
-        if (event.key in this.keys) {
-            this.keys[event.key] = true;
+        if (event.key.toLowerCase() in this.keys && this.glbLoaded) {
+            this.keys[event.key.toLowerCase()] = true;
+            this.fadeToAction('Walk', 0.5);
         }
     }
 
     onDocumentKeyUp (event) {
-        if (event.key in this.keys) {
-            this.keys[event.key] = false;
+        if (event.key.toLowerCase() in this.keys && this.glbLoaded) {
+            this.keys[event.key.toLowerCase()] = false;
+        }
+        if (!this.keys.z && !this.keys.s && !this.keys.q && !this.keys.d && this.glbLoaded) {
+            this.fadeToAction('Idle', 0.5);
         }
     }
 
     // FireHose
     onDocumentClickExtinguishFire () {
-        // TODO: Use backend token to check if the player is allowed to extinguish fire
+        this.fadeToAction('Extinguish', 0);
+
+        // Use backend token to check if the player is allowed to extinguish fire
         this.socket.send(JSON.stringify({
             type: 'extinguish',
             id: this.id,
@@ -157,8 +183,9 @@ export class Firefighter extends Player {
     // Axe
     onDocumentRightClick (event) {
         event.preventDefault();
+        this.fadeToAction('Axe', 0);
 
-        // TODO: Use backend token to check if the player is allowed to use the axe
+        // Use backend token to check if the player is allowed to use the axe
         this.socket.send(JSON.stringify({
             type: 'axe',
             id: this.id,
@@ -304,6 +331,7 @@ export class Firefighter extends Player {
         this.rotation = Math.PI - Math.PI / 9;
         this.model.rotation.y = this.rotation;
         this.stop = true;
+        this.keys.forEach(key => key = false);
 
         document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.removeEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
