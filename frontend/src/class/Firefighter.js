@@ -9,7 +9,7 @@ let fpsInterval, now, then, elapsed;
 
 export class Firefighter extends Player {
     constructor (id, name, x, y, rotation, models, game, socket, active = false) {
-        super(id, name, x, 0.5, y, rotation, socket, active);
+        super(id, name, x, 0, y, rotation, socket, active);
         this.id = id;
         this.name = name;
         this.x = x;
@@ -54,7 +54,7 @@ export class Firefighter extends Player {
     }
 
     setupModel() {
-        this.model.position.set(this.x, 0.325, this.y);
+        this.model.position.set(this.x, 0, this.y);
         this.model.scale.set(0.15, 0.15, 0.15);
 
         loadModel('./models/pompier.glb', (modelF, animationsF) => {
@@ -275,7 +275,7 @@ export class Firefighter extends Player {
         if (Math.abs(this.velocity.y) < this.min_velocity) this.velocity.y = 0;
         if (Math.abs(this.angularVelocity) < this.min_velocity) this.angularVelocity = 0;
 
-        this.model.position.set(this.x, 0.325, this.y);
+        this.model.position.set(this.x, 0, this.y);
     }
 
     startUpdating(fps) {
@@ -308,7 +308,7 @@ export class Firefighter extends Player {
     updatePosition (x, y, z, rotation) {
         super.updatePosition(x, y, z, rotation);
         this.model.rotation.y = this.rotation;
-        this.model.position.set(this.x, 0.325, this.y);
+        this.model.position.set(this.x, 0, this.y);
     }
 
     remove () {

@@ -4,6 +4,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
 import {Vector2} from "three";
 
+THREE.Cache.enabled = true;
 let scene, camera, renderer, controls, stats;
 
 stats = new Stats()

@@ -102,7 +102,7 @@ const server = Bun.serve<WebSocketData>({
 
             const sessionId = generateUniqueSessionId();
 
-            const response = await fetch(`http://${process.env.IP}:1000/api/users/`, {
+            const response = await fetch(`https://${process.env.IP}:1000/api/users/`, {
                 method: "POST",
                 body: JSON.stringify({
                     email: email,

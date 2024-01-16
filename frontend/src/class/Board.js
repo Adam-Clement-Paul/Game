@@ -14,7 +14,6 @@ export class Board {
         this.tiles = board.tiles;
 
         this.modelsLoaded = false;
-        let scale = 0.08;
 
         // Borders
         this.treeInstanceMesh = [];
@@ -27,13 +26,6 @@ export class Board {
             }
         });
 
-        /*loadModel('./models/tree.glb', (model) => {
-            this.tree = model;
-            this.tree.scale.set(scale, scale, scale);
-            this.tree.position.set(3, 0, 2);
-            scene.add(this.tree);
-        });*/
-
         loadModel('./models/treeBorder.glb', (model) => {
             const geometry = model.children[0].geometry;
             const material = model.children[0].material;
@@ -43,34 +35,28 @@ export class Board {
             this.treeInstanceMesh.instanceMatrix.needsUpdate = true;
 
             let instance = new THREE.Object3D();
+            const scaleBorder = 0.08;
 
-            loadModel('./models/tree.glb', (model) => {
-                const tree = model;
-                tree.scale.set(scale, scale, scale);
+            this.tiles.forEach((tile) => {
+                const gap = 0.2;
+                const ramdomX = Math.random() * (gap - (-gap)) + (-gap);
+                const ramdomY = Math.random() * (gap - (-gap)) + (-gap);
 
-                this.tiles.forEach((tile) => {
-                    const gap = 0.2;
-                    const ramdomX = Math.random() * (gap - (-gap)) + (-gap);
-                    const ramdomY = Math.random() * (gap - (-gap)) + (-gap);
-
-                    if (tile.type === 'border') {
-                        instance.position.set(tile.x + ramdomX, 0, tile.y + ramdomY);
-                        instance.scale.set(scale, scale, scale);
-                        instance.rotation.y = Math.random() * Math.PI;
-                        this.instances.push(instance.clone());
-                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
-                    }
-                    if (tile.type === 'tree') {
-                        tree.position.set(tile.x + ramdomX, 0, tile.y + ramdomY);
-                        tree.rotation.y = Math.random() * Math.PI;
-                        this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, tree.clone());
-                    }
-                });
-
-                scene.add(this.treeInstanceMesh);
-                this.modelsLoaded = true;
-                this.addShadow();
+                if (tile.type === 'border') {
+                    instance.position.set(tile.x + ramdomX, 0, tile.y + ramdomY);
+                    instance.scale.set(scaleBorder, scaleBorder, scaleBorder);
+                    instance.rotation.y = Math.random() * Math.PI;
+                    this.instances.push(instance.clone());
+                    this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
+                }
+                if (tile.type === 'tree') {
+                    this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type, true);
+                }
             });
+
+            scene.add(this.treeInstanceMesh);
+            this.modelsLoaded = true;
+            this.addShadow();
         });
 
         this.tiles.forEach(tile => {
@@ -78,8 +64,6 @@ export class Board {
                 this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
             }
         });
-
-
     }
 
     // Return the tile at the given position

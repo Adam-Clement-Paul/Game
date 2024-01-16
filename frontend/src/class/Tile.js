@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {scene} from '../script_modules/init3DScene.js';
+import {loadModel} from "../script_modules/glbImport";
 
 export class Tile {
     constructor (x, y, fire = 0, type = 'grass', model = null) {
@@ -10,7 +11,14 @@ export class Tile {
         this.model = model;
 
         if (this.model) {
-            scene.add(this.model);
+            loadModel('./models/tree2.glb', (modelTree) => {
+                this.model = modelTree;
+                const scale = 0.08;
+                this.model.scale.set(scale, scale, scale);
+                this.model.position.set(this.x, 0, this.y);
+                this.model.rotation.y = Math.random() * Math.PI;
+                scene.add(this.model);
+            });
         }
 
         this.plane = new THREE.Mesh(
