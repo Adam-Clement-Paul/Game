@@ -67,6 +67,14 @@ function animate () {
         if (game.players[0].glbLoaded) {
             game.players[0].updateAnimation();
         }
+
+        if (game.board.modelsLoaded) {
+            game.board.tiles.forEach(tile => {
+                if (tile.type === 'tree' && tile.mixer) {
+                    tile.updateAnimation();
+                }
+            });
+        }
     }
 
     camera.updateProjectionMatrix();

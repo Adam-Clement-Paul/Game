@@ -10,14 +10,23 @@ export class Tile {
         this.type = type;
         this.model = model;
 
+        this.clock = new THREE.Clock();
+
         if (this.model) {
-            loadModel('./models/tree2.glb', (modelTree) => {
+            loadModel('./models/tree2.glb', (modelTree, animations) => {
                 this.model = modelTree;
                 const scale = 0.08;
                 this.model.scale.set(scale, scale, scale);
                 this.model.position.set(this.x, 0, this.y);
                 this.model.rotation.y = Math.random() * Math.PI;
                 scene.add(this.model);
+
+                this.mixer = new THREE.AnimationMixer(this.model);
+                // Récupère l'animation "Fire3" de l'objet pour la jouer
+                const fireAnim = THREE.AnimationClip.findByName(animations, 'Fire3');
+                const action = this.mixer.clipAction(fireAnim);
+                action.loop = THREE.LoopRepeat;
+                action.play();
             });
         }
 
@@ -59,6 +68,12 @@ export class Tile {
             interpolatedColor.lerpColors(yellow, red, this.fire);
 
             this.plane.material.color.copy(interpolatedColor);
+        }
+    }
+
+    updateAnimation () {
+        if (this.mixer) {
+            this.mixer.update(this.clock.getDelta());
         }
     }
 
