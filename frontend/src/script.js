@@ -127,16 +127,12 @@ async function connectToWebsocket (gameId) {
     return socket;
 }
 
-
 loadingManager.onStart = () => {
-    console.log('Loading models...');
-    document.querySelector('.loaderDiv').style.display = 'flex';
+    document.getElementById('loaderDiv').style.display = 'flex';
 }
 loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
     console.log(`Loading model ${url}: ${itemsLoaded} of ${itemsTotal} loaded`);
 };
 loadingManager.onLoad = () => {
-    console.log('All models loaded');
-    document.querySelector('.loaderDiv').style.display = 'none'; 
+    document.getElementById('loaderDiv').style.display = 'none';
 };
-

@@ -298,20 +298,32 @@ button:not(#qrButton):hover {
     z-index: 2;
 }
 
-.loaderDiv {
+#loaderDiv {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    background-color: #fdebd7;
+    background-color: #383130;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: end;
+    align-items: end;
     z-index: 3;
-
-    font-size: 3rem;
-    font-family: 'Carter One', cursive;
-    color: #594141;
+    :is(video) {
+        height: 30vh;
+        width: 30vh;
+        min-height: 50px;
+        min-width: 50px;
+        object-fit: cover;
+    }
+    :is(p) {
+        font-family: 'Carter One', cursive;
+        font-size: 1.2rem;
+        color: #ffffff;
+        width: 30vh;
+        min-width: 50px;
+        text-align: center;
+        margin: 20px 0;
+    }
 }
