@@ -5,11 +5,12 @@ import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
 import {Vector2} from "three";
 
 THREE.Cache.enabled = true;
-let scene, camera, renderer, controls, stats;
+let scene, camera, renderer, controls, stats, loadingManager;
 
 stats = new Stats()
 document.body.appendChild(stats.dom)
 
+loadingManager = new THREE.LoadingManager();
 
 // SCÈNE
 scene = new THREE.Scene();
@@ -70,4 +71,4 @@ function windowResize () {
 
 window.addEventListener('resize', windowResize, false);
 
-export {scene, camera, renderer, controls, stats, changeWindowResize, ambientLight};
+export {scene, camera, renderer, controls, stats, changeWindowResize, ambientLight, loadingManager};

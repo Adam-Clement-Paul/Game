@@ -1,7 +1,10 @@
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {loadingManager} from '../script_modules/init3DScene';
+
 
 export const loadModel = (modelPath, callback) => {
-    const loader = new GLTFLoader();
+    console.log(loadingManager)
+    const loader = new GLTFLoader(loadingManager);
     loader.load(
         modelPath,
         function (gltf) {
