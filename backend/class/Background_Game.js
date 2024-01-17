@@ -70,7 +70,10 @@ export class Game {
     gameOver (server, id, type) {
         clearTimeout(this.board.timer);
 
-        //TODO: ENVOYER BON NOMBRE DE COINS GAGNÉ/PERDU
+        let coins = 0;
+        if (type === 'gameWon') {
+            coins = 100;
+        }
 
         const scoreList = [];
         this.players.forEach(player => {
@@ -78,7 +81,7 @@ export class Game {
                 id: player.id,
                 extinguishedFlames: player.extinguishedFlames,
                 cutTrees: player.cutTrees,
-                coins: player.coins
+                coins: coins
             });
         });
 

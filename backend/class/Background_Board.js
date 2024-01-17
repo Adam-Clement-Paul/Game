@@ -339,6 +339,6 @@ export class Board {
         // Loop every second with timer
         this.timer = setTimeout(() => {
             this.fireContamination(server, id);
-        }, 2000); // 2000
+        }, 3000); // 2000
     }
 }

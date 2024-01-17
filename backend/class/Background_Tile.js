@@ -6,7 +6,7 @@ export class Tile {
         this.type = type;
 
         // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 1000;
+        this.growing_fire_timer = 500;
         this.timer = 0;
         clearTimeout(this.timer);
 
