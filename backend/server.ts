@@ -133,19 +133,25 @@ const server = Bun.serve<WebSocketData>({
             const username = data.userData.username;
 
             const backpackList: Array<string> = [];
-            data.dataInventory.backpack.forEach((item: any) => {
-                backpackList.push(item.id);
-            });
+            if (data.dataInventory.backpack) {
+                data.dataInventory.backpack.forEach((item: any) => {
+                    backpackList.push(item.id);
+                });
+            }
 
             const firefighterList: Array<string> = [];
-            data.dataInventory.fighter.forEach((item: any) => {
-                firefighterList.push(item.id);
-            });
+            if (data.dataInventory.fighter) {
+                data.dataInventory.fighter.forEach((item: any) => {
+                    firefighterList.push(item.id);
+                });
+            }
 
             const truckList : Array<string> = [];
-            data.dataInventory.truck.forEach((item: any) => {
-                truckList.push(item.id);
-            });
+            if (data.dataInventory.truck) {
+                data.dataInventory.truck.forEach((item: any) => {
+                    truckList.push(item.id);
+                });
+            }
 
             if (!backpackList.includes(backpack)) {
                 backpack = defaultSkins.backpack;
@@ -199,7 +205,6 @@ const server = Bun.serve<WebSocketData>({
             }
 
             // Connexion WebSocket
-            const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
             const models = {
                 truck: truck,
                 firefighter: firefighter,
@@ -317,6 +322,17 @@ const server = Bun.serve<WebSocketData>({
                     server.publish(ws.data.gameId, JSON.stringify(broadcastData));
                 }
             }
+
+            // Renvoi tel quels les messages de type 'axe' et 'extinguish' pour que les joueurs voient les animations
+            if (jsonMessage.type === 'axe' || jsonMessage.type === 'extinguish') {
+                const broadcastData = {
+                    type: jsonMessage.type,
+                    playerId: jsonMessage.id,
+                };
+
+                server.publish(ws.data.gameId, JSON.stringify(broadcastData));
+            }
+
 
             if (jsonMessage.type === 'move') {
                 // Update player position and rotation on the server

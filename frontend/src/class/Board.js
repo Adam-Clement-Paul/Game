@@ -133,7 +133,6 @@ export class Board {
     updateBoard (tilesToUpdate) {
         tilesToUpdate.forEach(tileToUpdate => {
             const index = tileToUpdate[0];
-            console.log(this.tiles[index], tileToUpdate[1]);
 
             if (this.tiles[index].type === 'tree' && tileToUpdate[1].type === 'grass') {
                 this.tiles[index].cutTree();

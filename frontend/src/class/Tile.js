@@ -146,7 +146,6 @@ export class Tile {
     }
 
     setFire (fire) {
-        console.log('updateFire', fire);
         this.fire = fire;
         if (fire === 0) {
             clearTimeout(this.timer);

@@ -3,7 +3,6 @@ import {loadingManager} from '../script_modules/init3DScene';
 
 
 export const loadModel = (modelPath, callback) => {
-    console.log(loadingManager)
     const loader = new GLTFLoader(loadingManager);
     loader.load(
         modelPath,

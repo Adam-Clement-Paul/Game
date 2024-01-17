@@ -241,6 +241,13 @@ export class Game {
         }, '<');
     }
 
+    playAnimation (animation, playerId) {
+        const player = this.players.find(player => player.id === playerId);
+        if (player && !player.active) {
+            player.fadeToAction(animation, 0.2);
+        }
+    }
+
     /* Playground */
 
     initPhysics () {

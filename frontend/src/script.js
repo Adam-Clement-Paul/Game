@@ -4,8 +4,7 @@ import * as UTILS from './script_modules/utils.js';
 import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
-import { checkCookie } from './checkCookie.js';
-
+import {checkCookie} from './checkCookie.js';
 
 
 // Get the game ID from the URL
@@ -93,32 +92,44 @@ async function connectToWebsocket (gameId) {
         window.location.reload();
     };
 
-    socket.addEventListener('message', event => {
+    socket.onmessage = event => {
         const data = JSON.parse(event.data);
-        if (data.type === 'addPlayer' && game) {
-            console.log('WS: addPlayer');
-            game.addPlayer(data.playerId, data.name, data.models);
-        }
-        if (data.type === 'updatePlayers' && game) {
-            game.updatePlayers(data.players);
-        }
-        if (data.type === 'removePlayer' && game) {
-            game.removePlayer(data.playerId);
-        }
-        if (data.type === 'startGame' && game) {
-            game.goToGame();
-        }
-        if (data.type === 'updateTiles' && game) {
-            game.board.updateBoard(data.tiles);
-        }
-        if (data.type === 'gameWon' && game) {
-            game.gameOver(data.time, data.playersData, true);
-        }
-        if (data.type === 'gameLost' && game) {
-            game.gameOver(data.time, data.playersData, false);
-        }
-    });
 
+        if (game) {
+            switch (data.type) {
+                case 'addPlayer':
+                    console.log('WS: addPlayer');
+                    game.addPlayer(data.playerId, data.name, data.models);
+                    break;
+                case 'updatePlayers':
+                    game.updatePlayers(data.players);
+                    break;
+                case 'removePlayer':
+                    game.removePlayer(data.playerId);
+                    break;
+                case 'startGame':
+                    game.goToGame();
+                    break;
+                case 'updateTiles':
+                    game.board.updateBoard(data.tiles);
+                    break;
+                case 'extinguish':
+                    console.log(data);
+                    game.playAnimation('Extinguish', data.playerId);
+                    break;
+                case 'axe':
+                    console.log(data);
+                    game.playAnimation('Axe', data.playerId);
+                    break;
+                case 'gameWon':
+                    game.gameOver(data.time, data.playersData, true);
+                    break;
+                case 'gameLost':
+                    game.gameOver(data.time, data.playersData, false);
+                    break;
+            }
+        }
+    };
 
     socket.onopen = () => {
         console.log('WS: onopen');
@@ -131,7 +142,7 @@ loadingManager.onStart = () => {
     document.getElementById('loaderDiv').style.display = 'flex';
 }
 loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-    console.log(`Loading model ${url}: ${itemsLoaded} of ${itemsTotal} loaded`);
+    // console.log(`Loading model ${url}: ${itemsLoaded} of ${itemsTotal} loaded`);
 };
 loadingManager.onLoad = () => {
     document.getElementById('loaderDiv').style.display = 'none';

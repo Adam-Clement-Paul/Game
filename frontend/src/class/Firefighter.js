@@ -333,7 +333,17 @@ export class Firefighter extends Player {
     updatePosition (x, y, z, rotation) {
         super.updatePosition(x, y, z, rotation);
         this.model.rotation.y = this.rotation;
+        const previousPosition = this.model.position.clone();
         this.model.position.set(this.x, 0, this.y);
+        // Si la position du joueur a changé de beaucoup, on met l'animation du joueur à Walk
+        if (this.actionsFirefighter && this.actionsBackpack) {
+            if (previousPosition.distanceTo(this.model.position) > 0.1) {
+                this.fadeToAction('Walk', 0.1);
+                // Sinon si il est actuellement en train de Extinguish ou Axe, on ne fait rien
+            } else if (this.currentFirefighterAction !== this.actionsFirefighter['Extinguish'] && this.currentFirefighterAction !== this.actionsFirefighter['Axe']) {
+                this.fadeToAction('Idle', 0.1);
+            }
+        }
     }
 
     remove () {
