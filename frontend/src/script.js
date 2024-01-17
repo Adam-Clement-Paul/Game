@@ -1,10 +1,11 @@
 import {loadModel} from './script_modules/glbImport.js';
-import {camera, controls, renderer, scene, stats} from './script_modules/init3DScene.js';
+import {camera, controls, renderer, scene, stats, loadingManager} from './script_modules/init3DScene.js';
 import * as UTILS from './script_modules/utils.js';
 import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
 import { checkCookie } from './checkCookie.js';
+
 
 
 // Get the game ID from the URL
@@ -123,3 +124,17 @@ async function connectToWebsocket (gameId) {
     };
     return socket;
 }
+
+
+loadingManager.onStart = () => {
+    console.log('Loading models...');
+    document.querySelector('.loaderDiv').style.display = 'flex';
+}
+loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+    console.log(`Loading model ${url}: ${itemsLoaded} of ${itemsTotal} loaded`);
+};
+loadingManager.onLoad = () => {
+    console.log('All models loaded');
+    document.querySelector('.loaderDiv').style.display = 'none'; 
+};
+

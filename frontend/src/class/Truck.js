@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import {scene} from '../script_modules/init3DScene';
+import {scene, loadingManager} from '../script_modules/init3DScene';
 import {Player} from './Player';
 
 const KEY_FORWARD = 'z';
@@ -75,7 +75,7 @@ export class Truck extends Player {
     }
 
     loadTruck (callback) {
-        const loader = new GLTFLoader();
+        const loader = new GLTFLoader(loadingManager);
         let wheelModelL, wheelModelR;
 
         loader.load(`https://pyrofighters.online:4040/files/${this.models['truck']}?type=glb`, (gltf) => {
