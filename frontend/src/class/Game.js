@@ -152,10 +152,6 @@ export class Game {
         }
     }
 
-    updateBoard (tilesToUpdate) {
-        this.board.updateBoard(tilesToUpdate);
-    }
-
     gameOver (time, playersData, win) {
         let text, image, coins;
         if (win) {

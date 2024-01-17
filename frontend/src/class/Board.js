@@ -133,10 +133,16 @@ export class Board {
     updateBoard (tilesToUpdate) {
         tilesToUpdate.forEach(tileToUpdate => {
             const index = tileToUpdate[0];
+            console.log(this.tiles[index], tileToUpdate[1]);
+
             if (this.tiles[index].type === 'tree' && tileToUpdate[1].type === 'grass') {
                 this.tiles[index].cutTree();
-            } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].fire === 0) {
+            } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].fire === 0 && this.tiles[index].fire !== 0) {
+                this.tiles[index].setFire(0);
+            } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].life !== this.tiles[index].life) {
                 this.tiles[index].axeStroke();
+            } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].fire !== this.tiles[index].fire) {
+                this.tiles[index].setFire(tileToUpdate[1].fire);
             }
             if (tileToUpdate[1].type !== 'tree') {
                 this.tiles[index] = null;

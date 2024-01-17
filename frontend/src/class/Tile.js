@@ -33,11 +33,13 @@ export class Tile {
                 this.loadAnimations(animations);
 
                 if (this.fire !== 0) {
-                    this.fadeToAction('Fire1', 0.5);
-                    console.log("Fire");
-                    console.log(this.actions['Fire1']);
+                    this.setFire(this.fire);
                 }
             });
+        }
+
+        if (this.type === 'tree') {
+            this.life = 3;
         }
 
         this.plane = new THREE.Mesh(
@@ -123,23 +125,42 @@ export class Tile {
     }
 
     updateAnimation () {
-        if (this.mixer) {
-            this.mixer.update(this.clock.getDelta());
+        if (this.treeMixer) {
+            this.treeMixer.update(this.clock.getDelta());
         }
     }
 
     cutTree () {
         console.log('Cutting tree');
-        console.log(this.model);
         this.model.visible = false;
         scene.remove(this.model);
     }
 
     axeStroke () {
         console.log('Axe stroke');
+        this.life--;
     }
 
     hide () {
         scene.remove(this.plane);
+    }
+
+    setFire (fire) {
+        console.log('updateFire', fire);
+        this.fire = fire;
+        if (fire === 0) {
+            clearTimeout(this.timer);
+            this.fadeToAction('Idle', 0);
+        } else {
+            this.timer = setTimeout(() => {
+                this.fadeToAction('Fire1', 0.5);
+                this.timer = setTimeout(() => {
+                    this.fadeToAction('Fire2', 0.5);
+                    this.timer = setTimeout(() => {
+                        this.fadeToAction('Fire3', 0.5);
+                    }, 3000);
+                }, 3000);
+            }, 3000);
+        }
     }
 }

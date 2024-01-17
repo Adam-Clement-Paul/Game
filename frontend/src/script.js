@@ -68,7 +68,7 @@ function animate () {
 
         if (game.board.modelsLoaded) {
             game.board.tiles.forEach(tile => {
-                if (tile.type === 'tree' && tile.mixer) {
+                if (tile.type === 'tree' && tile.glbLoaded) {
                     tile.updateAnimation();
                 }
             });
@@ -106,7 +106,7 @@ async function connectToWebsocket (gameId) {
             game.goToGame();
         }
         if (data.type === 'updateTiles' && game) {
-            game.updateBoard(data.tiles);
+            game.board.updateBoard(data.tiles);
         }
         if (data.type === 'gameWon' && game) {
             game.gameOver(data.time, data.playersData, true);
