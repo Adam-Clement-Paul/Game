@@ -13,8 +13,16 @@ export class Tile {
         this.clock = new THREE.Clock();
 
         if (this.model) {
-            loadModel('./models/tree2.glb', (modelTree, animations) => {
+            loadModel('./models/tree.glb', (modelTree, animations) => {
                 this.model = modelTree;
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        if (child.material.name === 'RedFire') {
+                            child.material.depthWrite = false;
+                        }
+                    }
+                });
+
                 const scale = 0.08;
                 this.model.scale.set(scale, scale, scale);
                 this.model.position.set(this.x, 0, this.y);
@@ -22,11 +30,13 @@ export class Tile {
                 scene.add(this.model);
 
                 this.mixer = new THREE.AnimationMixer(this.model);
-                // Récupère l'animation "Fire3" de l'objet pour la jouer
-                const fireAnim = THREE.AnimationClip.findByName(animations, 'Fire3');
-                const action = this.mixer.clipAction(fireAnim);
-                action.loop = THREE.LoopRepeat;
-                action.play();
+                this.loadAnimations(animations);
+
+                if (this.fire !== 0) {
+                    this.fadeToAction('Fire1', 0.5);
+                    console.log("Fire");
+                    console.log(this.actions['Fire1']);
+                }
             });
         }
 
@@ -69,6 +79,47 @@ export class Tile {
 
             this.plane.material.color.copy(interpolatedColor);
         }
+    }
+
+    loadAnimations (animations) {
+        this.treeMixer = new THREE.AnimationMixer(this.model);
+        const states = ['Idle','Hit', 'Fall', 'Fire1', 'Fire2', 'Fire3'];
+
+        this.actions = {};
+        for (let i = 0; i < animations.length; i++) {
+            const clip = animations[i];
+            const action = this.treeMixer.clipAction(clip);
+            if (states.indexOf(clip.name) !== -1) {
+                this.actions[clip.name] = action;
+            }
+            if (states.indexOf(clip.name) === 2) {
+                // Si l'animation est "Fire1", on la joue en boucle
+                if (clip.name === 'Fire1' || clip.name === 'Fire2' || clip.name === 'Fire3') {
+                    action.loop = THREE.LoopRepeat;
+                } else {
+                    action.clampWhenFinished = true;
+                    action.loop = THREE.LoopOnce;
+                }
+            }
+        }
+
+        this.currentAction = this.actions['Idle'];
+        this.glbLoaded = true;
+    }
+
+    fadeToAction(name, duration) {
+        // For the tree model
+        const previousAction = this.currentAction;
+        this.currentAction = this.actions[name];
+        if (previousAction && previousAction !== this.currentAction) {
+            previousAction.fadeOut(duration);
+        }
+        this.currentAction
+            .reset()
+            .setEffectiveTimeScale(1)
+            .setEffectiveWeight(1)
+            .fadeIn(duration)
+            .play();
     }
 
     updateAnimation () {

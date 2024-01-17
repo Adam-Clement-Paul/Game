@@ -112,28 +112,32 @@ export class Firefighter extends Player {
         // For the firefighter model
         const previousFirefighterAction = this.currentFirefighterAction;
         this.currentFirefighterAction = this.actionsFirefighter[name];
-        if (previousFirefighterAction !== this.currentFirefighterAction) {
+        if (previousFirefighterAction && previousFirefighterAction !== this.currentFirefighterAction) {
             previousFirefighterAction.fadeOut(duration);
         }
-        this.currentFirefighterAction
-            .reset()
-            .setEffectiveTimeScale(1)
-            .setEffectiveWeight(1)
-            .fadeIn(duration)
-            .play();
+        if (this.currentFirefighterAction) {
+            this.currentFirefighterAction
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .play();
+        }
 
         // For the backpack model
         const previousBackpackAction = this.currentBackpackAction;
         this.currentBackpackAction = this.actionsBackpack[name];
-        if (previousBackpackAction !== this.currentBackpackAction) {
+        if (previousBackpackAction && previousBackpackAction !== this.currentBackpackAction) {
             previousBackpackAction.fadeOut(duration);
         }
-        this.currentBackpackAction
-            .reset()
-            .setEffectiveTimeScale(1)
-            .setEffectiveWeight(1)
-            .fadeIn(duration)
-            .play();
+        if (this.currentBackpackAction) {
+            this.currentBackpackAction
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .play();
+        }
     }
 
 
