@@ -5,14 +5,12 @@ import {qrcode} from "./qrcode";
 
 import {Game} from './class/Game.js';
 import { checkCookie } from './checkCookie.js';
-import * as THREE from "three";
 
 
 // Get the game ID from the URL
 const gameId = window.location.pathname.split('/')[1].toLowerCase();
 const socket = connectToWebsocket(gameId);
-let game;
-let inGame;
+let game, inGame;
 qrcode(gameId);
 
 async function getGame (socket) {
@@ -87,11 +85,10 @@ async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
 
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}/websocket/${gameId}/${sessionId}`);
-    socket.addEventListener('error', event => {
-        if (event.target.readyState === WebSocket.CLOSED || event.target.readyState === WebSocket.CLOSING) {
-            window.location.reload();
-        }
-    });
+
+    socket.onerror = () => {
+        window.location.reload();
+    };
 
     socket.addEventListener('message', event => {
         const data = JSON.parse(event.data);
@@ -119,6 +116,10 @@ async function connectToWebsocket (gameId) {
         }
     });
 
-    getGame(socket);
+
+    socket.onopen = () => {
+        console.log('WS: onopen');
+        getGame(socket);
+    };
     return socket;
 }

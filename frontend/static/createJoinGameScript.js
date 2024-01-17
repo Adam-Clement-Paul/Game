@@ -42,6 +42,7 @@ document.getElementById('joinForm').addEventListener('submit', function (event) 
             }
         })
         .catch(error => {
+            console.error(error);
         });
 });
 
