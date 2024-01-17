@@ -47,7 +47,7 @@ export function qrcode (gameId) {
         width: qrWidth,
         height: qrHeight,
         type: "svg",
-        data: "http://localhost:3000/" + gameId,
+        data: "http://game.pyrofighters.online/" + gameId,
         dotsOptions: {
             color: "#594141",
         },
