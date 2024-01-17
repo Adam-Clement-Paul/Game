@@ -125,7 +125,7 @@ const server = Bun.serve<WebSocketData>({
             });
 
             if (!response.ok) {
-                throw new Error('Erreur lors de la requête POST');
+                throw new Error('Error: POST MrPortail:1000/api/users/ (email, token)');
             }
 
             const data = await response.json();

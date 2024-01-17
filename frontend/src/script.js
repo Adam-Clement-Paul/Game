@@ -62,9 +62,11 @@ function animate () {
         })
         treeInstances.instanceMatrix.needsUpdate = true;
 
-        if (game.players[0].glbLoaded) {
-            game.players[0].updateAnimation();
-        }
+        game.players.forEach(player => {
+            if (player.glbLoaded) {
+                player.updateAnimation();
+            }
+        });
 
         if (game.board.modelsLoaded) {
             game.board.tiles.forEach(tile => {

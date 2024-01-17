@@ -82,28 +82,53 @@ export class Firefighter extends Player {
         this.actionsFirefighter = {};
         this.actionsBackpack = {};
         for (let i = 0; i < animationsF.length; i++) {
-            const clipF = animationsF[i];
-            const clipB = animationsB[i];
+            const clipF = animationsF.find(animation => animation.name === states[i]);
+            const clipB = animationsB.find(animation => animation.name === states[i]);
+
             const actionF = this.firefighterMixer.clipAction(clipF);
             const actionB = this.backpackMixer.clipAction(clipB);
             if (states.indexOf(clipF.name) !== -1) {
                 this.actionsFirefighter[clipF.name] = actionF;
                 this.actionsBackpack[clipB.name] = actionB
             }
-            if (states.indexOf(clipF.name) === 2) {
-                actionF.clampWhenFinished = true;
-                actionF.loop = THREE.LoopOnce;
-                actionB.clampWhenFinished = true;
-                actionB.loop = THREE.LoopOnce;
+
+            if ( this.actionsFirefighter[clipF.name] || this.actionsBackpack[clipB.name]) {
+                if (clipF.name === 'Idle'|| clipF.name === 'Walk') {
+                    actionF.loop = THREE.LoopRepeat;
+                    actionB.loop = THREE.LoopRepeat;
+                    if (clipF.name === 'Walk') {
+                        actionF.setEffectiveTimeScale(1.3);
+                        actionB.setEffectiveTimeScale(1.3);
+                    }
+                } else if (clipF.name === 'Extinguish' || clipF.name === 'Axe') {
+                    actionF.clampWhenFinished = true;
+                    actionF.loop = THREE.LoopOnce;
+                    actionB.clampWhenFinished = true;
+                    actionB.loop = THREE.LoopOnce;
+                    if (clipF.name === 'Extinguish') {
+                        actionF.setEffectiveTimeScale(1.3);
+                        actionB.setEffectiveTimeScale(1.3);
+                    }
+                    if (clipF.name === 'Axe') {
+                        actionF.setEffectiveTimeScale(1.4);
+                        actionB.setEffectiveTimeScale(1.4);
+                    }
+                }
             }
         }
+
+        // Quand l'animation est terminée, on remet l'animation Idle
+        this.firefighterMixer.addEventListener( 'finished', () => {
+            this.fadeToAction('Idle', 0.5);
+        });
+        this.backpackMixer.addEventListener( 'finished', () => {
+            this.fadeToAction('Idle', 0.5);
+        });
+
         this.currentFirefighterAction = this.actionsBackpack['Idle'];
         this.currentFirefighterAction.play();
         this.currentBackpackAction = this.actionsFirefighter['Idle'];
         this.currentBackpackAction.play();
-
-        console.log(this.actionsFirefighter);
-        console.log(this.actionsBackpack);
 
         this.glbLoaded = true;
     }
@@ -112,13 +137,10 @@ export class Firefighter extends Player {
         // For the firefighter model
         const previousFirefighterAction = this.currentFirefighterAction;
         this.currentFirefighterAction = this.actionsFirefighter[name];
-        if (previousFirefighterAction && previousFirefighterAction !== this.currentFirefighterAction) {
+        if (this.currentFirefighterAction && previousFirefighterAction && previousFirefighterAction !== this.currentFirefighterAction) {
             previousFirefighterAction.fadeOut(duration);
-        }
-        if (this.currentFirefighterAction) {
             this.currentFirefighterAction
                 .reset()
-                .setEffectiveTimeScale(1)
                 .setEffectiveWeight(1)
                 .fadeIn(duration)
                 .play();
@@ -127,13 +149,10 @@ export class Firefighter extends Player {
         // For the backpack model
         const previousBackpackAction = this.currentBackpackAction;
         this.currentBackpackAction = this.actionsBackpack[name];
-        if (previousBackpackAction && previousBackpackAction !== this.currentBackpackAction) {
+        if (this.currentBackpackAction && previousBackpackAction && previousBackpackAction !== this.currentBackpackAction) {
             previousBackpackAction.fadeOut(duration);
-        }
-        if (this.currentBackpackAction) {
             this.currentBackpackAction
                 .reset()
-                .setEffectiveTimeScale(1)
                 .setEffectiveWeight(1)
                 .fadeIn(duration)
                 .play();
@@ -160,7 +179,9 @@ export class Firefighter extends Player {
     onDocumentKeyDown (event) {
         if (event.key.toLowerCase() in this.keys && this.glbLoaded) {
             this.keys[event.key.toLowerCase()] = true;
-            this.fadeToAction('Walk', 0.5);
+            if (this.actionsFirefighter && this.actionsBackpack) {
+                this.fadeToAction('Walk', 0.1);
+            }
         }
     }
 
@@ -175,7 +196,7 @@ export class Firefighter extends Player {
 
     // FireHose
     onDocumentClickExtinguishFire () {
-        this.fadeToAction('Extinguish', 0);
+        this.fadeToAction('Extinguish', 0.5);
 
         // Use backend token to check if the player is allowed to extinguish fire
         this.socket.send(JSON.stringify({
