@@ -26,8 +26,7 @@ export async function checkCookie(gameId) {
         console.error("Impossible de récupérer les données utilisateur depuis le cookie.");
     }
 
-    if (inventoryData) {
-        console.log(inventoryData);
+    if (inventoryData) {  
         backpackSkin = inventoryData.backpack._id;
         fighterSkin = inventoryData.fighter._id;
         truckSkin = inventoryData.truck._id;

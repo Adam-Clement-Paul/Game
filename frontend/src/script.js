@@ -86,7 +86,7 @@ function animate () {
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
 
-    const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT_GAME}/websocket/${gameId}/${sessionId}`);
+    const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}/websocket/${gameId}/${sessionId}`);
     socket.addEventListener('error', event => {
         if (event.target.readyState === WebSocket.CLOSED || event.target.readyState === WebSocket.CLOSING) {
             window.location.reload();

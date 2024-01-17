@@ -87,7 +87,7 @@ const server = Bun.serve<WebSocketData>({
             // Store a new game instance with its ID
             games[gameId] = new Game();
 
-            const redirectUrl = `${domain}:${server.port}/${gameId}`;
+            const redirectUrl = `${domain}/${gameId}`;
 
             // Return the redirect URL in the response
             return new Response(JSON.stringify({redirectUrl}), {
