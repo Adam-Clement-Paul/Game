@@ -70,8 +70,9 @@ export class Game {
     gameOver (server, id, type) {
         clearTimeout(this.board.timer);
 
-        // TODO: send scores to MrPortail
-        /*const scoreList = [];
+        //TODO: ENVOYER BON NOMBRE DE COINS GAGNÉ/PERDU
+
+        const scoreList = [];
         this.players.forEach(player => {
             scoreList.push({
                 id: player.id,
@@ -79,8 +80,23 @@ export class Game {
                 cutTrees: player.cutTrees,
                 coins: player.coins
             });
-        });*/
-        // localhost:1000/users/gameover (PATCH)
+        });
+
+        fetch(`https://${process.env.IP}:1000/api/users/gameover`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'secret': process.env.SECRET
+                },
+                body: JSON.stringify({players: scoreList})
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
 
         // Create an array of arrays with the playerID, the number of fires extinguished and the number of trees cut
         const playerData = this.players.map(player => [player.id, player.extinguishedFlames, player.cutTrees]);
