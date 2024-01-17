@@ -8,6 +8,13 @@ import {readFileSync} from 'fs';
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
 
+// Default ID skins for players who cheat with their skins
+const defaultSkins = {
+    backpack: '6585ccd27a15450c53353c5b',
+    fighter: '6585cca17a15450c53353c57',
+    truck: '6585cc887a15450c53353c53'
+}
+
 // Define the data type for the WebSocket
 type WebSocketData = {
     createdAt: number;
@@ -99,6 +106,9 @@ const server = Bun.serve<WebSocketData>({
             const email = json.email;
             const token = json.token;
             const gameId = json.gameId;
+            let backpack = json.backpack;
+            let firefighter = json.fighter;
+            let truck = json.truck;
 
             const sessionId = generateUniqueSessionId();
 
@@ -122,10 +132,40 @@ const server = Bun.serve<WebSocketData>({
             const id = data.userData.id;
             const username = data.userData.username;
 
+            const backpackList: Array<string> = [];
+            data.dataInventory.backpack.forEach((item: any) => {
+                backpackList.push(item.id);
+            });
+
+            const firefighterList: Array<string> = [];
+            data.dataInventory.fighter.forEach((item: any) => {
+                firefighterList.push(item.id);
+            });
+
+            const truckList : Array<string> = [];
+            data.dataInventory.truck.forEach((item: any) => {
+                truckList.push(item.id);
+            });
+
+            if (!backpackList.includes(backpack)) {
+                backpack = defaultSkins.backpack;
+            }
+
+            if (!firefighterList.includes(firefighter)) {
+                firefighter = defaultSkins.fighter;
+            }
+
+            if (!truckList.includes(truck)) {
+                truck = defaultSkins.truck;
+            }
+
             sessions[sessionId] = {
                 gameId: gameId,
                 id: id,
-                username: username
+                username: username,
+                backpack: backpack,
+                firefighter: firefighter,
+                truck: truck
             };
 
             return new Response(JSON.stringify({sessionId}), {
@@ -147,10 +187,13 @@ const server = Bun.serve<WebSocketData>({
                 return;
             }
 
-            let id, username;
+            let id, username, backpack, firefighter, truck;
             if (sessions[sessionId]) {
                 id = sessions[sessionId].id;
                 username = sessions[sessionId].username;
+                backpack = sessions[sessionId].backpack;
+                firefighter = sessions[sessionId].firefighter;
+                truck = sessions[sessionId].truck;
             } else {
                 return;
             }
@@ -158,9 +201,9 @@ const server = Bun.serve<WebSocketData>({
             // Connexion WebSocket
             const color = parseInt(`0x${Math.floor(Math.random() * 16777215)}`, 16);
             const models = {
-                truck: 'Camion3.glb',
-                player: color,
-                backpack: null
+                truck: truck,
+                firefighter: firefighter,
+                backpack: backpack
             }
             const success = server.upgrade(request, {
                 data: {

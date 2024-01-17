@@ -1,13 +1,20 @@
 export async function checkCookie(gameId) {
-    let cookieValue = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)user_data\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+    let cookieUserValue = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)user_data\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+    let cookieInventoryValue = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)user_inventory\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
     let email = '';
     let token = '';
+    let backpackSkin = '';
+    let fighterSkin = '';
+    let truckSkin = '';
 
-    cookieValue = cookieValue.replace(/^%7B/, '{').replace(/%7D$/, '}').replace(/%22/g, '"');
+    cookieUserValue = cookieUserValue.replace(/^%7B/, '{').replace(/%7D$/, '}').replace(/%22/g, '"');
+    cookieInventoryValue = cookieInventoryValue.replace(/^%7B/, '{').replace(/%7D$/, '}').replace(/%22/g, '"');
 
     let userData;
+    let inventoryData;
     try {
-        userData = JSON.parse(cookieValue);
+        userData = JSON.parse(cookieUserValue);
+        inventoryData = JSON.parse(cookieInventoryValue);
     } catch (error) {
         console.error("Erreur lors de la conversion de la chaîne JSON :", error);
     }
@@ -19,6 +26,13 @@ export async function checkCookie(gameId) {
         console.error("Impossible de récupérer les données utilisateur depuis le cookie.");
     }
 
+    if (inventoryData) {
+        console.log(inventoryData);
+        backpackSkin = inventoryData.backpack._id;
+        fighterSkin = inventoryData.fighter._id;
+        truckSkin = inventoryData.truck._id;
+    }
+
     if (email && token) {
         return await fetch('/api/game', {
             method: 'POST',
@@ -28,7 +42,10 @@ export async function checkCookie(gameId) {
             body: JSON.stringify({
                 email: email,
                 token: token,
-                gameId: gameId
+                gameId: gameId,
+                backpack: backpackSkin,
+                fighter: fighterSkin,
+                truck: truckSkin
             })
         }).then(response => response.json())
             .then(data => {

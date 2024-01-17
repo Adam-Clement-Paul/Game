@@ -17,8 +17,8 @@ export class Firefighter extends Player {
         this.z = null;
         this.rotation = Math.PI;
 
-        this.player = new THREE.Color(models['player']);
-        this.backpack = new THREE.Color(models['backpack']);
+        this.models = models;
+
         this.game = game;
 
         // These values are constants
@@ -57,12 +57,12 @@ export class Firefighter extends Player {
         this.model.position.set(this.x, 0, this.y);
         this.model.scale.set(0.15, 0.15, 0.15);
 
-        loadModel('./models/pompier.glb', (modelF, animationsF) => {
+        loadModel(`https://pyrofighters.online:4040/files/${this.models['firefighter']}?type=glb`, (modelF, animationsF) => {
             this.firefighterModel = modelF;
             this.model.add(this.firefighterModel);
 
             // Importe le modèle Pompier et l'attache à tous les os de l'armature
-            loadModel('./models/sac.glb', (modelB, animationsB) => {
+            loadModel(`https://pyrofighters.online:4040/files/${this.models['backpack']}?type=glb`, (modelB, animationsB) => {
                 this.backpackModel = modelB;
                 this.model.add(this.backpackModel);
 

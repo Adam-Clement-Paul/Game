@@ -78,7 +78,7 @@ export class Truck extends Player {
         const loader = new GLTFLoader();
         let wheelModelL, wheelModelR;
 
-        loader.load(`../models/${this.models['truck']}`, (gltf) => {
+        loader.load(`https://pyrofighters.online:4040/files/${this.models['truck']}?type=glb`, (gltf) => {
             this.truck = gltf.scene;
             const animations = gltf.animations;
             this.truck.traverse(function (child) {
