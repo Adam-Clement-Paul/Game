@@ -25,6 +25,7 @@ export async function checkCookie (gameId) {
         inventoryData = JSON.parse(cookieInventoryValue);
     } catch (error) {
         console.error("Error while parsing inventory data.");
+        // No need to handle this error, it's not a problem if the inventory is empty. It will be filled in backend.
     }
 
     if (userData) {
