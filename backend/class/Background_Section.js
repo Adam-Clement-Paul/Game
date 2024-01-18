@@ -1,10 +1,20 @@
 import {Tile} from './Background_Tile.js';
 
+/**
+ * Section class
+ * @class Section
+ * @param {number} widthX - The width of the section
+ * @param {number} lengthY - The length of the section
+ * @param {number} number_of_fires - The number of fires in the section
+ * @param {number} chance_to_have_obstacle - The chance to have an obstacle on a tile
+ * @param {number} chance_to_have_tree - The chance to have a tree on a tile
+ * @param {object} origin - The origin of the section
+ * @param {boolean} isSpawn - Boolean to know if the section is a spawn
+ * @param {array} tiles - Board tiles to update
+ */
 export class Section {
-    constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree, origin = {
-        x: 0,
-        y: 0
-    }, isSpawn = false) {
+    constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree,
+                 origin = { x: 0, y: 0 }, isSpawn = false) {
         this.widthX = widthX;
         this.lengthY = lengthY;
         this.number_of_fires = number_of_fires;
@@ -87,9 +97,5 @@ export class Section {
                 fireCount++;
             }
         }
-    }
-
-    display () {
-        console.log(this.tiles);
     }
 }

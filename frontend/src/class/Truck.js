@@ -13,6 +13,32 @@ const KEY_RIGHT = 'd';
 const KEY_HORN = 'w';
 const KEY_RESET = 'r';
 
+/**
+ * Truck class
+ * @class Truck
+ * @param {string} id - The player id
+ * @param {string} name - The player name
+ * @param {number} x - The player x position
+ * @param {number} y - The player y position
+ * @param {number} z - The player z position
+ * @param {number} rotation - The player rotation
+ * @param {object} models - The player models
+ * @param {object} world - The player world
+ * @param {object} groundMaterial - The player groundMaterial
+ * @param {object} wheelMaterial - The player wheelMaterial
+ * @param {object} socket - The player socket
+ * @param {boolean} active - Boolean to know if the player is active or not
+ * @param {number} timer - The timer to send the position
+ * @param {number} timer2 - The timer to update the position
+ * @param {object} clock - The player clock
+ * @param {number} controllerIndex - The player controllerIndex
+ * @param {object} horn - The player horn
+ * @param {object} mixer - The player mixer
+ * @param {object} vehicle - The player vehicle
+ * @param {object} truckGroup - The player truckGroup
+ * @param {object} truck - The player truck
+ */
+
 export class Truck extends Player {
 
     static truckSize = { w: 3.5, h: 3, l: 8 };

@@ -1,12 +1,19 @@
+import * as THREE from "three";
+
 import {Tile} from './Tile.js';
 import {loadModel} from "../script_modules/glbImport";
 import {ambientLight, scene} from "../script_modules/init3DScene";
-import * as THREE from "three";
 
-/*
-* Board class
-* number_of_sections: number of sections in the board [need to be greater than 2]
- */
+/**
+ * Board class
+ * @class Board
+ * @param {object} board - The board
+ * @param {array} tiles - list of tiles
+ * @param {boolean} modelsLoaded - boolean to know if the models are loaded or not
+ * @param {object} treeInstanceMesh - The mesh of the tree instances
+ * @param {array} instances - list of instances of the tree
+ * @param {array} rockList - list of rocks
+ **/
 export class Board {
     constructor (board) {
         this.board = board;

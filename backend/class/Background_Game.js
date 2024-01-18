@@ -28,7 +28,7 @@ export class Game {
     start (server, id) {
         this.startedAt = Date.now();
         for (let i = 0; i < this.players.length; i++) {
-            console.log(`Player ${i + 1} : ${this.players[i].name}`);
+            console.log(`Player ${i + 1} : ${this.players[i].name}, ${this.players[i].id}`);
         }
 
         // Activate the fire growth
@@ -49,13 +49,11 @@ export class Game {
             clearTimeout(this.timeGameLoop);
         }
         if (this.endOfTheGame() && !this.isGameOver) {
-            clearTimeout(this.timeGameLoop);
             console.log('Game won !');
             this.gameOver(server, id, 'gameWon');
         } else {
             if (Date.now() - this.startedAt > Game.MAX_DURATION * 1000 && !this.isGameOver) {
                 this.isGameOver = true;
-                clearTimeout(this.timeGameLoop);
                 console.log('Failed game !');
                 this.gameOver(server, id, 'gameLost');
             }
@@ -72,6 +70,7 @@ export class Game {
 
     // Send the game data (firePoints, cutTrees) to the players
     gameOver (server, id, type) {
+        clearTimeout(this.timeGameLoop);
         clearTimeout(this.board.timer);
 
         let coins = 0;
@@ -116,13 +115,14 @@ export class Game {
         };
         server.publish(id, JSON.stringify(data));
 
-        this.reset();
+        this.players = [];
     }
 
     reset () {
-        this.isGameOver = false;
+        this.isGameOver = true;
         // Disable the game loop
         clearTimeout(this.timeGameLoop);
+        clearInterval(this.loopIsEmpty);
 
         this.players = [];
         // Disable the fire growth
@@ -147,6 +147,8 @@ export class Game {
     }
 
     updatePlayer (id, x, y, z, rotation) {
-        this.players.find(player => player.id === id).updateAll(x, y, z, rotation);
+        if (!this.isGameOver && this.players.length > 0) {
+            this.players.find(player => player.id === id).updateAll(x, y, z, rotation);
+        }
     }
 }

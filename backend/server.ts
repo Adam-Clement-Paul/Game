@@ -1,9 +1,10 @@
 import {file} from 'bun';
+import {readFileSync} from 'fs';
 import {Game} from './class/Background_Game.js';
+
 
 const BASE_PATH = "../frontend/dist";
 const domain = `http://${process.env.HOST}`;
-import {readFileSync} from 'fs';
 
 // Store created games and their IDs
 const games: { [key: string]: any } = {};
@@ -24,6 +25,7 @@ type WebSocketData = {
     models: object;
 };
 let sessions: { [key: string]: any } = {};
+
 
 const server = Bun.serve<WebSocketData>({
     port: process.env.PORT_GAME,
@@ -110,8 +112,7 @@ const server = Bun.serve<WebSocketData>({
 
         // Get data from the user_api microservice
         if (pathname === '/api/game' && method === 'POST') {
-            // @ts-ignore
-            const json = await Bun.readableStreamToJSON(request.body);
+            const json = await Bun.readableStreamToJSON(<ReadableStream<any>>request.body);
             const email = json.email;
             const token = json.token;
             const gameId = json.gameId;
@@ -234,7 +235,6 @@ const server = Bun.serve<WebSocketData>({
             }
             console.log('Server upgraded to websocket');
 
-            // Ajouter le joueur à la partie
             games[gameId].addPlayer(id, username, models);
             if (Object.keys(games[gameId].players).length === 1) {
                 games[gameId].owner = id;
@@ -296,7 +296,7 @@ const server = Bun.serve<WebSocketData>({
                     if (games[ws.data.gameId]) {
                         games[ws.data.gameId].start(server, ws.data.gameId);
                     }
-                }, 3000);
+                }, 10000);
             }
 
             let tilesToUpdate: any[] = [];
@@ -337,7 +337,7 @@ const server = Bun.serve<WebSocketData>({
                 }
             }
 
-            // Renvoi tel quels les messages de type 'axe' et 'extinguish' pour que les joueurs voient les animations
+            // Returns 'axe' and 'extinguish' messages as they are so that players can see the animations
             if (jsonMessage.type === 'axe' || jsonMessage.type === 'extinguish') {
                 const broadcastData = {
                     type: jsonMessage.type,
@@ -372,7 +372,6 @@ const server = Bun.serve<WebSocketData>({
     error(error) {
         console.log(error);
         if (error.errno === -2) {
-            // Affiche le contenu de la page 404.html
             return new Response(readFileSync(BASE_PATH + '/404.html'), {
                 status: 404,
                 headers: {
@@ -386,12 +385,11 @@ const server = Bun.serve<WebSocketData>({
 });
 
 function sendPlayerPositionRotation(gameId: string) {
-    const playerData = {};
+    const playerData = {} as any;
 
     // Collect player positions and rotations
     for (const player in games[gameId].players) {
         const currentPlayer = games[gameId].players[player];
-        // @ts-ignore
         playerData[player] = {
             id: currentPlayer.id,
             x: currentPlayer.x,
@@ -418,23 +416,7 @@ setInterval(() => {
 
 console.log(`Server running on port ${server.port}`);
 
-// Fonction pour générer un identifiant de session unique
+// Function to generate a unique session ID
 function generateUniqueSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
-
-// Fonction pour extraire l'identifiant de session du header de la requête WebSocket
-function extractSessionIdFromWebSocketRequest(request: Request) {
-    const cookies = request.headers.get('Cookie');
-    if (!cookies) {
-        throw new Error('Cookie not found in WebSocket request');
-    }
-
-    const sessionIdMatch = cookies.match(/sessionId=([^;]+)/);
-    if (!sessionIdMatch) {
-        throw new Error('sessionId not found in cookies');
-    }
-
-    return sessionIdMatch[1];
-}
-

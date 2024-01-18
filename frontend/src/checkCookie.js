@@ -7,6 +7,8 @@ export async function checkCookie (gameId) {
     let fighterSkin = '';
     let truckSkin = '';
 
+    let errorHandling = false;
+
     cookieUserValue = cookieUserValue.replace(/^%7B/, '{').replace(/%7D$/, '}').replace(/%22/g, '"');
     cookieInventoryValue = cookieInventoryValue.replace(/^%7B/, '{').replace(/%7D$/, '}').replace(/%22/g, '"');
 
@@ -14,9 +16,16 @@ export async function checkCookie (gameId) {
     let inventoryData;
     try {
         userData = JSON.parse(cookieUserValue);
-        inventoryData = JSON.parse(cookieInventoryValue);
     } catch (error) {
         console.error("Error while parsing to JSON.");
+        errorHandling = true;
+    }
+
+    try {
+        inventoryData = JSON.parse(cookieInventoryValue);
+    } catch (error) {
+        console.error("Error while parsing inventory data.");
+        // No need to handle this error, it's not a problem if the inventory is empty. It will be filled in backend.
     }
 
     if (userData) {
@@ -24,6 +33,7 @@ export async function checkCookie (gameId) {
         token = userData.token;
     } else {
         console.error("Error while parsing cookie data.");
+        errorHandling = true;
     }
 
     if (inventoryData) {
@@ -33,7 +43,7 @@ export async function checkCookie (gameId) {
     }
 
     // Create "Session" in backend to store player data (useful for websocket connection)
-    if (email && token) {
+    if (email && token && !errorHandling) {
         return await fetch('/api/game', {
             method: 'POST',
             headers: {
@@ -50,6 +60,14 @@ export async function checkCookie (gameId) {
         }).then(response => response.json())
             .then(data => {
                 return data.sessionId;
+            })
+            .catch(error => {
+                console.error(error);
+                errorHandling = true;
             });
+    }
+
+    if (errorHandling) {
+        window.location.href = 'https://pyrofighters.online';
     }
 }

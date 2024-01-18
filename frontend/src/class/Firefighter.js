@@ -7,6 +7,35 @@ import {loadModel} from "../script_modules/glbImport";
 
 let fpsInterval, now, then, elapsed;
 
+/**
+ * Firefighter class
+ * @class Firefighter
+ * @param {number} id - The id of the player
+ * @param {string} name - The name of the player
+ * @param {number} x - The x position of the player
+ * @param {number} y - The y position of the player
+ * @param {number} rotation - The rotation of the player
+ * @param {object} models - The models of the player
+ * @param {object} game - The game
+ * @param {object} socket - The socket
+ * @param {boolean} active - The active state of the player
+ * @param {object} speed - The speed of the player
+ * @param {object} friction_factor - The friction factor of the player
+ * @param {object} min_velocity - The minimum velocity of the player
+ * @param {object} distance_to_collision - The distance to collision of the player
+ * @param {object} velocity - The velocity of the player
+ * @param {object} angularVelocity - The angular velocity of the player
+ * @param {object} stop - The stop state of the player
+ * @param {object} keys - The keys of the player used to move
+ * @param {object} clockF - The clock of the firefighter used to animate the firefighter
+ * @param {object} clockB - The clock of the backpack used to animate the backpack
+ * @param {object} currentFirefighterAction - The current action of the firefighter
+ * @param {object} currentBackpackAction - The current action of the backpack
+ * @param {object} model - The THREE.Group() of the player that contains the firefighter and the backpack
+ * @param {object} firefighterModel - The model of the firefighter
+ * @param {object} backpackModel - The model of the backpack
+ */
+
 export class Firefighter extends Player {
     constructor (id, name, x, y, rotation, models, game, socket, active = false) {
         super(id, name, x, 0, y, rotation, socket, active);
@@ -61,19 +90,22 @@ export class Firefighter extends Player {
             this.firefighterModel = modelF;
             this.model.add(this.firefighterModel);
 
-            // Importe le modèle Pompier et l'attache à tous les os de l'armature
             loadModel(`https://pyrofighters.online:4040/files/${this.models['backpack']}?type=glb`, (modelB, animationsB) => {
                 this.backpackModel = modelB;
                 this.model.add(this.backpackModel);
 
                 scene.add(this.model);
 
-                this.loadAnimations(animationsF, animationsB);
+                // Promise to make sure that the two models are loaded before creating the mixers
+                Promise.all([this.firefighterModel, this.backpackModel].map(model => model.onLoadPromise))
+                    .then(() => {
+                        this.loadAnimations(animationsF, animationsB);
+                    });
             });
         });
     }
 
-    loadAnimations (animationsF, animationsB) {
+    loadAnimations(animationsF, animationsB) {
         this.firefighterMixer = new THREE.AnimationMixer(this.firefighterModel);
         this.backpackMixer = new THREE.AnimationMixer(this.backpackModel);
 
@@ -81,44 +113,58 @@ export class Firefighter extends Player {
 
         this.actionsFirefighter = {};
         this.actionsBackpack = {};
-        for (let i = 0; i < animationsF.length; i++) {
-            const clipF = animationsF.find(animation => animation.name === states[i]);
-            const clipB = animationsB.find(animation => animation.name === states[i]);
 
-            const actionF = this.firefighterMixer.clipAction(clipF);
-            const actionB = this.backpackMixer.clipAction(clipB);
-            if (states.indexOf(clipF.name) !== -1) {
-                this.actionsFirefighter[clipF.name] = actionF;
-                this.actionsBackpack[clipB.name] = actionB
-            }
+        const loadAnimationPromises = [];
 
-            if (this.actionsFirefighter[clipF.name] || this.actionsBackpack[clipB.name]) {
-                if (clipF.name === 'Idle' || clipF.name === 'Walk') {
-                    actionF.loop = THREE.LoopRepeat;
-                    actionB.loop = THREE.LoopRepeat;
-                    if (clipF.name === 'Walk') {
-                        actionF.setEffectiveTimeScale(1.3);
-                        actionB.setEffectiveTimeScale(1.3);
+        for (const element of states) {
+            const clipFPromise = new Promise((resolve) => {
+                const clipF = animationsF.find(animation => animation && animation.name === element);
+                resolve(clipF || null);
+            });
+
+            const clipBPromise = new Promise((resolve) => {
+                const clipB = animationsB.find(animation => animation && animation.name === element);
+                resolve(clipB || null);
+            });
+
+            loadAnimationPromises.push(
+                Promise.all([clipFPromise, clipBPromise]).then(([clipF, clipB]) => {
+                    if (clipF && clipB) {
+                        const actionF = this.firefighterMixer.clipAction(clipF);
+                        const actionB = this.backpackMixer.clipAction(clipB);
+
+                        this.actionsFirefighter[clipF.name] = actionF;
+                        this.actionsBackpack[clipB.name] = actionB;
+
+                        if (clipF.name === 'Idle' || clipF.name === 'Walk') {
+                            actionF.loop = THREE.LoopRepeat;
+                            actionB.loop = THREE.LoopRepeat;
+
+                            if (clipF.name === 'Walk') {
+                                actionF.setEffectiveTimeScale(1.3);
+                                actionB.setEffectiveTimeScale(1.3);
+                            } else {
+                                actionF.play();
+                                actionB.play();
+                            }
+                        } else if (clipF.name === 'Extinguish' || clipF.name === 'Axe') {
+                            actionF.clampWhenFinished = true;
+                            actionF.loop = THREE.LoopOnce;
+                            actionB.clampWhenFinished = true;
+                            actionB.loop = THREE.LoopOnce;
+
+                            if (clipF.name === 'Extinguish' || clipF.name === 'Axe') {
+                                actionF.setEffectiveTimeScale(1.3);
+                                actionB.setEffectiveTimeScale(1.3);
+                            }
+                        }
+                    } else {
+                        console.error(`Clip ${element} not found in animationsF or animationsB`);
                     }
-                } else if (clipF.name === 'Extinguish' || clipF.name === 'Axe') {
-                    actionF.clampWhenFinished = true;
-                    actionF.loop = THREE.LoopOnce;
-                    actionB.clampWhenFinished = true;
-                    actionB.loop = THREE.LoopOnce;
-                    if (clipF.name === 'Extinguish') {
-                        actionF.setEffectiveTimeScale(1.3);
-                        actionB.setEffectiveTimeScale(1.3);
-                    }
-                    if (clipF.name === 'Axe') {
-                        actionF.setEffectiveTimeScale(1.4);
-                        actionB.setEffectiveTimeScale(1.4);
-                        // console.log(this.actionsFirefighter['Axe']._clip.duration); // 1.75
-                    }
-                }
-            }
+                })
+            );
         }
 
-        // When the animation is finished, we put back the Idle animation
         this.firefighterMixer.addEventListener('finished', () => {
             this.fadeToAction('Idle', 0.5);
         });
@@ -127,12 +173,14 @@ export class Firefighter extends Player {
         });
 
         this.currentFirefighterAction = this.actionsBackpack['Idle'];
-        this.currentFirefighterAction.play();
         this.currentBackpackAction = this.actionsFirefighter['Idle'];
-        this.currentBackpackAction.play();
 
         this.glbLoaded = true;
+
+        return Promise.all(loadAnimationPromises);
     }
+
+
 
     fadeToAction (name, duration) {
         // For the firefighter model

@@ -1,6 +1,20 @@
 import gsap from 'gsap';
 import {camera} from '../script_modules/init3DScene';
 
+/**
+ * Player class
+ * @class Player
+ * @param {string} id - The player id
+ * @param {string} name - The player name
+ * @param {number} x - The player x position
+ * @param {number} y - The player y position
+ * @param {number} z - The player z position
+ * @param {number} rotation - The player rotation
+ * @param {object} socket - The player socket
+ * @param {boolean} active - Boolean to know if the player is active or not
+ * @param {number} timer - The timer to send the position
+ */
+
 export class Player {
     constructor (id, name, x, y, z, rotation, socket, active) {
         this.id = id;

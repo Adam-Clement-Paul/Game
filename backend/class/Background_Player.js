@@ -36,15 +36,15 @@ export class Player {
         if (result) {
             let { frontTile, tile, offsetX, offsetY } = result;
             /*
-        // Get the 4 tiles around the front tile
-        const adjacentTiles = [
-            frontTile,
-            this.game.getBoard().getTileAt(frontTile.x + 1, frontTile.y),
-            this.game.getBoard().getTileAt(frontTile.x - 1, frontTile.y),
-            this.game.getBoard().getTileAt(frontTile.x, frontTile.y + 1),
-            this.game.getBoard().getTileAt(frontTile.x, frontTile.y - 1),
-        ];
-        */
+            // Get the 4 tiles around the front tile
+            const adjacentTiles = [
+                frontTile,
+                this.game.getBoard().getTileAt(frontTile.x + 1, frontTile.y),
+                this.game.getBoard().getTileAt(frontTile.x - 1, frontTile.y),
+                this.game.getBoard().getTileAt(frontTile.x, frontTile.y + 1),
+                this.game.getBoard().getTileAt(frontTile.x, frontTile.y - 1),
+            ];
+            */
 
             const adjacentTiles = [frontTile];
 
