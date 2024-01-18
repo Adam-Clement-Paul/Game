@@ -7,6 +7,35 @@ import {loadModel} from "../script_modules/glbImport";
 
 let fpsInterval, now, then, elapsed;
 
+/**
+ * Firefighter class
+ * @class Firefighter
+ * @param {number} id - The id of the player
+ * @param {string} name - The name of the player
+ * @param {number} x - The x position of the player
+ * @param {number} y - The y position of the player
+ * @param {number} rotation - The rotation of the player
+ * @param {object} models - The models of the player
+ * @param {object} game - The game
+ * @param {object} socket - The socket
+ * @param {boolean} active - The active state of the player
+ * @param {object} speed - The speed of the player
+ * @param {object} friction_factor - The friction factor of the player
+ * @param {object} min_velocity - The minimum velocity of the player
+ * @param {object} distance_to_collision - The distance to collision of the player
+ * @param {object} velocity - The velocity of the player
+ * @param {object} angularVelocity - The angular velocity of the player
+ * @param {object} stop - The stop state of the player
+ * @param {object} keys - The keys of the player used to move
+ * @param {object} clockF - The clock of the firefighter used to animate the firefighter
+ * @param {object} clockB - The clock of the backpack used to animate the backpack
+ * @param {object} currentFirefighterAction - The current action of the firefighter
+ * @param {object} currentBackpackAction - The current action of the backpack
+ * @param {object} model - The THREE.Group() of the player that contains the firefighter and the backpack
+ * @param {object} firefighterModel - The model of the firefighter
+ * @param {object} backpackModel - The model of the backpack
+ */
+
 export class Firefighter extends Player {
     constructor (id, name, x, y, rotation, models, game, socket, active = false) {
         super(id, name, x, 0, y, rotation, socket, active);
