@@ -1,4 +1,20 @@
+/**
+ * Class Background_Tile
+ * @class Background_Tile
+ * @param {number} x - The x coordinate of the tile
+ * @param {number} y - The y coordinate of the tile
+ * @param {number} fire - The fire value of the tile
+ * @param {string} type - The type of the tile
+ * @param {boolean} waitHit - Boolean to know if the tile is waiting to be hit
+ * @param {boolean} waitExtinction - Boolean to know if the tile is waiting to be extinguished
+ * @param {number} timer - The timer to increase the value of this.fire
+ * @param {number} life - The life of the tree
+ */
+
 export class Tile {
+
+    static GROWING_FIRE_TIMER = 500; // milliseconds
+
     constructor (x, y, fire = 0, type = 'grass') {
         this.x = x;
         this.y = y;
@@ -8,13 +24,8 @@ export class Tile {
         this.waitHit = false;
         this.waitExtinction = false;
 
-        // Value in seconds of the time between each increase of the value of this.fire
-        this.growing_fire_timer = 500;
         this.timer = 0;
         clearTimeout(this.timer);
-
-        // Miliseconds before a tree is burnt
-        this.time_before_burnt = 10000 + 20000 * Math.random();
 
         if (this.type === 'tree') {
             this.life = 3;
@@ -54,7 +65,7 @@ export class Tile {
                     this.fire += 0.01;
                     this.growingFire();
                 }
-            }, this.growing_fire_timer * Math.random());
+            }, Tile.GROWING_FIRE_TIMER * Math.random());
         }
     }
 }

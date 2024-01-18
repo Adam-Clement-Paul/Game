@@ -4,26 +4,24 @@ import {Tile} from './Background_Tile.js';
 
 /**
  * Board class
- * number_of_sections: number of sections in the board [need to be greater than 2]
- * number_of_fires: number of fires in one section
- * tiles: array of tiles
- * spawn: width and length of the spawn in tiles
- * timer: timer for the fire propagation
+ * @class Board
+ * @param {number} number_of_sections - number of sections in the board [need to be greater than 2]
+ * @param {number} number_of_fires - number of fires in one section
+ * @param {array} tiles - array of tiles
+ * @param {number} timer - timer for the fire propagation
  **/
 export class Board {
 
     static CHANCE_TO_HAVE_OBSTACLE_SECTION = 0.1;
     static CHANCE_TO_HAVE_TREE_SECTION = 0.3;
     static CHANCE_TO_HAVE_TREE_CORRIDOR = 0.3;
-
     static TIME_BEFORE_PROPAGATION = 5000;
+    static SPAWN_SIZE = { w: 9, l: 7};
 
     constructor (number_of_sections, number_of_fires) {
         this.number_of_sections = number_of_sections;
         this.number_of_fires = number_of_fires;
         this.tiles = [];
-
-        this.spawn = { w: 9, l: 7 };
 
         this.timer = null;
 
@@ -36,8 +34,8 @@ export class Board {
         // Spawn
         this.addSection(
             new Section(
-                this.spawn.w,
-                this.spawn.l,
+                Board.SPAWN_SIZE.w,
+                Board.SPAWN_SIZE.l,
                 0,
                 Board.CHANCE_TO_HAVE_OBSTACLE_SECTION,
                 Board.CHANCE_TO_HAVE_TREE_SECTION,
@@ -71,10 +69,10 @@ export class Board {
                 // Check if the section is not in the spawn
                 const minX = Math.max(x - 1, 0);
                 const minY = Math.max(y - 1, 0);
-                const maxX = Math.min(x + width + 1, this.spawn.w);
-                const maxY = Math.min(y + length + 1, this.spawn.l);
+                const maxX = Math.min(x + width + 1, Board.SPAWN_SIZE.w);
+                const maxY = Math.min(y + length + 1, Board.SPAWN_SIZE.l);
 
-                isInSpawn = minX < this.spawn.w && minY < this.spawn.l && maxX >= 0 && maxY >= 0;
+                isInSpawn = minX < Board.SPAWN_SIZE.w && minY < Board.SPAWN_SIZE.l && maxX >= 0 && maxY >= 0;
 
                 isInOtherSection = this.isSectionInConflict(x, y, width, length, this.tiles);
 
@@ -283,7 +281,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            new Corridor(2, 2, { x, y }, this.tiles, Board.CHANCE_TO_HAVE_TREE_CORRIDOR, this.spawn);
+            new Corridor(2, 2, this.tiles, Board.CHANCE_TO_HAVE_TREE_CORRIDOR, Board.SPAWN_SIZE, { x, y });
 
             if (x === x1 && y === y1) {
                 break;

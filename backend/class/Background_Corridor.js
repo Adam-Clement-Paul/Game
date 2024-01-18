@@ -1,14 +1,24 @@
 import {Tile} from './Background_Tile.js';
 
+/**
+ * Corridor class
+ * @class Corridor
+ * @param {number} widthX - The width of the corridor
+ * @param {number} lengthY - The length of the corridor
+ * @param {array} tiles - Board tiles to update
+ * @param {number} chance_to_have_tree - The chance to have a tree on a tile
+ * @param {object} spawn - Spawn size to check whether the tile is in the spawn and not create a tree on it
+ * @param {object} origin - The origin of the corridor
+ */
 export class Corridor {
-    constructor (widthX, lengthY, origin = { x: 0, y: 0 }, tiles, chance_to_have_tree, spawn) {
+    constructor (widthX, lengthY, tiles, chance_to_have_tree, spawn, origin = { x: 0, y: 0 }) {
         this.widthX = widthX;
         this.lengthY = lengthY;
-        this.origin = origin;
 
         this.tiles = tiles;
         this.chance_to_have_tree = chance_to_have_tree;
         this.spawn = spawn;
+        this.origin = origin;
 
         this.initCorridor();
     }

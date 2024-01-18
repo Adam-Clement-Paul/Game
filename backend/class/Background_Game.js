@@ -28,7 +28,7 @@ export class Game {
     start (server, id) {
         this.startedAt = Date.now();
         for (let i = 0; i < this.players.length; i++) {
-            console.log(`Player ${i + 1} : ${this.players[i].name}`);
+            console.log(`Player ${i + 1} : ${this.players[i].name}, ${this.players[i].id}`);
         }
 
         // Activate the fire growth
