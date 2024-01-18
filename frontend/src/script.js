@@ -114,11 +114,9 @@ async function connectToWebsocket (gameId) {
                     game.board.updateBoard(data.tiles);
                     break;
                 case 'extinguish':
-                    console.log(data);
                     game.playAnimation('Extinguish', data.playerId);
                     break;
                 case 'axe':
-                    console.log(data);
                     game.playAnimation('Axe', data.playerId);
                     break;
                 case 'gameWon':

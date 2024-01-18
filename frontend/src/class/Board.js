@@ -2,7 +2,6 @@ import {Tile} from './Tile.js';
 import {loadModel} from "../script_modules/glbImport";
 import {ambientLight, scene} from "../script_modules/init3DScene";
 import * as THREE from "three";
-import {GUI} from "three/addons/libs/lil-gui.module.min.js";
 
 /*
 * Board class
@@ -57,10 +56,37 @@ export class Board {
             scene.add(this.treeInstanceMesh);
             this.modelsLoaded = true;
             this.addShadow();
+
+            loadModel('./models/rock1.glb', (modelRock1) => {
+                loadModel('./models/rock2.glb', (modelRock2) => {
+                    loadModel('./models/rock3.glb', (modelRock3) => {
+                        const scaleRock = 0.5;
+                        this.tiles.forEach((tileT) => {
+                            if (tileT.type === 'obstacle') {
+                                let model;
+                                const random = Math.random();
+                                if (random < 0.33) {
+                                    model = modelRock1.clone();
+                                } else if (random < 0.66) {
+                                    model = modelRock2.clone();
+                                } else {
+                                    model = modelRock3.clone();
+                                }
+                                model.position.set(tileT.x, 0, tileT.y);
+                                model.scale.set(scaleRock, scaleRock, scaleRock);
+                                scene.add(model);
+                                const index = this.tiles.indexOf(tileT);
+                                this.tiles[index] = new Tile(tileT.x, tileT.y, tileT.fire, tileT.type);
+                            }
+                        });
+                    });
+                });
+            });
         });
 
+
         this.tiles.forEach(tile => {
-            if (tile.type === 'grass' || tile.type === 'obstacle') {
+            if (tile.type === 'grass') {
                 this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
             }
         });
