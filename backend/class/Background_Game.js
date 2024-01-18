@@ -1,14 +1,28 @@
 import {Board} from './Background_Board.js';
 import {Player} from './Background_Player.js';
 
+/**
+ * Game class
+ * @class Game
+ * @param {Board} board - The board
+ * @param {array} players - list of players
+ * @param {number} startedAt - The game start time
+ * @param {boolean} isGameOver - boolean to know if the game is over or not
+ * @param {number} loopIsEmpty - used in server.ts in a setInterval to check if the game is over. Set here to be attached to the class.
+ * @param {number} timeGameLoop - setTimout to check if the game is over
+ */
 export class Game {
-    static MAX_DURATION = 300;
-    constructor (games) {
+
+    static MAX_DURATION = 300; // seconds
+    static CHECK_GAME_LOOP = 2000; // milliseconds
+
+    constructor () {
         this.board = new Board(3, 1);
         this.players = [];
         this.startedAt = null;
         this.isGameOver = false;
         this.loopIsEmpty = null;
+        this.timeGameLoop = 0;
     }
 
     start (server, id) {
@@ -26,8 +40,6 @@ export class Game {
         // Activate the contamination
         this.board.fireContamination(server, id);
 
-        // Start the game loop
-        this.timeGameLoop = 0;
         this.gameLoop(server, id);
     }
 
@@ -41,7 +53,6 @@ export class Game {
             console.log('Game won !');
             this.gameOver(server, id, 'gameWon');
         } else {
-            // console.log(this.board.tiles.filter(tile => tile.fire > 0).length);
             if (Date.now() - this.startedAt > Game.MAX_DURATION * 1000 && !this.isGameOver) {
                 this.isGameOver = true;
                 clearTimeout(this.timeGameLoop);
@@ -49,22 +60,14 @@ export class Game {
                 this.gameOver(server, id, 'gameLost');
             }
             if (!this.isGameOver) {
-                this.timeGameLoop = setTimeout(() => this.gameLoop(server, id), 2000);
+                this.timeGameLoop = setTimeout(() => this.gameLoop(server, id), Game.CHECK_GAME_LOOP);
             }
         }
     }
 
-    getBoard () {
-        return this.board;
-    }
-
     endOfTheGame () {
         // Check each second if the game board still has fire
-        if (this.board.tiles.some(tile => tile.fire > 0)) {
-            return false;
-        }
-        // If not, the game is over
-        return true;
+        return !(this.board.tiles.some(tile => tile.fire > 0));
     }
 
     // Send the game data (firePoints, cutTrees) to the players
@@ -86,13 +89,14 @@ export class Game {
             });
         });
 
+        // Send the player data to MrPortail
         fetch(`https://${process.env.IP}:1000/api/users/gameover`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'secret': process.env.SECRET
-                },
-                body: JSON.stringify({players: scoreList})
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'secret': process.env.SECRET
+            },
+            body: JSON.stringify({ players: scoreList })
         })
             .then(response => response.json())
             .then(data => {
@@ -117,9 +121,11 @@ export class Game {
 
     reset () {
         this.isGameOver = false;
+        // Disable the game loop
         clearTimeout(this.timeGameLoop);
 
         this.players = [];
+        // Disable the fire growth
         this.board.tiles.forEach(tile => {
             clearTimeout(tile.timer);
             tile = null;
@@ -132,7 +138,7 @@ export class Game {
         if (this.startedAt !== null) {
             this.players.push(new Player(id, name, models, 4, 3, 0, this.board, 0));
         } else {
-            this.players.push(new Player(id, name, models, 0, 20, 0, this.board, {x: 0, y: 0, z: 0, w:0}));
+            this.players.push(new Player(id, name, models, 0, 20, 0, this.board, { x: 0, y: 0, z: 0, w: 0 }));
         }
     }
 

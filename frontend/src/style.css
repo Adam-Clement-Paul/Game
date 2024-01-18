@@ -5,12 +5,12 @@
     box-sizing: border-box;
 }
 
-a,input,select,textarea,button {
+a, input, select, textarea, button {
     text-decoration: none;
     color: inherit;
 }
 
-a,input,select,textarea,button:focus {
+a, input, select, textarea, button:focus {
     outline: none;
 }
 
@@ -151,6 +151,7 @@ button:not(#qrButton):hover {
 
 #qrButton:hover {
     cursor: pointer;
+
     > svg > path {
         stroke: var(--primary-hover);
     }
@@ -254,7 +255,7 @@ button:not(#qrButton):hover {
         margin: 0 auto;
     }
 
-    :is(span)  {
+    :is(span) {
         font-weight: 800;
     }
 
@@ -274,6 +275,7 @@ button:not(#qrButton):hover {
     justify-content: space-between;
     padding: 10% 0 5% 0;
     z-index: 2;
+
     :is(h1) {
         font-size: 3rem;
         font-family: 'Carter One', cursive;
@@ -281,6 +283,7 @@ button:not(#qrButton):hover {
         text-align: center;
         color: white;
     }
+
     :is(div):not(#circle) {
         display: flex;
         gap: 30px;
@@ -311,6 +314,7 @@ button:not(#qrButton):hover {
     justify-content: end;
     align-items: end;
     z-index: 3;
+
     :is(video) {
         height: 30vh;
         width: 30vh;
@@ -318,6 +322,7 @@ button:not(#qrButton):hover {
         min-width: 50px;
         object-fit: cover;
     }
+
     :is(p) {
         font-family: 'Carter One', cursive;
         font-size: 1.2rem;

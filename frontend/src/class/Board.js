@@ -25,6 +25,7 @@ export class Board {
             }
         });
 
+        // Load the tree model and create the instances
         loadModel('./models/treeBorder.glb', (model) => {
             const geometry = model.children[0].geometry;
             const material = model.children[0].material;
@@ -57,6 +58,7 @@ export class Board {
             this.modelsLoaded = true;
             this.addShadow();
 
+            // Load the rock models
             loadModel('./models/rock1.glb', (modelRock1) => {
                 loadModel('./models/rock2.glb', (modelRock2) => {
                     loadModel('./models/rock3.glb', (modelRock3) => {
@@ -84,7 +86,6 @@ export class Board {
             });
         });
 
-
         this.tiles.forEach(tile => {
             if (tile.type === 'grass') {
                 this.tiles[this.tiles.indexOf(tile)] = new Tile(tile.x, tile.y, tile.fire, tile.type);
@@ -100,7 +101,7 @@ export class Board {
     addShadow () {
         ambientLight.color.setHex(0xf7ffcc);
 
-        // Récupère les 4 tuiles les plus loins (les 4 coins de la map) pour trouver le centre
+        // Get the 4 tiles the farthest (the 4 corners of the map) to find the center
         const minX = Math.min(...this.tiles.map(tile => tile.x));
         const maxX = Math.max(...this.tiles.map(tile => tile.x));
         const minY = Math.min(...this.tiles.map(tile => tile.y));

@@ -14,6 +14,7 @@ const KEY_HORN = 'w';
 const KEY_RESET = 'r';
 
 export class Truck extends Player {
+
     static truckSize = { w: 3.5, h: 3, l: 8 };
 
     constructor (id, name, x, y, z, rotation, models, world, groundMaterial, wheelMaterial, socket, active = false) {

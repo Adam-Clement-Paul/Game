@@ -24,7 +24,7 @@ export class Corridor {
                     // Randomize the type of the tile
                     if (Math.random() < this.chance_to_have_tree) {
                         // Check if the tile is in the spawn
-                        if ( !(x >= 1 && x <= this.spawn.l && y >= 1 && y <= this.spawn.w)) {
+                        if (!(x >= 1 && x <= this.spawn.l && y >= 1 && y <= this.spawn.w)) {
                             tile.type = 'tree';
                             tile.life = 3;
                         }

@@ -1,12 +1,12 @@
 let timer = 0;
 
-export function waiting() {
+export function waiting () {
     const title = document.querySelector('#bottomCode p');
     title.style.display = 'block';
     const titleText = title.textContent;
     let i = 0;
 
-    function animateDots() {
+    function animateDots () {
         if (i < 3) {
             title.textContent += '.';
             i++;
@@ -19,6 +19,6 @@ export function waiting() {
     timer = setInterval(animateDots, 500);
 }
 
-export function stopWaiting() {
+export function stopWaiting () {
     clearInterval(timer);
 }

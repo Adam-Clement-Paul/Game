@@ -52,7 +52,7 @@ function animate () {
 
     // controls.update();
 
-    if (game && game.board && game.board.modelsLoaded) {
+    if (game?.board?.modelsLoaded) {
         const treeInstances = game.board.treeInstanceMesh;
         const instances = game.board.instances;
 
@@ -85,7 +85,7 @@ function animate () {
 
 async function connectToWebsocket (gameId) {
     const sessionId = await checkCookie(gameId);
-
+    // Initialize the WebSocket connection
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}/websocket/${gameId}/${sessionId}`);
 
     socket.onerror = () => {
@@ -123,7 +123,7 @@ async function connectToWebsocket (gameId) {
                     game.gameOver(data.time, data.playersData, data.coins, true);
                     break;
                 case 'gameLost':
-                    game.gameOver(data.time, data.playersData,  data.coins, false);
+                    game.gameOver(data.time, data.playersData, data.coins, false);
                     break;
             }
         }

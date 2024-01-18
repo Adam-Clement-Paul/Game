@@ -223,9 +223,10 @@ export class Game {
         let tl = gsap.timeline();
         let lookAt = new THREE.Vector3(player.x, 0, player.y);
         tl.to(camera.position, {
-            duration: 3,
-            y: 0.8,
-            ease: 'power2.inOut'}
+                duration: 3,
+                y: 0.8,
+                ease: 'power2.inOut'
+            }
         ).to(lookAt, {
             duration: 3,
             y: 0.6,

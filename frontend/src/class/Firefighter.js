@@ -53,7 +53,7 @@ export class Firefighter extends Player {
         this.setupModel();
     }
 
-    setupModel() {
+    setupModel () {
         this.model.position.set(this.x, 0, this.y);
         this.model.scale.set(0.15, 0.15, 0.15);
 
@@ -92,8 +92,8 @@ export class Firefighter extends Player {
                 this.actionsBackpack[clipB.name] = actionB
             }
 
-            if ( this.actionsFirefighter[clipF.name] || this.actionsBackpack[clipB.name]) {
-                if (clipF.name === 'Idle'|| clipF.name === 'Walk') {
+            if (this.actionsFirefighter[clipF.name] || this.actionsBackpack[clipB.name]) {
+                if (clipF.name === 'Idle' || clipF.name === 'Walk') {
                     actionF.loop = THREE.LoopRepeat;
                     actionB.loop = THREE.LoopRepeat;
                     if (clipF.name === 'Walk') {
@@ -118,11 +118,11 @@ export class Firefighter extends Player {
             }
         }
 
-        // Quand l'animation est terminée, on remet l'animation Idle
-        this.firefighterMixer.addEventListener( 'finished', () => {
+        // When the animation is finished, we put back the Idle animation
+        this.firefighterMixer.addEventListener('finished', () => {
             this.fadeToAction('Idle', 0.5);
         });
-        this.backpackMixer.addEventListener( 'finished', () => {
+        this.backpackMixer.addEventListener('finished', () => {
             this.fadeToAction('Idle', 0.5);
         });
 
@@ -134,7 +134,7 @@ export class Firefighter extends Player {
         this.glbLoaded = true;
     }
 
-    fadeToAction(name, duration) {
+    fadeToAction (name, duration) {
         // For the firefighter model
         const previousFirefighterAction = this.currentFirefighterAction;
         this.currentFirefighterAction = this.actionsFirefighter[name];
@@ -304,7 +304,7 @@ export class Firefighter extends Player {
         this.model.position.set(this.x, 0, this.y);
     }
 
-    startUpdating(fps) {
+    startUpdating (fps) {
         fpsInterval = 1000 / fps;
         then = Date.now();
         this.update();
@@ -336,11 +336,11 @@ export class Firefighter extends Player {
         this.model.rotation.y = this.rotation;
         const previousPosition = this.model.position.clone();
         this.model.position.set(this.x, 0, this.y);
-        // Si la position du joueur a changé de beaucoup, on met l'animation du joueur à Walk
+        // If the player's position has changed a lot, we put the player's animation to Walk
         if (this.actionsFirefighter && this.actionsBackpack) {
             if (previousPosition.distanceTo(this.model.position) > 0.1) {
                 this.fadeToAction('Walk', 0.1);
-                // Sinon si il est actuellement en train de Extinguish ou Axe, on ne fait rien
+                // Else if he is currently Extinguish or Axe, we do nothing
             } else if (this.currentFirefighterAction !== this.actionsFirefighter['Extinguish'] && this.currentFirefighterAction !== this.actionsFirefighter['Axe']) {
                 this.fadeToAction('Idle', 0.1);
             }
@@ -352,7 +352,7 @@ export class Firefighter extends Player {
     }
 
     stopMoving () {
-        // Ajoute un cercle noir en dessous du joueur actif pour simuler une ombre
+        // Add a black circle under the active player to simulate a shadow
         const shadow = new THREE.Mesh(
             new THREE.CircleGeometry(0.3, 32),
             new THREE.MeshBasicMaterial({

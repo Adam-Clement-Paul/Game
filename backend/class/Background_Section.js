@@ -1,7 +1,10 @@
 import {Tile} from './Background_Tile.js';
 
 export class Section {
-    constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree,  origin = { x: 0, y: 0 }, isSpawn = false) {
+    constructor (widthX, lengthY, number_of_fires, chance_to_have_obstacle, chance_to_have_tree, origin = {
+        x: 0,
+        y: 0
+    }, isSpawn = false) {
         this.widthX = widthX;
         this.lengthY = lengthY;
         this.number_of_fires = number_of_fires;

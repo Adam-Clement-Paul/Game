@@ -3,6 +3,9 @@ import {scene} from '../script_modules/init3DScene.js';
 import {loadModel} from "../script_modules/glbImport";
 
 export class Tile {
+
+    static EVOLUTION_FIRE_TIME = 3000; // milliseconds
+
     constructor (x, y, fire = 0, type = 'grass', model = null) {
         this.x = x;
         this.y = y;
@@ -159,9 +162,9 @@ export class Tile {
                     this.fadeToAction('Fire2', 0.5);
                     this.timer = setTimeout(() => {
                         this.fadeToAction('Fire3', 0.5);
-                    }, 3000);
-                }, 3000);
-            }, 3000);
+                    }, Tile.EVOLUTION_FIRE_TIME);
+                }, Tile.EVOLUTION_FIRE_TIME);
+            }, Tile.EVOLUTION_FIRE_TIME);
         }
     }
 }

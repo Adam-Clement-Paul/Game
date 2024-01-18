@@ -1,3 +1,17 @@
+/**
+ * Player class
+ * @class Player
+ * @param {number} id - The player id
+ * @param {string} name - The player name
+ * @param {array} models - The player models
+ * @param {number} x - The player x position
+ * @param {number} y - The player y position
+ * @param {number} z - The player z position
+ * @param {Board} board - The board
+ * @param {number} rotation - The player rotation
+ * @param {number} extinguishedFlames - The number of extinguished flames
+ * @param {number} cutTrees - The number of cut trees
+ */
 export class Player {
     constructor (id, name, models, x, y, z, board, rotation) {
         this.id = id;
@@ -11,8 +25,6 @@ export class Player {
 
         this.extinguishedFlames = 0;
         this.cutTrees = 0;
-
-        this.coins = 0;
     }
 
     // FireHose

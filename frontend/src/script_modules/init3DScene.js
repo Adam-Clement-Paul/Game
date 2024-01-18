@@ -12,7 +12,7 @@ document.body.appendChild(stats.dom)
 
 loadingManager = new THREE.LoadingManager();
 
-// SCÈNE
+// SCENE
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 

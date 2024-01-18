@@ -2,22 +2,28 @@ import {Section} from './Background_Section.js';
 import {Corridor} from './Background_Corridor.js';
 import {Tile} from './Background_Tile.js';
 
-/*
-* Board class
-* number_of_sections: number of sections in the board [need to be greater than 2]
- */
+/**
+ * Board class
+ * number_of_sections: number of sections in the board [need to be greater than 2]
+ * number_of_fires: number of fires in one section
+ * tiles: array of tiles
+ * spawn: width and length of the spawn in tiles
+ * timer: timer for the fire propagation
+ **/
 export class Board {
+
+    static CHANCE_TO_HAVE_OBSTACLE_SECTION = 0.1;
+    static CHANCE_TO_HAVE_TREE_SECTION = 0.4;
+    static CHANCE_TO_HAVE_TREE_CORRIDOR = 0.3;
+
+    static TIME_BEFORE_PROPAGATION = 5000;
+
     constructor (number_of_sections, number_of_fires) {
         this.number_of_sections = number_of_sections;
         this.number_of_fires = number_of_fires;
         this.tiles = [];
 
         this.spawn = { w: 9, l: 7 };
-
-        this.chance_to_have_obstacle_section = 0.1;
-        this.chance_to_have_tree_section = 0.4;
-
-        this.chance_to_have_tree_corridor = 0.3;
 
         this.timer = null;
 
@@ -29,12 +35,14 @@ export class Board {
         let sections = [];
         // Spawn
         this.addSection(
-            new Section(this.spawn.w, this.spawn.l, 0,
-                this.chance_to_have_obstacle_section, this.chance_to_have_tree_section,
-                {
-                x: 0,
-                y: 0,
-            }, true),
+            new Section(
+                this.spawn.w,
+                this.spawn.l,
+                0,
+                Board.CHANCE_TO_HAVE_OBSTACLE_SECTION,
+                Board.CHANCE_TO_HAVE_TREE_SECTION,
+                { x: 0, y: 0, }
+                , true),
             sections
         );
 
@@ -77,11 +85,11 @@ export class Board {
                 console.log(`Section ${i + 1} : ${width}x${length} at (${x}, ${y})`);
                 this.addSection(
                     new Section(width, length, this.number_of_fires,
-                        this.chance_to_have_obstacle_section, this.chance_to_have_tree_section,
+                        Board.CHANCE_TO_HAVE_OBSTACLE_SECTION, Board.CHANCE_TO_HAVE_TREE_SECTION,
                         {
-                        x: x,
-                        y: y,
-                    }),
+                            x: x,
+                            y: y,
+                        }),
                     sections
                 );
             }
@@ -275,7 +283,7 @@ export class Board {
         // Implement the Bresenham algorithm
         while (true) {
             // Create a corridor
-            new Corridor(2, 2, { x, y }, this.tiles, this.chance_to_have_tree_corridor, this.spawn);
+            new Corridor(2, 2, { x, y }, this.tiles, Board.CHANCE_TO_HAVE_TREE_CORRIDOR, this.spawn);
 
             if (x === x1 && y === y1) {
                 break;
@@ -350,6 +358,6 @@ export class Board {
         // Loop every second with timer
         this.timer = setTimeout(() => {
             this.fireContamination(server, id);
-        }, 5000); // 2000
+        }, Board.TIME_BEFORE_PROPAGATION);
     }
 }
