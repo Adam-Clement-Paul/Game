@@ -90,6 +90,17 @@ export class Board {
         this.setCorridors(sections);
 
         this.fillBorders();
+
+        // If there are fewer trees on fire than the number of fires desired, we add more until there are enough
+        let fireCount = this.tiles.filter(tile => tile.fire > 0).length;
+        let fireNeeded = this.number_of_fires * this.number_of_sections;
+        while (fireCount < fireNeeded) {
+            const tile = this.tiles[Math.floor(Math.random() * this.tiles.length)];
+            if (tile && tile.fire === 0 && tile.type === 'tree') {
+                tile.setFire();
+                fireCount++;
+            }
+        }
     }
 
     // Return the tile at the given position
