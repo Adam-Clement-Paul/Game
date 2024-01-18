@@ -8,6 +8,24 @@ import {Firefighter} from './Firefighter.js';
 import {Truck} from './Truck';
 import {stopWaiting, waiting} from "../waiting";
 
+/**
+ * Game class
+ * @class Game
+ * @param {object} board - The board
+ * @param {array} players - list of players
+ * @param {object} socket - The socket
+ * @param {boolean} hasStarted - boolean to know if the game has started or not
+ * @param {number} owner - The owner of the game
+ * @param {array} playersBackend - list of players
+ * @param {array} truckList - list of trucks
+ * @param {object} world - The physics world
+ * @param {number} dt - The delta time
+ * @param {object} groundMaterial - The ground material
+ * @param {object} wheelMaterial - The wheel material
+ * @param {object} boardConfig - The board configuration
+ * @param {object} plane - The ground plane of the playground
+ * @param {object} directionalLight - The directional light of the playground
+ */
 
 export class Game {
     static WIN_TEXT = 'You\'ve beaten the flames!';

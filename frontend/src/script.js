@@ -1,8 +1,5 @@
-import {loadModel} from './script_modules/glbImport.js';
 import {camera, controls, renderer, scene, stats, loadingManager} from './script_modules/init3DScene.js';
-import * as UTILS from './script_modules/utils.js';
 import {qrcode} from "./qrcode";
-
 import {Game} from './class/Game.js';
 import {checkCookie} from './checkCookie.js';
 

@@ -2,6 +2,24 @@ import * as THREE from 'three';
 import {scene} from '../script_modules/init3DScene.js';
 import {loadModel} from "../script_modules/glbImport";
 
+/**
+ * Tile class
+ * @class Tile
+ * @param {number} x - The tile x position
+ * @param {number} y - The tile y position
+ * @param {number} fire - The tile fire value
+ * @param {string} type - The tile type
+ * @param {object} model - The tile model
+ * @param {object} plane - The tile plane
+ * @param {object} clock - The tile clock
+ * @param {object} treeMixer - The tile treeMixer
+ * @param {object} actions - The tile actions
+ * @param {object} currentAction - The tile currentAction
+ * @param {boolean} glbLoaded - Boolean to know if the glb is loaded or not
+ * @param {number} timer - The timer to set the fire
+ *
+ */
+
 export class Tile {
 
     static EVOLUTION_FIRE_TIME = 3000; // milliseconds
@@ -32,7 +50,6 @@ export class Tile {
                 this.model.rotation.y = Math.random() * Math.PI;
                 scene.add(this.model);
 
-                this.mixer = new THREE.AnimationMixer(this.model);
                 this.loadAnimations(animations);
 
                 if (this.fire !== 0) {
@@ -55,6 +72,8 @@ export class Tile {
         this.plane.position.set(this.x, 0, this.y);
         this.plane.receiveShadow = true;
         this.plane.castShadow = true;
+
+        this.timer = 0;
 
         this.updateDisplay();
 
