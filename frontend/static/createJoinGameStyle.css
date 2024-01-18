@@ -57,6 +57,7 @@ button:focus {
     --color-btn-background: #FFB563;
     --color-btn-background-hover: #FFC27A;
     --color-stroke-search-hover: #c9a4a4;
+    --background-color: #fbead7;
 }
 
 button {
@@ -71,18 +72,22 @@ button {
     padding: 10px 20px;
 }
 
+button:nth-child(1) {
+    margin-top: 30px;
+}
+
 button:hover {
     cursor: pointer;
     background-color: var(--color-btn-background-hover);
 }
 
 .btn-secondary {
-    background-color: #E9E9E9;
+    background-color: transparent;
     color: var(--color-text);
 }
 
 .btn-secondary:hover {
-    background-color: #D1D1D1;
+    background-color: rgba(255, 181, 99, 0.32)
 }
 
 /* General */
@@ -94,6 +99,7 @@ main {
     justify-content: center;
     gap: 10px;
     height: 100vh;
+    background-color: var(--background-color);
 }
 
 h1 {
