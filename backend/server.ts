@@ -86,6 +86,14 @@ const server = Bun.serve<WebSocketData>({
             const gameId = Math.random().toString(36).substring(7);
             // Store a new game instance with its ID
             games[gameId] = new Game();
+            // Vérifie toutes les 10 secondes s'il y a des joueurs dans la partie, sinon la supprime
+            games[gameId].loopIsEmpty = setInterval(() => {
+                if (Object.keys(games[gameId].players).length === 0 && games.hasOwnProperty(gameId)) {
+                    console.log('game deleted', gameId);
+                    clearInterval(games[gameId].loopIsEmpty);
+                    delete games[gameId];
+                }
+            }, 10000);
 
             const redirectUrl = `${domain}/${gameId}`;
 
@@ -267,6 +275,9 @@ const server = Bun.serve<WebSocketData>({
             if (typeof message === 'string') {
                 jsonMessage = JSON.parse(message);
             }
+            if (!games[ws.data.gameId]?.players) {
+                return;
+            }
 
             if (jsonMessage.type === 'requestStartGame' && games[ws.data.gameId].owner === ws.data.authToken) {
                 console.log('starting game');
@@ -355,11 +366,6 @@ const server = Bun.serve<WebSocketData>({
             });
             ws.unsubscribe(ws.data.gameId);
             server.publish(ws.data.gameId, msg);
-
-            if (Object.keys(games[ws.data.gameId].players).length === 0 && games.hasOwnProperty(ws.data.gameId)) {
-                console.log('game deleted', ws.data.gameId);
-                delete games[ws.data.gameId];
-            }
         },
     },
     error(error) {

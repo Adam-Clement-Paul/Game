@@ -3,11 +3,12 @@ import {Player} from './Background_Player.js';
 
 export class Game {
     static MAX_DURATION = 300;
-    constructor () {
+    constructor (games) {
         this.board = new Board(3, 1);
         this.players = [];
         this.startedAt = null;
         this.isGameOver = false;
+        this.loopIsEmpty = null;
     }
 
     start (server, id) {
@@ -112,6 +113,7 @@ export class Game {
         server.publish(id, JSON.stringify(data));
 
         // Reset the game
+        this.players = [];
     }
 
     addPlayer (id, name, models) {
