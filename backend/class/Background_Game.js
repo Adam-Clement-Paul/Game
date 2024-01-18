@@ -112,8 +112,20 @@ export class Game {
         };
         server.publish(id, JSON.stringify(data));
 
-        // Reset the game
+        this.reset();
+    }
+
+    reset () {
+        this.isGameOver = false;
+        clearTimeout(this.timeGameLoop);
+
         this.players = [];
+        this.board.tiles.forEach(tile => {
+            clearTimeout(tile.timer);
+            tile = null;
+        });
+        clearTimeout(this.board.timer);
+        this.board = [];
     }
 
     addPlayer (id, name, models) {

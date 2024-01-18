@@ -90,6 +90,7 @@ const server = Bun.serve<WebSocketData>({
             games[gameId].loopIsEmpty = setInterval(() => {
                 if (Object.keys(games[gameId].players).length === 0 && games.hasOwnProperty(gameId)) {
                     console.log('game deleted', gameId);
+                    games[gameId].reset();
                     clearInterval(games[gameId].loopIsEmpty);
                     delete games[gameId];
                 }
