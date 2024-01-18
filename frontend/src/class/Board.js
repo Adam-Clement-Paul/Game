@@ -18,6 +18,9 @@ export class Board {
         this.treeInstanceMesh = null;
         this.instances = [];
 
+        // Obstacles
+        this.rockList = [];
+
         let nbrBorder = 0;
         this.tiles.forEach(tile => {
             if (tile.type === 'border') {
@@ -77,6 +80,7 @@ export class Board {
                                 model.position.set(tileT.x, 0, tileT.y);
                                 model.scale.set(scaleRock, scaleRock, scaleRock);
                                 scene.add(model);
+                                this.rockList.push(model);
                                 const index = this.tiles.indexOf(tileT);
                                 this.tiles[index] = new Tile(tileT.x, tileT.y, tileT.fire, tileT.type);
                             }
@@ -180,6 +184,9 @@ export class Board {
     hideBoard () {
         this.tiles.forEach(tile => {
             tile.hide();
+        });
+        this.rockList.forEach(rock => {
+            scene.remove(rock);
         });
     }
 
