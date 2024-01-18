@@ -13,7 +13,7 @@
 
 export class Tile {
 
-    static GROWING_FIRE_TIMER = 500; // milliseconds
+    static GROWING_FIRE_TIMER = 1000; // milliseconds
 
     constructor (x, y, fire = 0, type = 'grass') {
         this.x = x;

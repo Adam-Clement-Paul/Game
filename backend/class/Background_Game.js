@@ -147,7 +147,7 @@ export class Game {
     }
 
     updatePlayer (id, x, y, z, rotation) {
-        if (!this.isGameOver) {
+        if (!this.isGameOver && this.players.length > 0) {
             this.players.find(player => player.id === id).updateAll(x, y, z, rotation);
         }
     }
