@@ -296,7 +296,7 @@ const server = Bun.serve<WebSocketData>({
                     if (games[ws.data.gameId]) {
                         games[ws.data.gameId].start(server, ws.data.gameId);
                     }
-                }, 3000);
+                }, 10000);
             }
 
             let tilesToUpdate: any[] = [];

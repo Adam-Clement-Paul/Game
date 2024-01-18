@@ -13,7 +13,7 @@ import {Tile} from './Background_Tile.js';
 export class Board {
 
     static CHANCE_TO_HAVE_OBSTACLE_SECTION = 0.1;
-    static CHANCE_TO_HAVE_TREE_SECTION = 0.4;
+    static CHANCE_TO_HAVE_TREE_SECTION = 0.3;
     static CHANCE_TO_HAVE_TREE_CORRIDOR = 0.3;
 
     static TIME_BEFORE_PROPAGATION = 5000;

@@ -17,6 +17,7 @@ export class Game {
     static LOSE_IMAGE = 'fire.jpg';
     static LOSE_COINS = 0;
     static MAX_DURATION = 300;
+    static TIME_BEFORE_START = 10000;
 
     constructor (board, players, socket, hasStarted, owner) {
         this.playersBackend = players;
@@ -78,7 +79,7 @@ export class Game {
 
         const spanTimer = document.getElementById('timer');
         spanTimer.innerHTML = `${Game.MAX_DURATION}`;
-        setTimeout(() => this.timerLoop(spanTimer, Game.MAX_DURATION), 3000);
+        setTimeout(() => this.timerLoop(spanTimer, Game.MAX_DURATION), Game.TIME_BEFORE_START);
 
         this.truckList.forEach(truck => {
             truck.remove();
