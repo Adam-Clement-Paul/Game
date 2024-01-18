@@ -43,7 +43,7 @@ export class Tile {
         }
 
         this.plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.9, 0.9),
+            new THREE.PlaneGeometry(1, 1),
             new THREE.MeshStandardMaterial({
                 side: THREE.DoubleSide,
             })
@@ -60,26 +60,19 @@ export class Tile {
 
     updateDisplay () {
         if (this.type === 'tree') {
-            this.plane.material.color.setHex(0x00ff00);
+            this.plane.material.color.setHex(0x6ea84c);
         }
         if (this.type === 'obstacle') {
-            this.plane.material.color.setHex(0x999999);
+            this.plane.material.color.setHex(0x658c4f);
         }
         if (this.type === 'border') {
-            this.plane.material.color.setHex(0x000000);
+            this.plane.material.color.setHex(0x4f8231);
         }
         if (this.type === 'grass') {
-            this.plane.material.color.setHex(0xffffff);
+            this.plane.material.color.setHex(0x66a343);
         }
-
         if (this.fire !== 0) {
-            let yellow = new THREE.Color(0xffff00);
-            let red = new THREE.Color(0xff0000);
-            // Used to interpolate between yellow and red to show evolution of the fire
-            let interpolatedColor = new THREE.Color();
-            interpolatedColor.lerpColors(yellow, red, this.fire);
-
-            this.plane.material.color.copy(interpolatedColor);
+            this.plane.material.color.setHex(0xff0000);
         }
     }
 
