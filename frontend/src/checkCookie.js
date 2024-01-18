@@ -16,10 +16,15 @@ export async function checkCookie (gameId) {
     let inventoryData;
     try {
         userData = JSON.parse(cookieUserValue);
-        inventoryData = JSON.parse(cookieInventoryValue);
     } catch (error) {
         console.error("Error while parsing to JSON.");
         errorHandling = true;
+    }
+
+    try {
+        inventoryData = JSON.parse(cookieInventoryValue);
+    } catch (error) {
+        console.error("Error while parsing inventory data.");
     }
 
     if (userData) {
