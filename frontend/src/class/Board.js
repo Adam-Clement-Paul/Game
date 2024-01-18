@@ -142,8 +142,7 @@ export class Board {
                 this.tiles[index].axeStroke();
             } else if (this.tiles[index].type === 'tree' && tileToUpdate[1].fire !== this.tiles[index].fire) {
                 this.tiles[index].setFire(tileToUpdate[1].fire);
-            }
-            if (tileToUpdate[1].type !== 'tree') {
+            } else if (this.tiles[index].type !== 'tree' && tileToUpdate[1].type !== 'tree') {
                 this.tiles[index] = null;
                 this.tiles[index] = new Tile(tileToUpdate[1].x, tileToUpdate[1].y, tileToUpdate[1].fire, tileToUpdate[1].type);
             }

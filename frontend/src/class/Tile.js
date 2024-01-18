@@ -85,16 +85,16 @@ export class Tile {
 
     loadAnimations (animations) {
         this.treeMixer = new THREE.AnimationMixer(this.model);
-        const states = ['Idle','Hit', 'Fall', 'Fire1', 'Fire2', 'Fire3'];
+        const states = ['Idle', 'Hit', 'Fall', 'Fire1', 'Fire2', 'Fire3'];
 
         this.actions = {};
         for (let i = 0; i < animations.length; i++) {
-            const clip = animations[i];
+            const clip = animations.find(animation => animation.name === states[i]);
             const action = this.treeMixer.clipAction(clip);
             if (states.indexOf(clip.name) !== -1) {
                 this.actions[clip.name] = action;
             }
-            if (states.indexOf(clip.name) === 2) {
+            if (this.actions[clip.name]) {
                 // Si l'animation est "Fire1", on la joue en boucle
                 if (clip.name === 'Fire1' || clip.name === 'Fire2' || clip.name === 'Fire3') {
                     action.loop = THREE.LoopRepeat;
@@ -109,19 +109,21 @@ export class Tile {
         this.glbLoaded = true;
     }
 
-    fadeToAction(name, duration) {
+    fadeToAction (name, duration) {
         // For the tree model
         const previousAction = this.currentAction;
         this.currentAction = this.actions[name];
         if (previousAction && previousAction !== this.currentAction) {
             previousAction.fadeOut(duration);
         }
-        this.currentAction
-            .reset()
-            .setEffectiveTimeScale(1)
-            .setEffectiveWeight(1)
-            .fadeIn(duration)
-            .play();
+        if (this.currentAction) {
+            this.currentAction
+                .reset()
+                .setEffectiveTimeScale(1)
+                .setEffectiveWeight(1)
+                .fadeIn(duration)
+                .play();
+        }
     }
 
     updateAnimation () {
@@ -131,13 +133,17 @@ export class Tile {
     }
 
     cutTree () {
-        console.log('Cutting tree');
-        this.model.visible = false;
-        scene.remove(this.model);
+        this.fadeToAction('Fall', 0);
+        setTimeout(() => {
+            this.model.visible = false;
+            scene.remove(this.model);
+            this.type = 'grass';
+            this.updateDisplay();
+        }, this.actions['Fall']._clip.duration * 1000);
     }
 
     axeStroke () {
-        console.log('Axe stroke');
+        this.fadeToAction('Hit', 0);
         this.life--;
     }
 
