@@ -10,8 +10,8 @@ export const loadModel = (modelPath, callback) => {
             const model = gltf.scene;
             model.traverse((o) => {
                 if (o.isMesh) {
-                    /*o.castShadow = true;
-                    o.receiveShadow = true;*/
+                    o.castShadow = true;
+                    o.receiveShadow = true;
                 }
             });
 

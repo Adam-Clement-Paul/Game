@@ -130,7 +130,6 @@ async function connectToWebsocket (gameId) {
     };
 
     socket.onopen = () => {
-        console.log('WS: onopen');
         getGame(socket);
     };
     return socket;
