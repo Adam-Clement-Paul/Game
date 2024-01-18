@@ -367,7 +367,9 @@ export class Firefighter extends Player {
         this.rotation = Math.PI - Math.PI / 9;
         this.model.rotation.y = this.rotation;
         this.stop = true;
-        this.keys.forEach(key => key = false);
+        for (const key in this.keys) {
+            this.keys[key] = false;
+        }
 
         document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.removeEventListener('keyup', this.onDocumentKeyUp.bind(this), false);

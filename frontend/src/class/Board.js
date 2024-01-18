@@ -16,7 +16,7 @@ export class Board {
         this.modelsLoaded = false;
 
         // Borders
-        this.treeInstanceMesh = [];
+        this.treeInstanceMesh = null;
         this.instances = [];
 
         let nbrBorder = 0;
@@ -157,10 +157,7 @@ export class Board {
     }
 
     suppressInstances () {
-        this.modelsLoaded = null;
-
-        this.treeInstanceMesh.instanceMatrix.needsUpdate = false;
         this.treeInstanceMesh.dispose();
-        // this.treeInstanceMesh = null;
+        this.treeInstanceMesh.count = 0;
     }
 }

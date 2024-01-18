@@ -152,29 +152,23 @@ export class Game {
         }
     }
 
-    gameOver (time, playersData, win) {
-        let text, image, coins;
+    gameOver (time, playersData, coins, win) {
+        let text, image;
         if (win) {
             text = Game.WIN_TEXT;
             image = Game.WIN_IMAGE;
-            coins = Game.WIN_COINS;
         } else {
             text = Game.LOSE_TEXT;
             image = Game.LOSE_IMAGE;
-            coins = Game.LOSE_COINS;
-
-            const next = document.getElementById('next');
-            next.remove();
-
-            // Change the color of the menu button, because this is the only button left
-            const menu = document.getElementById('menu');
-            menu.classList.remove('btn-secondary');
-            menu.classList.add('btn-yellow');
         }
         this.hasStarted = null;
         const spanTimer = document.getElementById('timer');
         // Suppress the timer
         spanTimer.parentNode.removeChild(spanTimer);
+
+        const divBottomCode = document.getElementById('bottomCode');
+        // Suppress the bottom code
+        divBottomCode.parentNode.removeChild(divBottomCode);
 
         // Manage board instances
         this.board.suppressInstances();
@@ -230,11 +224,11 @@ export class Game {
         let lookAt = new THREE.Vector3(player.x, 0, player.y);
         tl.to(camera.position, {
             duration: 3,
-            y: 1,
+            y: 0.8,
             ease: 'power2.inOut'}
         ).to(lookAt, {
             duration: 3,
-            y: 0.8,
+            y: 0.6,
             onUpdate: () => {
                 camera.lookAt(lookAt);
             }

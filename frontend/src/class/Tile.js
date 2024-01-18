@@ -149,6 +149,9 @@ export class Tile {
 
     hide () {
         scene.remove(this.plane);
+        if (this.model) {
+            scene.remove(this.model);
+        }
     }
 
     setFire (fire) {

@@ -122,10 +122,10 @@ async function connectToWebsocket (gameId) {
                     game.playAnimation('Axe', data.playerId);
                     break;
                 case 'gameWon':
-                    game.gameOver(data.time, data.playersData, true);
+                    game.gameOver(data.time, data.playersData, data.coins, true);
                     break;
                 case 'gameLost':
-                    game.gameOver(data.time, data.playersData, false);
+                    game.gameOver(data.time, data.playersData,  data.coins, false);
                     break;
             }
         }

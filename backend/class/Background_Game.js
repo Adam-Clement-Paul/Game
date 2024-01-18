@@ -106,9 +106,12 @@ export class Game {
         const data = {
             type: type,
             time: Date.now() - this.startedAt,
-            playersData: playerData
+            playersData: playerData,
+            coins: coins
         };
         server.publish(id, JSON.stringify(data));
+
+        // Reset the game
     }
 
     addPlayer (id, name, models) {
