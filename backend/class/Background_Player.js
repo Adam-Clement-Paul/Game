@@ -52,7 +52,7 @@ export class Player {
 
             // For each tile, extinguish the fire
             adjacentTiles.forEach(tile => {
-                if (tile && tile.fire > 0) {
+                if (tile && tile.fire > 0 && !tile.waitExtinction) {
                     tile.extinguishFire();
                     const index = this.board.tiles.indexOf(tile);
                     tilesToUpdate.push([index, tile]);
@@ -71,7 +71,7 @@ export class Player {
         let result = this.getFrontTile(this.rotation);
         if (result) {
             let { frontTile } = result;
-            if (frontTile.type === 'tree' && frontTile.fire === 0) {
+            if (frontTile.type === 'tree' && frontTile.fire === 0 && !frontTile.waitHit) {
                 frontTile.destroyTree();
                 const index = this.board.tiles.indexOf(frontTile);
                 tilesToUpdate.push([index, frontTile]);

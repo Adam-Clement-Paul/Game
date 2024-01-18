@@ -146,7 +146,7 @@ const server = Bun.serve<WebSocketData>({
                 });
             }
 
-            const truckList : Array<string> = [];
+            const truckList: Array<string> = [];
             if (data.dataInventory.truck) {
                 data.dataInventory.truck.forEach((item: any) => {
                     truckList.push(item.id);
@@ -314,12 +314,14 @@ const server = Bun.serve<WebSocketData>({
                 }
                 // Send data to all clients
                 if (tilesToUpdate.length > 0) {
-                    const broadcastData = {
-                        type: 'updateTiles',
-                        tiles: tilesToUpdate,
-                    };
+                    setTimeout(() => {
+                        const broadcastData = {
+                            type: 'updateTiles',
+                            tiles: tilesToUpdate,
+                        };
 
-                    server.publish(ws.data.gameId, JSON.stringify(broadcastData));
+                        server.publish(ws.data.gameId, JSON.stringify(broadcastData));
+                    }, 900);
                 }
             }
 

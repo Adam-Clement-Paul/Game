@@ -120,7 +120,6 @@ export class Game {
     }
 
     removePlayer (id) {
-        // TODO: use instead the id of the player
         this.players = this.players.filter(player => player.id !== id);
     }
 

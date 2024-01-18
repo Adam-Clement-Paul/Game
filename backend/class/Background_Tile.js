@@ -5,6 +5,9 @@ export class Tile {
         this.fire = fire;
         this.type = type;
 
+        this.waitHit = false;
+        this.waitExtinction = false;
+
         // Value in seconds of the time between each increase of the value of this.fire
         this.growing_fire_timer = 500;
         this.timer = 0;
@@ -25,10 +28,18 @@ export class Tile {
 
     extinguishFire () {
         this.fire = 0;
+        this.waitExtinction = true;
+        setTimeout(() => {
+            this.waitExtinction = false;
+        }, 1000);
     }
 
     destroyTree () {
         this.life--;
+        this.waitHit = true;
+        setTimeout(() => {
+            this.waitHit = false;
+        }, 1000);
 
         if (this.life <= 0) {
             // The color becomes darker and darker

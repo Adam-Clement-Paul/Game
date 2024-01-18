@@ -112,6 +112,7 @@ export class Firefighter extends Player {
                     if (clipF.name === 'Axe') {
                         actionF.setEffectiveTimeScale(1.4);
                         actionB.setEffectiveTimeScale(1.4);
+                        // console.log(this.actionsFirefighter['Axe']._clip.duration); // 1.75
                     }
                 }
             }
