@@ -1,7 +1,8 @@
-import {camera, controls, renderer, scene, stats, loadingManager} from './script_modules/init3DScene.js';
-import {qrcode} from "./qrcode";
-import {Game} from './class/Game.js';
-import {checkCookie} from './checkCookie.js';
+import { camera, controls, renderer, scene, stats, loadingManager } from './script_modules/init3DScene.js';
+import { qrcode } from "./qrcode";
+import { Game } from './class/Game.js';
+import { checkCookie } from './checkCookie.js';
+import nipplejs from 'nipplejs';
 
 
 // Get the game ID from the URL
@@ -10,7 +11,7 @@ const socket = connectToWebsocket(gameId);
 let game, inGame;
 qrcode(gameId);
 
-async function getGame (socket) {
+async function getGame(socket) {
     await fetch(`/${gameId}`, {
         method: 'GET',
         headers: {
@@ -42,7 +43,7 @@ async function getGame (socket) {
 
 animate();
 
-function animate () {
+function animate() {
     if (inGame === null && game) {
         game.updatePlayground();
     }
@@ -80,7 +81,7 @@ function animate () {
     requestAnimationFrame(animate);
 }
 
-async function connectToWebsocket (gameId) {
+async function connectToWebsocket(gameId) {
     const sessionId = await checkCookie(gameId);
     // Initialize the WebSocket connection
     const socket = new WebSocket(`ws://${import.meta.env.VITE_HOST}/websocket/${gameId}/${sessionId}`);
@@ -141,3 +142,58 @@ loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
 loadingManager.onLoad = () => {
     document.getElementById('loaderDiv').style.display = 'none';
 };
+
+const options = {
+    zone: document.querySelector('.joystickDiv'),
+    mode: 'static',
+    position: { left: '50%', top: '50%' },
+    color: 'red',
+    shape: 'circle',
+    threshold: 0.5,
+};
+const manager = nipplejs.create(options);
+
+// listen to all directions 'up', 'down', 'left', 'right'
+manager.on('dir', (evt, data) => {
+    sendJoystickAngle(data.direction.angle);
+});
+
+manager.on('end', () => {
+    sendJoystickAngle('none');
+});
+
+let keys = [
+    'z',
+    's',
+    'q',
+    'd',
+];
+function sendJoystickAngle(angle){
+
+    if(angle === 'up') {
+        console.log('up');
+        keys.forEach(key => {
+            key == "z" ? document.dispatchEvent(new KeyboardEvent('keydown', {key: key})) : document.dispatchEvent(new KeyboardEvent('keyup', {key: key}));
+        });
+    }else if(angle === 'down') {
+        console.log('down');
+        keys.forEach(key => {
+            key == "s" ? document.dispatchEvent(new KeyboardEvent('keydown', {key: key})) : document.dispatchEvent(new KeyboardEvent('keyup', {key: key}));
+        });
+    }else if(angle === 'left') {
+        console.log('left');
+        keys.forEach(key => {
+            key == "q" ? document.dispatchEvent(new KeyboardEvent('keydown', {key: key})) : document.dispatchEvent(new KeyboardEvent('keyup', {key: key}));
+        });
+    }else if(angle === 'right') {
+        console.log('right');
+        keys.forEach(key => {
+            key == "d" ? document.dispatchEvent(new KeyboardEvent('keydown', {key: key})) : document.dispatchEvent(new KeyboardEvent('keyup', {key: key}));
+        });
+    }else if(angle === 'none') {
+        console.log('none');
+        keys.forEach(key => {
+            document.dispatchEvent(new KeyboardEvent('keyup', {key: key}));
+        });
+    }
+}

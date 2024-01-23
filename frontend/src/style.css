@@ -333,3 +333,11 @@ button:not(#qrButton):hover {
         margin: 20px 0;
     }
 }
+
+.joystickDiv{
+    position: absolute;
+    bottom: 10%;
+    left: 10%;
+    width: 200px;
+    height: 200px;
+}
