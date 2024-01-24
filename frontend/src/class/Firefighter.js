@@ -231,7 +231,7 @@ export class Firefighter extends Player {
         const options = {
             zone: document.querySelector('.joystickDiv'),
             mode: 'static',
-            position: { left: '50%', top: '50%' },
+            position: { left: '100px', bottom: '100px' },
             color: 'white',
             shape: 'circle',
             threshold: 0.3,
