@@ -105,6 +105,7 @@ async function connectToWebsocket(gameId) {
                     game.removePlayer(data.playerId);
                     break;
                 case 'startGame':
+                    document.documentElement.requestFullscreen();
                     game.goToGame();
                     break;
                 case 'updateTiles':

@@ -232,13 +232,13 @@ export class Firefighter extends Player {
             zone: document.querySelector('.joystickDiv'),
             mode: 'static',
             position: { left: '50%', top: '50%' },
-            color: 'red',
+            color: 'white',
             shape: 'circle',
-            threshold: 0.5,
+            threshold: 0.3,
         };
-        const manager = nipplejs.create(options);
+        this.manager = nipplejs.create(options);
 
-        manager.on('move', (evt, data) => {
+        this.manager.on('move', (evt, data) => {
             this.rotation = data.angle.radian - Math.PI / 2;
             this.velocity.set(this.speed * data.distance / 50 * Math.sin(this.rotation),
                 this.speed * data.distance / 50 * Math.cos(this.rotation));
@@ -247,10 +247,14 @@ export class Firefighter extends Player {
             this.fadeToAction('Walk', 0.1);
         });
 
-        manager.on('end', () => {
+        this.manager.on('end', () => {
             this.velocity.set(0, 0);
             this.fadeToAction('Idle', 0.5);
         });
+    }
+
+    deleteJoystickForMobile () {
+        this.manager.destroy();
     }
 
     onDocumentKeyDown (event) {
@@ -448,6 +452,7 @@ export class Firefighter extends Player {
         for (const key in this.keys) {
             this.keys[key] = false;
         }
+        this.deleteJoystickForMobile();
 
         document.removeEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.removeEventListener('keyup', this.onDocumentKeyUp.bind(this), false);

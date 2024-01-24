@@ -21,6 +21,7 @@ let size = {
     width: window.innerWidth,
     height: window.innerHeight,
 }
+let phone = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 // CAMERA
 camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 80) // 0.1 - 20 / 10 - 80
@@ -35,6 +36,11 @@ renderer = new THREE.WebGLRenderer({
     alpha: true
 });
 renderer.setSize(size.width, size.height);
+renderer.setPixelRatio(window.devicePixelRatio);
+
+if (phone) {
+    renderer.setPixelRatio(window.devicePixelRatio / 2);
+}
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
@@ -67,6 +73,11 @@ function windowResize () {
     camera.aspect = size.width / size.height;
     camera.updateProjectionMatrix();
     renderer.setSize(size.width, size.height);
+    if (phone) {
+        renderer.setPixelRatio(window.devicePixelRatio / 2);
+    } else {
+        renderer.setPixelRatio(window.devicePixelRatio);
+    }
 }
 
 window.addEventListener('resize', windowResize, false);
