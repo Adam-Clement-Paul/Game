@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import nipplejs from 'nipplejs';
 
 import {scene} from '../script_modules/init3DScene.js';
 import * as UTILS from '../script_modules/utils.js';
@@ -216,6 +217,7 @@ export class Firefighter extends Player {
 
     setActive () {
         this.active = true;
+        this.addJoystickForMobile();
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
@@ -223,6 +225,32 @@ export class Firefighter extends Player {
 
         this.startUpdating(60);
         this.sendPosition('move');
+    }
+
+    addJoystickForMobile () {
+        const options = {
+            zone: document.querySelector('.joystickDiv'),
+            mode: 'static',
+            position: { left: '50%', top: '50%' },
+            color: 'red',
+            shape: 'circle',
+            threshold: 0.5,
+        };
+        const manager = nipplejs.create(options);
+
+        manager.on('move', (evt, data) => {
+            this.rotation = data.angle.radian - Math.PI / 2;
+            this.velocity.set(this.speed * data.distance / 50 * Math.sin(this.rotation),
+                this.speed * data.distance / 50 * Math.cos(this.rotation));
+            this.actionsFirefighter['Walk'].setEffectiveTimeScale(data.distance / 50 * 1.3);
+            this.actionsBackpack['Walk'].setEffectiveTimeScale(data.distance / 50 * 1.3);
+            this.fadeToAction('Walk', 0.1);
+        });
+
+        manager.on('end', () => {
+            this.velocity.set(0, 0);
+            this.fadeToAction('Idle', 0.5);
+        });
     }
 
     onDocumentKeyDown (event) {
@@ -372,8 +400,10 @@ export class Firefighter extends Player {
 
             this.model.rotation.y = this.rotation;
 
-            this.rotationWithInertia();
-            this.movementsWithInertia();
+            if (true) {
+                this.rotationWithInertia();
+            }
+                this.movementsWithInertia();
 
             this.cameraMovements(this.x, this.y, 0.8);
         }
