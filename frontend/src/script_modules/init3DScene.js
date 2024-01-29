@@ -8,7 +8,7 @@ THREE.Cache.enabled = true;
 let scene, camera, renderer, controls, stats, loadingManager;
 
 stats = new Stats()
-// document.body.appendChild(stats.dom)
+document.body.appendChild(stats.dom)
 
 loadingManager = new THREE.LoadingManager();
 
@@ -39,7 +39,7 @@ renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(window.devicePixelRatio);
 
 if (phone) {
-    renderer.setPixelRatio(window.devicePixelRatio / 2);
+    renderer.setPixelRatio(window.devicePixelRatio / 5);
 }
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -74,7 +74,7 @@ function windowResize () {
     camera.updateProjectionMatrix();
     renderer.setSize(size.width, size.height);
     if (phone) {
-        renderer.setPixelRatio(window.devicePixelRatio / 2);
+        renderer.setPixelRatio(window.devicePixelRatio / 5);
     } else {
         renderer.setPixelRatio(window.devicePixelRatio);
     }

@@ -218,11 +218,12 @@ export class Firefighter extends Player {
     setActive () {
         this.active = true;
         this.addJoystickForMobile();
+        /*
         document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
         document.addEventListener('click', this.onDocumentClickExtinguishFire.bind(this), false);
         document.addEventListener('contextmenu', this.onDocumentRightClick.bind(this), false);
-
+         */
         this.startUpdating(60);
         this.sendPosition('move');
     }
@@ -250,6 +251,29 @@ export class Firefighter extends Player {
         this.manager.on('end', () => {
             this.velocity.set(0, 0);
             this.fadeToAction('Idle', 0.5);
+        });
+
+        const mobileSvgDiv = document.getElementById('mobileSvgAxeHose');
+        mobileSvgDiv.style.display = 'flex';
+        const axeSvg = document.getElementById('axeSvg');
+        const firehoseSvg = document.getElementById('firehoseSvg');
+
+        axeSvg.addEventListener('touchstart', () => {
+            axeSvg.children[0].style.opacity = 0.5;
+        });
+
+        firehoseSvg.addEventListener('touchstart', () => {
+            firehoseSvg.children[0].style.opacity = 0.5;
+        });
+
+        axeSvg.addEventListener('touchend', () => {
+            axeSvg.children[0].style.opacity = 0.7;
+            this.onDocumentRightClick();
+        });
+
+        firehoseSvg.addEventListener('touchend', () => {
+            firehoseSvg.children[0].style.opacity = 0.7;
+            this.onDocumentClickExtinguishFire();
         });
     }
 

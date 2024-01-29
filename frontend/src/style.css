@@ -347,15 +347,15 @@ button:not(#qrButton):hover {
     margin-left: 50px;
 }
 
-#mobileSvgAxeHose {
-    padding: 10% 0 10px 0;
-    display: flex;
+#mobileSvgAxeHose, #mobileSvgFowardBackward {
+    padding: 10px 0 10px 0;
+    display: none; /* flex */
     justify-content: end;
     width: 100%;
     height: 100%;
 }
 
-#mobileSvgAxeHose > svg {
+#mobileSvgAxeHose > svg, #mobileSvgFowardBackward > svg {
     width: 50%;
 }
 
